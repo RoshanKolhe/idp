@@ -47,11 +47,6 @@ export class User extends Entity {
   @property({
     type: 'string',
   })
-  employeeId: string;
-
-  @property({
-    type: 'string',
-  })
   password: string;
 
   @property({

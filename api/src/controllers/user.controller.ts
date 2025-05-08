@@ -81,7 +81,7 @@ export class UserController {
       validateCredentials(userData);
       const user = await this.userRepository.findOne({
         where: {
-          or: [{email: userData.email}, {employeeId: userData.employeeId}],
+          or: [{email: userData.email}],
         },
       });
       console.log(user);

@@ -3,14 +3,9 @@ import { useEffect, useReducer, useCallback, useMemo } from 'react';
 // utils
 import axios, { endpoints } from 'src/utils/axios';
 //
+import { PERMISSION_KEY } from 'src/utils/constants';
 import { AuthContext } from './auth-context';
 import { isValidToken, setSession } from './utils';
-
-// ----------------------------------------------------------------------
-
-// NOTE:
-// We only build demo at basic level.
-// Customer will need to do some extra handling yourself if you want to extend the logic and other features...
 
 // ----------------------------------------------------------------------
 
@@ -63,7 +58,7 @@ export function AuthProvider({ children }) {
 
         const response = await axios.get(endpoints.auth.me);
 
-        const { user } = response.data;
+        const user = response.data;
 
         dispatch({
           type: 'INITIAL',
@@ -104,8 +99,11 @@ export function AuthProvider({ children }) {
     const response = await axios.post(endpoints.auth.login, data);
 
     const { accessToken, user } = response.data;
-
-    setSession(accessToken);
+    console.log(user);
+    if (user && (user.permissions.includes('super_admin') || user.permissions.includes('admin'))) {
+      setSession(accessToken);
+      sessionStorage.setItem(PERMISSION_KEY, user.permissions[0]);
+    } else throw new Error("User Doesn't have permission");
 
     dispatch({
       type: 'LOGIN',

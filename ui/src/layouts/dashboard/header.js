@@ -67,7 +67,7 @@ export default function Header({ onOpenNav }) {
 
         <ContactsPopover />
 
-        <SettingsButton />
+        {/* <SettingsButton /> */}
 
         <AccountPopover />
       </Stack>

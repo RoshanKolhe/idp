@@ -18,7 +18,7 @@ export class MyUserService implements UserService<User, Credentials> {
   async verifyCredentials(credentials: Credentials): Promise<User> {
     const getUser = await this.userRepository.findOne({
       where: {
-        or: [{email: credentials.email}, {employeeId: credentials.employeeId}],
+        or: [{email: credentials.email}],
       },
     });
     if (!getUser) {
