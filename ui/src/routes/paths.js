@@ -62,6 +62,7 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
+    profile: `${ROOTS.DASHBOARD}/profile`,
     mail: `${ROOTS.DASHBOARD}/mail`,
     chat: `${ROOTS.DASHBOARD}/chat`,
     blank: `${ROOTS.DASHBOARD}/blank`,
@@ -76,6 +77,15 @@ export const paths = {
       banking: `${ROOTS.DASHBOARD}/banking`,
       booking: `${ROOTS.DASHBOARD}/booking`,
       file: `${ROOTS.DASHBOARD}/file`,
+    },
+    // PROCESS TYPE
+    processType: {
+      root: `${ROOTS.DASHBOARD}/processType`,
+      new: `${ROOTS.DASHBOARD}/processType/new`,
+      list: `${ROOTS.DASHBOARD}/processType/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/processType/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/processType/${id}/view`,
+      plan: (id) => `${ROOTS.DASHBOARD}/processType/${id}/maintainance-plan`,
     },
     user: {
       root: `${ROOTS.DASHBOARD}/user`,

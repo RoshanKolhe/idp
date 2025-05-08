@@ -59,23 +59,28 @@ export function useNavData() {
         items: [{ title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard }],
       },
 
-      // MANAGEMENT
+      // SETTINGS
       // ----------------------------------------------------------------------
       {
-        subheader: t('management'),
+        subheader: t('settings'),
         items: [
-          // USER
+          // PROCESS TYPE
           {
-            title: t('user'),
-            path: paths.dashboard.user.root,
-            icon: ICONS.user,
+            title: t('Process Types'),
+            path: paths.dashboard.processType.root,
+            icon: ICONS.processType,
+            roles: ['admin'],
             children: [
-              { title: t('profile'), path: paths.dashboard.user.root },
-              { title: t('cards'), path: paths.dashboard.user.cards },
-              { title: t('list'), path: paths.dashboard.user.list },
-              { title: t('create'), path: paths.dashboard.user.new },
-              { title: t('edit'), path: paths.dashboard.user.demo.edit },
-              { title: t('account'), path: paths.dashboard.user.account },
+              {
+                title: t('list'),
+                path: paths.dashboard.processType.list,
+                roles: ['admin'],
+              },
+              {
+                title: t('create'),
+                path: paths.dashboard.processType.new,
+                roles: ['admin'],
+              },
             ],
           },
         ],

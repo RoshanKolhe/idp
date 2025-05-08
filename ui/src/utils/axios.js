@@ -34,6 +34,11 @@ export const endpoints = {
     login: '/login',
     register: '/register',
   },
+  processType: {
+    list: '/process-types',
+    filterList: (filter) => `/process-types?${filter}`,
+    details: (id) => `/process-types/${id}`,
+  },
   mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',

@@ -29,6 +29,11 @@ const InvoiceListPage = lazy(() => import('src/pages/dashboard/invoice/list'));
 const InvoiceDetailsPage = lazy(() => import('src/pages/dashboard/invoice/details'));
 const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
+// PROCESS TYPE
+const ProcessTypeListPage = lazy(() => import('src/pages/dashboard/processType/list'));
+const ProcessTypeCreatePage = lazy(() => import('src/pages/dashboard/processType/new'));
+const ProcessTypeEditPage = lazy(() => import('src/pages/dashboard/processType/edit'));
+const ProcessTypeViewPage = lazy(() => import('src/pages/dashboard/processType/view'));
 // USER
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
@@ -79,11 +84,22 @@ export const dashboardRoutes = [
     ),
     children: [
       { element: <IndexPage />, index: true },
+      { path: 'profile', element: <UserAccountPage /> },
       { path: 'ecommerce', element: <OverviewEcommercePage /> },
       { path: 'analytics', element: <OverviewAnalyticsPage /> },
       { path: 'banking', element: <OverviewBankingPage /> },
       { path: 'booking', element: <OverviewBookingPage /> },
       { path: 'file', element: <OverviewFilePage /> },
+      {
+        path: 'processType',
+        children: [
+          { element: <ProcessTypeListPage />, index: true },
+          { path: 'list', element: <ProcessTypeListPage /> },
+          { path: 'new', element: <ProcessTypeCreatePage /> },
+          { path: ':id/edit', element: <ProcessTypeEditPage /> },
+          { path: ':id/view', element: <ProcessTypeViewPage /> },
+        ],
+      },
       {
         path: 'user',
         children: [

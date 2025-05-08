@@ -45,6 +45,7 @@ export default function NavVertical({ openNav, onCloseNav }) {
           display: 'flex',
           flexDirection: 'column',
         },
+
       }}
     >
       <Logo sx={{ mt: 3, ml: 4, mb: 1 }} />
@@ -67,6 +68,7 @@ export default function NavVertical({ openNav, onCloseNav }) {
       sx={{
         flexShrink: { lg: 0 },
         width: { lg: NAV.W_VERTICAL },
+        backgroundColor:'#000'
       }}
     >
       <NavToggleButton />

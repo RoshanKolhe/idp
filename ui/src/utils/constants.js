@@ -375,8 +375,8 @@ export const INQUIRY_STATUS_OPTIONS = [
 ];
 
 export const COMMON_STATUS_OPTIONS = [
-  { value: 1, label: 'Active' },
-  { value: 0, label: 'In-Active' },
+  { value: '1', label: 'Active' },
+  { value: '0', label: 'In-Active' },
 ];
 
 export const RFQ_STATUS_OPTIONS = [
