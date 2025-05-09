@@ -14,14 +14,15 @@ import Scrollbar from 'src/components/scrollbar';
 import { usePathname } from 'src/routes/hook';
 import { NavSectionVertical } from 'src/components/nav-section';
 //
+import { useAuthContext } from 'src/auth/hooks';
 import { NAV } from '../config-layout';
 import { useNavData } from './config-navigation';
-import { NavToggleButton, NavUpgrade } from '../_common';
+import { NavToggleButton } from '../_common';
 
 // ----------------------------------------------------------------------
 
 export default function NavVertical({ openNav, onCloseNav }) {
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
   const pathname = usePathname();
 
@@ -45,7 +46,6 @@ export default function NavVertical({ openNav, onCloseNav }) {
           display: 'flex',
           flexDirection: 'column',
         },
-
       }}
     >
       <Logo sx={{ mt: 3, ml: 4, mb: 1 }} />
@@ -53,12 +53,11 @@ export default function NavVertical({ openNav, onCloseNav }) {
       <NavSectionVertical
         data={navData}
         config={{
-          currentRole: user?.role || 'admin',
+          currentRole: user?.permissions[0],
         }}
       />
 
       <Box sx={{ flexGrow: 1 }} />
-
     </Scrollbar>
   );
 
@@ -68,7 +67,7 @@ export default function NavVertical({ openNav, onCloseNav }) {
       sx={{
         flexShrink: { lg: 0 },
         width: { lg: NAV.W_VERTICAL },
-        backgroundColor:'#000'
+        backgroundColor: '#000',
       }}
     >
       <NavToggleButton />

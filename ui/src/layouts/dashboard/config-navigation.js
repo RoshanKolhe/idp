@@ -20,6 +20,7 @@ const icon = (name) => (
 
 const ICONS = {
   job: icon('ic_job'),
+  settings: icon('ic_settings'),
   blog: icon('ic_blog'),
   chat: icon('ic_chat'),
   mail: icon('ic_mail'),
@@ -56,35 +57,55 @@ export function useNavData() {
       // ----------------------------------------------------------------------
       {
         subheader: t('overview'),
-        items: [{ title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard }],
-      },
-
-      // SETTINGS
-      // ----------------------------------------------------------------------
-      {
-        subheader: t('settings'),
         items: [
-          // PROCESS TYPE
+          { title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard },
           {
-            title: t('Process Types'),
+            title: t('Settings'),
             path: paths.dashboard.processType.root,
-            icon: ICONS.processType,
-            roles: ['admin'],
+            icon: ICONS.settings,
+            roles: ['super_admin'],
             children: [
               {
-                title: t('list'),
+                title: t('Process Types'),
                 path: paths.dashboard.processType.list,
-                roles: ['admin'],
+                roles: ['super_admin'],
               },
               {
                 title: t('create'),
                 path: paths.dashboard.processType.new,
-                roles: ['admin'],
+                roles: ['super_admin'],
               },
             ],
           },
         ],
       },
+
+      // SETTINGS
+      // ----------------------------------------------------------------------
+      // {
+      //   subheader: t('settings'),
+      //   items: [
+      //     // PROCESS TYPE
+      //     {
+      //       title: t('Process Types'),
+      //       path: paths.dashboard.processType.root,
+      //       icon: ICONS.processType,
+      //       roles: ['admin'],
+      //       children: [
+      //         {
+      //           title: t('list'),
+      //           path: paths.dashboard.processType.list,
+      //           roles: ['admin'],
+      //         },
+      //         {
+      //           title: t('create'),
+      //           path: paths.dashboard.processType.new,
+      //           roles: ['admin'],
+      //         },
+      //       ],
+      //     },
+      //   ],
+      // },
     ],
     [t]
   );

@@ -5,6 +5,7 @@ import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 //
 import Logo from '../logo';
+import MiniLogo from '../logo/mini-logo';
 
 // ----------------------------------------------------------------------
 
@@ -39,7 +40,7 @@ export default function SplashScreen({ sx, ...other }) {
             repeat: Infinity,
           }}
         >
-          <Logo disabledLink sx={{ width: 64, height: 64 }} />
+          <MiniLogo disabledLink sx={{ width: 64, height: 64 }} />
         </m.div>
 
         <Box

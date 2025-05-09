@@ -10,9 +10,9 @@ import { LoadingScreen } from 'src/components/loading-screen';
 // ----------------------------------------------------------------------
 
 // OVERVIEW
-const IndexPage = lazy(() => import('src/pages/dashboard/app'));
+const IndexPage = lazy(() => import('src/pages/dashboard/analytics'));
 const OverviewEcommercePage = lazy(() => import('src/pages/dashboard/ecommerce'));
-const OverviewAnalyticsPage = lazy(() => import('src/pages/dashboard/analytics'));
+const OverviewAnalyticsPage = lazy(() => import('src/pages/dashboard/app'));
 const OverviewBankingPage = lazy(() => import('src/pages/dashboard/banking'));
 const OverviewBookingPage = lazy(() => import('src/pages/dashboard/booking'));
 const OverviewFilePage = lazy(() => import('src/pages/dashboard/file'));

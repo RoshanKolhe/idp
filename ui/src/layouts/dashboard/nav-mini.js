@@ -3,12 +3,11 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 // theme
 import { hideScroll } from 'src/theme/css';
-// hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
 // components
-import Logo from 'src/components/logo';
 import { NavSectionMini } from 'src/components/nav-section';
 //
+import { useAuthContext } from 'src/auth/hooks';
+import MiniLogo from 'src/components/logo/mini-logo';
 import { NAV } from '../config-layout';
 import { useNavData } from './config-navigation';
 import { NavToggleButton } from '../_common';
@@ -16,7 +15,7 @@ import { NavToggleButton } from '../_common';
 // ----------------------------------------------------------------------
 
 export default function NavMini() {
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
   const navData = useNavData();
 
@@ -26,6 +25,7 @@ export default function NavMini() {
       sx={{
         flexShrink: { lg: 0 },
         width: { lg: NAV.W_MINI },
+        backgroundColor: '#000',
       }}
     >
       <NavToggleButton
@@ -45,12 +45,12 @@ export default function NavMini() {
           ...hideScroll.x,
         }}
       >
-        <Logo sx={{ mx: 'auto', my: 2 }} />
+        <MiniLogo sx={{ mx: 'auto', my: 2 }} />
 
         <NavSectionMini
           data={navData}
           config={{
-            currentRole: user?.role || 'admin',
+            currentRole: user?.permissions[0],
           }}
         />
       </Stack>
