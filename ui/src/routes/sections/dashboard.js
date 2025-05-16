@@ -34,6 +34,11 @@ const ProcessTypeListPage = lazy(() => import('src/pages/dashboard/processType/l
 const ProcessTypeCreatePage = lazy(() => import('src/pages/dashboard/processType/new'));
 const ProcessTypeEditPage = lazy(() => import('src/pages/dashboard/processType/edit'));
 const ProcessTypeViewPage = lazy(() => import('src/pages/dashboard/processType/view'));
+// FILE TYPE
+const FileTypeListPage = lazy(() => import('src/pages/dashboard/fileType/list'));
+const FileTypeCreatePage = lazy(() => import('src/pages/dashboard/fileType/new'));
+const FileTypeEditPage = lazy(() => import('src/pages/dashboard/fileType/edit'));
+const FileTypeViewPage = lazy(() => import('src/pages/dashboard/fileType/view'));
 // USER
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
@@ -98,6 +103,16 @@ export const dashboardRoutes = [
           { path: 'new', element: <ProcessTypeCreatePage /> },
           { path: ':id/edit', element: <ProcessTypeEditPage /> },
           { path: ':id/view', element: <ProcessTypeViewPage /> },
+        ],
+      },
+      {
+        path: 'fileType',
+        children: [
+          { element: <FileTypeListPage />, index: true },
+          { path: 'list', element: <FileTypeListPage /> },
+          { path: 'new', element: <FileTypeCreatePage /> },
+          { path: ':id/edit', element: <FileTypeEditPage /> },
+          { path: ':id/view', element: <FileTypeViewPage /> },
         ],
       },
       {

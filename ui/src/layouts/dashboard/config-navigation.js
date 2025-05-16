@@ -61,7 +61,7 @@ export function useNavData() {
           { title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard },
           {
             title: t('Settings'),
-            path: paths.dashboard.processType.root,
+            path: paths.dashboard.processType.list,
             icon: ICONS.settings,
             roles: ['super_admin'],
             children: [
@@ -71,8 +71,8 @@ export function useNavData() {
                 roles: ['super_admin'],
               },
               {
-                title: t('create'),
-                path: paths.dashboard.processType.new,
+                title: t('File Types'),
+                path: paths.dashboard.fileType.list,
                 roles: ['super_admin'],
               },
             ],

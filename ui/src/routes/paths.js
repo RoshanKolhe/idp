@@ -85,7 +85,13 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/processType/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/processType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/processType/${id}/view`,
-      plan: (id) => `${ROOTS.DASHBOARD}/processType/${id}/maintainance-plan`,
+    },
+    fileType: {
+      root: `${ROOTS.DASHBOARD}/fileType`,
+      new: `${ROOTS.DASHBOARD}/fileType/new`,
+      list: `${ROOTS.DASHBOARD}/fileType/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/view`,
     },
     user: {
       root: `${ROOTS.DASHBOARD}/user`,

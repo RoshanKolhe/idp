@@ -39,6 +39,11 @@ export const endpoints = {
     filterList: (filter) => `/process-types?${filter}`,
     details: (id) => `/process-types/${id}`,
   },
+  fileType: {
+    list: '/file-types',
+    filterList: (filter) => `/file-types?${filter}`,
+    details: (id) => `/file-types/${id}`,
+  },
   mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',

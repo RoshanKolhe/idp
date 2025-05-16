@@ -16,6 +16,11 @@ export class FileType extends Entity {
   fileType: string;
 
   @property({
+    type: 'string',
+  })
+  description?: string;
+
+  @property({
     type: 'date',
   })
   createdAt?: Date;
