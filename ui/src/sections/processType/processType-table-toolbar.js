@@ -22,6 +22,7 @@ export default function ProcessTypeTableToolbar({ filters, onFilters }) {
 
   const handleFilterName = useCallback(
     (event) => {
+      
       onFilters('name', event.target.value);
     },
     [onFilters]

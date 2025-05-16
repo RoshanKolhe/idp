@@ -40,7 +40,7 @@ export default function HeaderSimple() {
   const offsetTop = useOffSetTop(HEADER.H_DESKTOP);
 
   return (
-    <AppBar sx={{backgroundColor:'#000'}}>
+    <AppBar>
       <Toolbar
         sx={{
           justifyContent: 'space-between',
@@ -71,7 +71,6 @@ export default function HeaderSimple() {
             href="#"
             onClick={handleOpen}
             component={RouterLink}
-            color="#fff"
             sx={{ typography: 'subtitle2' }}
           >
             Need help?

@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import isEqual from 'lodash/isEqual';
 import { useState, useCallback, useEffect } from 'react';
 // @mui
@@ -20,12 +21,10 @@ import { RouterLink } from 'src/routes/components';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
@@ -38,14 +37,13 @@ import {
 } from 'src/components/table';
 //
 import { useGetProcessTypes } from 'src/api/processType';
-import { _roles, COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import ProcessTypeTableToolbar from '../processType-table-toolbar';
-import ProcessTypeTableFiltersResult from '../processType-table-filters-result';
+import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
+import { Box, Grid, Typography } from '@mui/material';
+import TableViewToggleSwitch from 'src/components/table/table-view-toggle-switch';
 import ProcessTypeTableRow from '../processType-table-row';
+import ProcessTypeTableGrid from '../processType-table-grid';
 
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...COMMON_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'processType', label: 'Process Type', width: 180 },
@@ -65,6 +63,7 @@ const defaultFilters = {
 
 export default function ProcessTypeListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
+  const [view, setView] = useState('grid');
 
   const settings = useSettingsContext();
 
@@ -149,8 +148,9 @@ export default function ProcessTypeListView() {
     [handleFilters]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
+  const handleViewChange = useCallback(() => {
+    console.log('here');
+    // setFilters(defaultFilters);
   }, []);
 
   useEffect(() => {
@@ -162,163 +162,144 @@ export default function ProcessTypeListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <CustomBreadcrumbs
-          heading="List"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Process Type', href: paths.dashboard.processType.root },
-            { name: 'List' },
-          ]}
-          action={
+        <Box
+          sx={{
+            mb: 2,
+            px: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          {/* Left Side: Heading */}
+          <Typography variant="h6" component="div">
+            Process Types
+          </Typography>
+
+          {/* Right Side: Icons + Create Button */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <TableViewToggleSwitch view={view} setView={setView} />
+
             <Button
+              variant="contained"
+              startIcon={<Iconify icon="eva:plus-fill" />}
               component={RouterLink}
               href={paths.dashboard.processType.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                borderRadius: '30px',
+                backgroundColor: '#4182EB',
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3,
+                height: 40,
+                '&:hover': {
+                  backgroundColor: '#3069c6',
+                },
+              }}
             >
-              New Process Type
+              Create
             </Button>
-          }
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        />
-
-        <Card>
-          <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === '1' && 'success') ||
-                      (tab.value === '0' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {tab.value === 'all' && tableData.length}
-                    {tab.value === '1' &&
-                      tableData.filter((processType) => processType.isActive).length}
-
-                    {tab.value === '0' &&
-                      tableData.filter((processType) => !processType.isActive).length}
-                  </Label>
+          </Box>
+        </Box>
+        {view === 'list' ? (
+          <Card>
+            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+              <TableSelectedAction
+                dense={table.dense}
+                numSelected={table.selected.length}
+                rowCount={tableData.length}
+                onSelectAllRows={(checked) =>
+                  table.onSelectAllRows(
+                    checked,
+                    tableData.map((row) => row.id)
+                  )
+                }
+                action={
+                  <Tooltip title="Delete">
+                    <IconButton color="primary" onClick={confirm.onTrue}>
+                      <Iconify icon="solar:trash-bin-trash-bold" />
+                    </IconButton>
+                  </Tooltip>
                 }
               />
-            ))}
-          </Tabs>
 
-          <ProcessTypeTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            //
-            roleOptions={_roles}
-          />
-
-          {canReset && (
-            <ProcessTypeTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              //
-              onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                  showCheckbox={false}
-                />
-
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <ProcessTypeTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+              <Scrollbar>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={tableData.length}
+                    numSelected={table.selected.length}
+                    onSort={table.onSort}
+                    onSelectAllRows={(checked) =>
+                      table.onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.id)
+                      )
+                    }
+                    showCheckbox={false}
                   />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
+                  <TableBody>
+                    {dataFiltered
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <ProcessTypeTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          onViewRow={() => handleViewRow(row.id)}
+                        />
+                      ))}
 
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
-          />
-        </Card>
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            </TableContainer>
+
+            <TablePaginationCustom
+              count={dataFiltered.length}
+              page={table.page}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+              //
+              dense={table.dense}
+              onChangeDense={table.onChangeDense}
+            />
+          </Card>
+        ) : view === 'grid' ? (
+          <Grid container spacing={2}>
+            {dataFiltered
+              .slice(
+                table.page * table.rowsPerPage,
+                table.page * table.rowsPerPage + table.rowsPerPage
+              )
+              .map((row) => (
+                <Grid item xs={12} sm={6} md={4} key={row.id}>
+                  <ProcessTypeTableGrid
+                    row={row}
+                    onDeleteRow={() => handleDeleteRow(row.id)}
+                    onEditRow={() => handleEditRow(row.id)}
+                    onViewRow={() => handleViewRow(row.id)}
+                  />
+                </Grid>
+              ))}
+          </Grid>
+        ) : null}
       </Container>
 
       <ConfirmDialog

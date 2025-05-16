@@ -52,7 +52,12 @@ export default function TableHeadCustom({
             key={headCell.id}
             align={headCell.align || 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
-            sx={{ width: headCell.width, minWidth: headCell.minWidth }}
+            sx={{
+              width: headCell.width,
+              minWidth: headCell.minWidth,
+              backgroundColor: 'rgba(65, 130, 235, 0.05)',
+              color: '#4182EB',
+            }}
           >
             {onSort ? (
               <TableSortLabel
@@ -60,6 +65,15 @@ export default function TableHeadCustom({
                 active={orderBy === headCell.id}
                 direction={orderBy === headCell.id ? order : 'asc'}
                 onClick={() => onSort(headCell.id)}
+                sx={{
+                  color: orderBy === headCell.id ? '#4182EB' : 'inherit',
+                  '&:hover': {
+                    color: '#4182EB',
+                  },
+                  '&.Mui-active': {
+                    color: '#4182EB',
+                  },
+                }}
               >
                 {headCell.label}
 

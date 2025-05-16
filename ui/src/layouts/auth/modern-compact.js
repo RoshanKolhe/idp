@@ -31,7 +31,6 @@ export default function AuthModernCompactLayout({ children }) {
             opacity: 0.24,
             position: 'absolute',
           },
-          backgroundColor: '#000',
         }}
       >
         {children}
