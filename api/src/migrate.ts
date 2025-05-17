@@ -8,7 +8,7 @@ export async function migrate(args: string[]) {
   await app.boot();
   await app.migrateSchema({
     existingSchema,
-    models: ['User', 'ProcessType', 'FileType'],
+    models: ['User', 'ProcessType', 'FileType', 'Processes'],
   });
   // Connectors usually keep a pool of opened connections,
   // this keeps the process running even after all work is done.

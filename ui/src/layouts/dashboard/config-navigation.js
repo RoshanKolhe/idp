@@ -59,6 +59,7 @@ export function useNavData() {
         subheader: t('overview'),
         items: [
           { title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard },
+          { title: t('Processes'), path: paths.dashboard.processes.root, icon: ICONS.dashboard },
           {
             title: t('Settings'),
             path: paths.dashboard.processType.list,

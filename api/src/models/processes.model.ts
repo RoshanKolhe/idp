@@ -1,8 +1,8 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
-import {Processes} from './processes.model';
+import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {ProcessType} from './process-type.model';
 
 @model()
-export class ProcessType extends Entity {
+export class Processes extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -14,7 +14,7 @@ export class ProcessType extends Entity {
     type: 'string',
     required: true,
   })
-  processType: string;
+  name: string;
 
   @property({
     type: 'string',
@@ -53,16 +53,16 @@ export class ProcessType extends Entity {
   })
   remark?: string;
 
-  @hasMany(() => Processes)
-  processes: Processes[];
+  @belongsTo(() => ProcessType)
+  processTypeId: number;
 
-  constructor(data?: Partial<ProcessType>) {
+  constructor(data?: Partial<Processes>) {
     super(data);
   }
 }
 
-export interface ProcessTypeRelations {
+export interface ProcessesRelations {
   // describe navigational properties here
 }
 
-export type ProcessTypeWithRelations = ProcessType & ProcessTypeRelations;
+export type ProcessesWithRelations = Processes & ProcessesRelations;
