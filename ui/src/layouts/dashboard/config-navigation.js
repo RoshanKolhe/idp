@@ -44,6 +44,7 @@ const ICONS = {
   ecommerce: icon('ic_ecommerce'),
   analytics: icon('ic_analytics'),
   dashboard: icon('ic_dashboard'),
+  processes: icon('ic_processes'),
 };
 
 // ----------------------------------------------------------------------
@@ -59,7 +60,7 @@ export function useNavData() {
         subheader: t('overview'),
         items: [
           { title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard },
-          { title: t('Processes'), path: paths.dashboard.processes.root, icon: ICONS.dashboard },
+          { title: t('Processes'), path: paths.dashboard.processes.root, icon: ICONS.processes },
           {
             title: t('Settings'),
             path: paths.dashboard.processType.list,

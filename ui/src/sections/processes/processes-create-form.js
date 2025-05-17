@@ -18,10 +18,13 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 import { IconButton, Typography } from '@mui/material';
 import { useGetProcessTypes } from 'src/api/processType';
 import axiosInstance from 'src/utils/axios';
+import { useRouter } from 'src/routes/hook';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
 export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
+  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const [processTypeOptions, setProcessTypeOptions] = useState([]);
 
@@ -70,6 +73,7 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
         await axiosInstance.patch(`/processes/${currentProcess.id}`, inputData);
       }
       reset();
+      router.push(paths.dashboard.processes.documentProcess)
       onClose();
       enqueueSnackbar('Process created successfully!');
     } catch (error) {
