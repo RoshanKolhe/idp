@@ -73,7 +73,7 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
         await axiosInstance.patch(`/processes/${currentProcess.id}`, inputData);
       }
       reset();
-      router.push(paths.dashboard.processes.documentProcess)
+      router.push(paths.dashboard.processes.reactFlow)
       onClose();
       enqueueSnackbar('Process created successfully!');
     } catch (error) {

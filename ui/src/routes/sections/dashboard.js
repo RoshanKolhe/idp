@@ -40,6 +40,8 @@ const ProcessesCreatePage = lazy(() => import('src/pages/dashboard/processes/new
 const ProcessesEditPage = lazy(() => import('src/pages/dashboard/processes/edit'));
 const ProcessesViewPage = lazy(() => import('src/pages/dashboard/processes/view'));
 const ProcessesDocumentProcessingPage = lazy(() => import('src/pages/dashboard/processes/document-process'));
+const ReactFlowPage = lazy(() => import('src/pages/dashboard/react-flow/board'));
+
 // FILE TYPE
 const FileTypeListPage = lazy(() => import('src/pages/dashboard/fileType/list'));
 const FileTypeCreatePage = lazy(() => import('src/pages/dashboard/fileType/new'));
@@ -119,7 +121,8 @@ export const dashboardRoutes = [
           { path: 'new', element: <ProcessesCreatePage /> },
           { path: ':id/edit', element: <ProcessesEditPage /> },
           { path: ':id/view', element: <ProcessesViewPage /> },
-          { path: 'document-process', element: <ProcessesDocumentProcessingPage />}
+          { path: 'document-process', element: <ProcessesDocumentProcessingPage />},
+          { path: 'react-flow', element: <ReactFlowPage />}
         ],
       },
       {

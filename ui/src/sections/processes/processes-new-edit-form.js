@@ -92,7 +92,7 @@ export default function ProcessesNewEditForm({ currentProcesses }) {
       }
       reset();
       enqueueSnackbar(currentProcesses ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.processes.documentProcess);
+      router.push(paths.dashboard.processes.reactFlow);
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {

@@ -93,6 +93,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/processes/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/processes/${id}/view`,
       documentProcess: `${ROOTS.DASHBOARD}/processes/document-process`,
+      reactFlow: `${ROOTS.DASHBOARD}/processes/react-flow`,
     },
     fileType: {
       root: `${ROOTS.DASHBOARD}/fileType`,
