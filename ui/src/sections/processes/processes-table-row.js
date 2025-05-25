@@ -31,7 +31,7 @@ export default function ProcessesTableRow({
   onDeleteRow,
 }) {
   const navigate = useNavigate();
-  const { processes, description, isActive, createdAt } = row;
+  const { name, description, isActive, createdAt } = row;
 
   const confirm = useBoolean();
 
@@ -44,7 +44,7 @@ export default function ProcessesTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processes}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{name}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
         <TableCell>

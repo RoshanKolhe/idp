@@ -47,7 +47,7 @@ import ProcessesCreateForm from '../processes-create-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'processes', label: 'Process Type', width: 180 },
+  { id: 'name', label: 'Process Name', width: 180 },
   { id: 'description', label: 'Description' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
