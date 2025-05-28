@@ -27,6 +27,12 @@ const operations = [
     icon: '/assets/icons/document-process/classify.svg',
     type: 'classify'
   },
+  {
+    id: 1,
+    title: 'Extract',
+    icon: '/assets/icons/document-process/extract.svg',
+    type: 'extract'
+  },
 ];
 
 export default function OperationSelectorModal({ onSelect, onClose, open }) {

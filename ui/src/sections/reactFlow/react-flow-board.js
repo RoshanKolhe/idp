@@ -14,12 +14,13 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
-import { ReactFlowClassify, ReactFlowIngestion } from './components';
+import { ReactFlowClassify, ReactFlowExtract, ReactFlowIngestion } from './components';
 
 const nodeTypes = {
   custom : ReactFlowCustomNodeStructure,
   ingestion : ReactFlowIngestion,
-  classify : ReactFlowClassify
+  classify : ReactFlowClassify,
+  extract : ReactFlowExtract,
 }
 
 const initialNodes = [
@@ -54,7 +55,13 @@ const initialNodes = [
 
 export default function ReactFlowBoard({isUnlock}) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([{
+    id: `e1-2`,
+    source: `1`,
+    target: `2`,
+    animated: true,
+    style: { stroke: 'black' },
+  }]);
   const [borderDirection, setBorderDirection] = useState('down');
   const [showModal, setShowModal] = useState(false);
   const [lastNodeId, setLastNodeId] = useState(2);
@@ -124,7 +131,7 @@ export default function ReactFlowBoard({isUnlock}) {
           borderLeft: '5px solid white',
         }
       },
-      position: { x: baseX + 150 * 2, y: baseY },
+      position: { x: baseX + 165 * 2, y: baseY },
     };
 
     const newEdge = {
@@ -143,13 +150,13 @@ export default function ReactFlowBoard({isUnlock}) {
     //   style: { stroke: 'black' },
     // };
 
-    // const addNewEdge = {
-    //   id: `e${newOpCompNodeId}-${newAddNodeId}`,
-    //   source: `${newOpCompNodeId}`,
-    //   target: `${newAddNodeId}`,
-    //   animated: true,
-    //   style: { stroke: 'black' },
-    // };
+    const addNewEdge = {
+      id: `e${newOpCompNodeId}-${newAddNodeId}`,
+      source: `${newOpCompNodeId}`,
+      target: `${newAddNodeId}`,
+      animated: true,
+      style: { stroke: 'black' },
+    };
 
     const lastEdge = {
       id: `e${lastNodeId-1}-${newOpCompNodeId}`,
@@ -165,7 +172,11 @@ export default function ReactFlowBoard({isUnlock}) {
         .concat(newOperationComponentNode, newAddNode)
     );
 
-    setEdges((eds) => [...eds, newEdge, lastEdge]);
+    setEdges((eds) => 
+      eds
+      .filter((e) => e.target !== selectedNodeId)
+      .concat(lastEdge, addNewEdge)
+    );
 
     setLastNodeId((id) => id + 2);
     setSelectedNodeId(null);
