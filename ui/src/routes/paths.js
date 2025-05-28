@@ -86,6 +86,13 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/processType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/processType/${id}/view`,
     },
+    documentType: {
+      root: `${ROOTS.DASHBOARD}/documentType`,
+      new: `${ROOTS.DASHBOARD}/documentType/new`,
+      list: `${ROOTS.DASHBOARD}/documentType/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/documentType/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/documentType/${id}/view`,
+    },
     processes: {
       root: `${ROOTS.DASHBOARD}/processes`,
       new: `${ROOTS.DASHBOARD}/processes/new`,

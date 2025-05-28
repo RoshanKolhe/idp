@@ -73,6 +73,11 @@ export function useNavData() {
                 roles: ['super_admin'],
               },
               {
+                title: t('Document Types'),
+                path: paths.dashboard.documentType.list,
+                roles: ['super_admin'],
+              },
+              {
                 title: t('File Types'),
                 path: paths.dashboard.fileType.list,
                 roles: ['super_admin'],
