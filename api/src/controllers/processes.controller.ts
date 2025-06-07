@@ -97,7 +97,7 @@ export class ProcessesController {
     @param.filter(Processes, {exclude: 'where'})
     filter?: FilterExcludingWhere<Processes>,
   ): Promise<Processes> {
-    return this.processesRepository.findById(id, filter);
+    return this.processesRepository.findById(id, {...filter, include : [{relation : 'bluePrint'}]});
   }
 
   @authenticate({

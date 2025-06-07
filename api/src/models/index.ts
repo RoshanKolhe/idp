@@ -3,3 +3,7 @@ export * from './process-type.model';
 export * from './file-type.model';
 export * from './processes.model';
 export * from './document-type.model';
+export * from './ingestion-channel-type.model';
+export * from './ai-model.model';
+export * from './blue-print.model';
+export * from './process-instances.model';

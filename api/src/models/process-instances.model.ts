@@ -1,9 +1,8 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {ProcessType} from './process-type.model';
-import {BluePrint} from './blue-print.model';
+import {Processes} from './processes.model';
 
 @model()
-export class Processes extends Entity {
+export class ProcessInstances extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -15,12 +14,25 @@ export class Processes extends Entity {
     type: 'string',
     required: true,
   })
-  name: string;
+  processInstanceName: string;
 
   @property({
     type: 'string',
+    // required: true,
   })
-  description?: string;
+  processInstanceDescription?: string;
+
+  @property({
+    type: 'string',
+    // required: true,
+  })
+  currentStage?: string;
+
+  @property({
+    type: 'boolean',
+    required: true
+  })
+  isInstanceRunning: boolean;
 
   @property({
     type: 'date',
@@ -54,19 +66,16 @@ export class Processes extends Entity {
   })
   remark?: string;
 
-  @belongsTo(() => ProcessType)
-  processTypeId: number;
+  @belongsTo(() => Processes)
+  processesId: number;
 
-  @belongsTo(() => BluePrint)
-  bluePrintId: number;
-
-  constructor(data?: Partial<Processes>) {
+  constructor(data?: Partial<ProcessInstances>) {
     super(data);
   }
 }
 
-export interface ProcessesRelations {
+export interface ProcessInstancesRelations {
   // describe navigational properties here
 }
 
-export type ProcessesWithRelations = Processes & ProcessesRelations;
+export type ProcessInstancesWithRelations = ProcessInstances & ProcessInstancesRelations;

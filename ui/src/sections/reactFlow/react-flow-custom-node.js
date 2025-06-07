@@ -1,11 +1,53 @@
-import { Box } from "@mui/material"
+import { Box, IconButton, Popover, Tooltip } from "@mui/material"
 import PropTypes from "prop-types"
+import { useState } from "react";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Handle, Position } from "reactflow"
+import Iconify from "src/components/iconify";
+import OperationSelectorModal from "./react-flow-operation-model";
 
 export default function ReactFlowCustomNodeStructure({ data }){
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
+    const [direction, setDirection] = useState(null);
+
+    const handleMouseEnter = (e) => {
+        if(data?.label?.toLowerCase() !== 'ingestion'){
+            setAnchorEl(e.currentTarget);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setAnchorEl(null);
+    };
+
+    const handleAddToLeft = () => {
+        setIsOpen(true);
+        setDirection('left');
+    }
+
+    const handleAddToRight = () => {
+        setIsOpen(true);
+        setDirection('right');
+    }
+
+    const handleSelect = (operation) => {
+        if(direction === 'left'){
+            data?.functions?.addToLeft(data.id, operation);
+        }else if(direction === 'right'){
+            data?.functions?.addToRight(data.id, operation);
+        }
+        handleClose();
+    }
+
+    const handleClose = () => {
+        setIsOpen(false);
+    }
+
+    const open = Boolean(anchorEl);
+
     return(
-        <Box sx={{ mt: 6, display: 'flex', justifyContent: 'left' }}>
+        <Box onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} sx={{ mt: 6, display: 'flex', justifyContent: 'left' }}>
             {/* Outgoing handle (right side) */}
             <Handle
                 type="source"
@@ -84,6 +126,42 @@ export default function ReactFlowCustomNodeStructure({ data }){
                     </Box>
                 </Box>
             </Box>
+            <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleMouseLeave}
+                anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+                }}
+                transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+                }}
+                disableRestoreFocus
+                PaperProps={{ onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave }}
+            >
+                <Tooltip title="Add to Left" placement="top" arrow>
+                    <IconButton onClick={() => handleAddToLeft()}>
+                        <Iconify icon="ic:round-arrow-back" />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Add to Right" placement="top" arrow>
+                    <IconButton onClick={() => handleAddToRight()}>
+                        <Iconify icon="ic:round-arrow-forward" />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Delete" placement="top" arrow>
+                    <IconButton color="error" onClick={() => console.log('Delete')}>
+                        <Iconify icon="mdi:delete" />
+                    </IconButton>
+                </Tooltip>
+            </Popover>
+
+            {/* Operation model */}
+            <OperationSelectorModal open={isOpen} onClose={handleClose} onSelect={handleSelect} />
         </Box>
     )
 }

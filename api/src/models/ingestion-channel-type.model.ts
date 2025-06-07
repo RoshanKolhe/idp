@@ -1,9 +1,7 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {ProcessType} from './process-type.model';
-import {BluePrint} from './blue-print.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class Processes extends Entity {
+export class IngestionChannelType extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -13,14 +11,20 @@ export class Processes extends Entity {
 
   @property({
     type: 'string',
-    required: true,
+    required: true
   })
-  name: string;
+  channelType: string;
 
   @property({
     type: 'string',
+    required: true
   })
-  description?: string;
+  channelValue: string;
+
+  @property({
+    type: 'string'
+  })
+  description: string;
 
   @property({
     type: 'date',
@@ -53,20 +57,13 @@ export class Processes extends Entity {
     type: 'string',
   })
   remark?: string;
-
-  @belongsTo(() => ProcessType)
-  processTypeId: number;
-
-  @belongsTo(() => BluePrint)
-  bluePrintId: number;
-
-  constructor(data?: Partial<Processes>) {
+  constructor(data?: Partial<IngestionChannelType>) {
     super(data);
   }
 }
 
-export interface ProcessesRelations {
+export interface IngestionChannelTypeRelations {
   // describe navigational properties here
 }
 
-export type ProcessesWithRelations = Processes & ProcessesRelations;
+export type IngestionChannelTypeWithRelations = IngestionChannelType & IngestionChannelTypeRelations;

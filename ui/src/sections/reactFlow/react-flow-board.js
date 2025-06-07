@@ -15,9 +15,11 @@ import 'reactflow/dist/style.css';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
 import { ReactFlowClassify, ReactFlowExtract, ReactFlowIngestion } from './components';
+import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 
 const nodeTypes = {
   custom : ReactFlowCustomNodeStructure,
+  customAddNode: ReactFlowCustomAddNodeStructure,
   ingestion : ReactFlowIngestion,
   classify : ReactFlowClassify,
   extract : ReactFlowExtract,
@@ -28,10 +30,11 @@ const initialNodes = [
     id: '1',
     type: 'ingestion',
     data: {
+      id: '1',
       label: 'Ingestion',
       icon: '/assets/icons/document-process/ignestion.svg',
       style: {
-        border: '5px solid #2DCA73',
+        border: `5px solid #2DCA73`,
         borderRight: '5px solid white',
       }
     },
@@ -39,12 +42,13 @@ const initialNodes = [
   },
   {
     id: '2',
-    type: 'custom',
+    type: 'customAddNode',
     data: {
+      id: '2',
       label: 'New Node',
       icon: '/assets/icons/document-process/add.svg',
       style: {
-        border: '5px solid #2DCA73',
+        border: '5px solid ',
         borderTop: '5px solid white',
         borderLeft: '5px solid white',
       }
@@ -67,7 +71,7 @@ export default function ReactFlowBoard({isUnlock}) {
   const [lastNodeId, setLastNodeId] = useState(2);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
 
- const onNodeClick = (_, node) => {
+  const onNodeClick = (_, node) => {
     if (node.data.label.includes('New Node')) {
       setSelectedNodeId(node.id);
       setShowModal(true);
@@ -76,8 +80,8 @@ export default function ReactFlowBoard({isUnlock}) {
 
   const addNewNode = (operation) => {
     // const newOpNodeId = `${lastNodeId + 1}`;
-    const newOpCompNodeId = `${lastNodeId + 1}`;
-    const newAddNodeId = `${lastNodeId + 2}`;
+    const newOpCompNodeId = `${lastNodeId}`;
+    const newAddNodeId = `${lastNodeId + 1}`;
 
     const clickedNode = nodes.find((n) => n.id === selectedNodeId);
     const baseX = clickedNode?.position?.x || 350;
@@ -85,23 +89,25 @@ export default function ReactFlowBoard({isUnlock}) {
 
     // Space layout
     const gapX = 100;
-
-    
-
     const newOperationComponentNode = {
       id: newOpCompNodeId,
       type: operation.type,
       data: {
+        id: newOpCompNodeId,
         label: `${operation.title} Component`,
         icon: operation.icon,
         style: borderDirection === 'up' ? {
-          border: '5px solid #2DCA73',
-          borderBottom: '5px solid white',
-          borderRight: '5px solid white',
+          border: `5px solid ${operation.color}`,
+          borderBottom: '5px dashed lightgray',
+          borderRight: '5px dashed lightgray',
         } : {
-          border: '5px solid #2DCA73',
-          borderTop: '5px solid white',
-          borderLeft: '5px solid white',
+          border: `5px solid ${operation.color}`,
+          borderTop: '5px dashed lightgray',
+          borderLeft: '5px dashed lightgray',
+        },
+        functions: {
+          addToLeft : addNodeToLeft,
+          addToRight: addNodeToRight
         } 
       },
       position: { x: baseX - 20, y: baseY },
@@ -113,12 +119,11 @@ export default function ReactFlowBoard({isUnlock}) {
       setBorderDirection('up');
     }
 
-    const isNewEven = parseInt(newAddNodeId, 10) % 2 === 0; 
-
     const newAddNode = {
       id: newAddNodeId,
-      type: 'custom',
+      type: 'customAddNode',
       data: { 
+        id: newAddNodeId,
         label: '➕ New Node', 
         icon: '/assets/icons/document-process/add.svg' ,
         style: borderDirection === 'down' ? { // reverse opration added
@@ -129,7 +134,7 @@ export default function ReactFlowBoard({isUnlock}) {
           border: '5px solid #2DCA73',
           borderTop: '5px solid white',
           borderLeft: '5px solid white',
-        }
+        },
       },
       position: { x: baseX + 165 * 2, y: baseY },
     };
@@ -178,7 +183,7 @@ export default function ReactFlowBoard({isUnlock}) {
       .concat(lastEdge, addNewEdge)
     );
 
-    setLastNodeId((id) => id + 2);
+    setLastNodeId((id) => id + 1);
     setSelectedNodeId(null);
     setShowModal(false);
   };
@@ -189,7 +194,89 @@ export default function ReactFlowBoard({isUnlock}) {
     []
   );
 
-  console.log('nodes', nodes);
+  // add node to left
+  const addNodeToLeft = (id, operation) => {
+    const currentNode = nodes?.find((node) => node.id === String(id));
+
+    if(currentNode){
+      // revising edges...
+      const newEdges = edges.map((edge) => {
+        if(Number(edge.target) >= Number(id)){
+          return {
+            id: `e${Number(edge.source) + 1}-${Number(edge.target) + 1}`,
+            source: `${Number(edge.source) + 1}`,
+            target: `${Number(edge.target) + 1}`,
+            animated: true,
+            style: { stroke: 'black' },
+          }
+        }
+
+        return edge;
+      })
+      setEdges(newEdges);
+
+      // revising nodes
+      const newNodes = nodes.map((node) => {
+        if(Number(node.id) >= Number(id)){
+          return{
+            ...node,
+            id: `${node.id + 1}`,
+            data: {
+              ...node.data,
+              id : `${node.id + 1}`
+            }
+          }
+        }
+        return node;
+      })
+
+      setNodes(newNodes);
+
+      // Adding new node
+      const baseX = currentNode?.position?.x || 350;
+      const baseY = 0;
+
+      const newOperationComponentNode = {
+        id,
+        type: operation.type,
+        data: {
+          id,
+          label: `${operation.title} Component`,
+          icon: operation.icon,
+          style: borderDirection === 'up' ? {
+            border: `5px solid ${operation.color}`,
+            borderBottom: '5px dashed lightgray',
+            borderRight: '5px dashed lightgray',
+          } : {
+            border: `5px solid ${operation.color}`,
+            borderTop: '5px dashed lightgray',
+            borderLeft: '5px dashed lightgray',
+          } 
+        },
+        position: { x: baseX - 20, y: baseY },
+      };
+
+      const beforeNodes = nodes.filter((node) => Number(node.id) < Number(id));
+      const afterNodes = nodes.filter((node) => Number(node.id) > Number(id));
+
+
+      console.log('id', id);
+      console.log('beforeNodes', beforeNodes);
+      console.log('afterNodes', afterNodes);
+      console.log('currentNode', newOperationComponentNode);
+      const finalNodes = [...beforeNodes, newOperationComponentNode, ...afterNodes];
+
+      setNodes(finalNodes);
+    }
+  }
+
+  // add node to right
+  const addNodeToRight = () => {
+    // new node...
+  }
+
+  console.log('nodes data', nodes);
+
   return (
     <div style={{ width: '100%', height: '100vh' }}>
       <ReactFlowProvider >
@@ -208,7 +295,7 @@ export default function ReactFlowBoard({isUnlock}) {
           <Controls />
           <Background />
         </ReactFlow>
-        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} />}
+        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} handleLeftSelect={addNodeToLeft} onClose={() => setShowModal(false)} />}
       </ReactFlowProvider>
     </div>
   );

@@ -1,9 +1,7 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {ProcessType} from './process-type.model';
-import {BluePrint} from './blue-print.model';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
-export class Processes extends Entity {
+export class AiModel extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -13,14 +11,15 @@ export class Processes extends Entity {
 
   @property({
     type: 'string',
-    required: true,
+    required: true
   })
-  name: string;
+  modelName: 'string';
 
   @property({
     type: 'string',
+    required: true
   })
-  description?: string;
+  modelValue: 'string';
 
   @property({
     type: 'date',
@@ -54,19 +53,13 @@ export class Processes extends Entity {
   })
   remark?: string;
 
-  @belongsTo(() => ProcessType)
-  processTypeId: number;
-
-  @belongsTo(() => BluePrint)
-  bluePrintId: number;
-
-  constructor(data?: Partial<Processes>) {
+  constructor(data?: Partial<AiModel>) {
     super(data);
   }
 }
 
-export interface ProcessesRelations {
+export interface AiModelRelations {
   // describe navigational properties here
 }
 
-export type ProcessesWithRelations = Processes & ProcessesRelations;
+export type AiModelWithRelations = AiModel & AiModelRelations;

@@ -3,3 +3,7 @@ export * from './process-type.repository';
 export * from './file-type.repository';
 export * from './processes.repository';
 export * from './document-type.repository';
+export * from './ingestion-channel-type.repository';
+export * from './ai-model.repository';
+export * from './blue-print.repository';
+export * from './process-instances.repository';

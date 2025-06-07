@@ -1,9 +1,15 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
-import { Button, Dialog, DialogContent, DialogTitle, MenuItem, Select, Stack, Typography } from "@mui/material";
+import { useMemo, useState } from "react";
+import * as Yup from 'yup';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+import { Button, Grid, MenuItem, Stack, Typography } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 // eslint-disable-next-line import/no-extraneous-dependencies
+import FormProvider, { RHFSelect, RHFTextField } from "src/components/hook-form";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
 import { FTPComponent } from "../ingestion-components";
+import CustomProcessDialogue from "./components-dialogue";
 
 // channel options
 const channelOptions = [
@@ -42,6 +48,40 @@ export default function ReactFlowIngestion({data}){
     const [isOpen, setIsOpen] = useState(false);
     const [url, setUrl] = useState('');
 
+     const NewChannelTypeSchema = Yup.object().shape({
+        channelType: Yup.string().required('Channel Type is required'),
+        path: Yup.string().required("Path is required"),
+      });
+    
+      const defaultValues = useMemo(
+        () => ({
+          channelType: '',
+          path: ''
+        }),
+        []
+      );
+    
+      const methods = useForm({
+        resolver: yupResolver(NewChannelTypeSchema),
+        defaultValues,
+      });
+    
+      const {
+        reset,
+        watch,
+        control,
+        setValue,
+        handleSubmit,
+        formState: { isSubmitting },
+      } = methods;
+
+      const values = watch();
+
+      const onSubmit = handleSubmit(async (formData) => {
+        console.log(formData);
+        handleCloseModal();
+      })
+
     // Open modal
     const handleOpenModal = () => {
         setIsOpen(true);
@@ -56,25 +96,38 @@ export default function ReactFlowIngestion({data}){
         <Stack sx={{marginTop: 3}} spacing={1}>
             <ReactFlowCustomNodeStructure data={data}/>
             <Typography variant='h5'>1. {data.label}</Typography>
-            <Typography variant='h6'>{channelType}</Typography>
-            <Typography variant='body2'>{url}</Typography>
+            <Typography variant='h6'>{values.channelType}</Typography>
+            <Typography variant='body2'>{values.path}</Typography>
             <Button sx={{width: '200px', color: 'royalBlue', borderColor: 'royalBlue'}} variant='outlined' onClick={() => handleOpenModal()}>Add Channel</Button>
-            <Dialog open={isOpen} onClose={handleCloseModal} maxWidth="xs" fullWidth>
-                <DialogTitle>Select an Operation</DialogTitle>
-                <DialogContent dividers>
-                    <Stack direction='column' spacing={1}>
-                        <Typography variant="h6">Channel Type</Typography>
-                        <Select placeholder="Select channel type" value={channelType} onChange={(e) => setChannelType(e.target.value)}>
-                            {channelOptions.length > 0 ? channelOptions.map((channel) => (
-                                <MenuItem disabled={channel.isDisabled} key={channel?.value} value={channel?.value}>{channel?.label}</MenuItem>
-                            )) : (
-                                <MenuItem disabled value=''>No channels found</MenuItem>
-                            )}
-                        </Select>
-                        <Switch opt={channelType} setUrl={setUrl} onClose={handleCloseModal}/>
+            <CustomProcessDialogue
+                isOpen={isOpen}
+                handleCloseModal={handleCloseModal}
+                title='Add Channel'
+            >
+                <FormProvider methods={methods} onSubmit={onSubmit}>
+                    <Grid sx={{marginTop: '20px'}} container spacing={1}>
+                        <Grid item xs={12} md={6}>
+                            <RHFSelect name='channelType' label='Channel Type'>
+                                {(channelOptions && channelOptions.length) > 0 ? channelOptions.map((channel) => (
+                                    <MenuItem key={channel.value} value={channel.value} disabled={channel.isDisabled}>{channel.label}</MenuItem>
+                                )) : (
+                                    <MenuItem value=''>No channels found</MenuItem>
+                                )}
+                            </RHFSelect>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            {values.channelType !== '' && <RHFTextField name='path' label='Path' />}
+                            {/* <Switch opt={values.channelType} onClose={handleCloseModal} setUrl={setValue}/> */}
+                        </Grid>
+                    </Grid>
+                    <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
+                        <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                            Add
+                        </LoadingButton>
+                        {/* <Button onClick={handleCloseModal} variant="contained">Close</Button> */}
                     </Stack>
-                </DialogContent>
-            </Dialog>
+                </FormProvider>
+            </CustomProcessDialogue>
         </Stack>
     )
 }

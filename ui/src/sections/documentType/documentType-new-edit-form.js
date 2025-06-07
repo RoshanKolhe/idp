@@ -1,39 +1,24 @@
 /* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
-import Box from '@mui/material/Box';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-// utils
-import { fData } from 'src/utils/format-number';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-// assets
-import { countries } from 'src/assets/data';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
-  RHFSwitch,
   RHFTextField,
-  RHFUploadAvatar,
-  RHFAutocomplete,
   RHFSelect,
 } from 'src/components/hook-form';
-import { IconButton, InputAdornment, MenuItem } from '@mui/material';
+import { MenuItem } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
 
@@ -91,7 +76,7 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
         await axiosInstance.patch(`/document-types/${currentDocumentType.id}`, inputData);
       }
       reset();
-      enqueueSnackbar(currentDocumentType ? 'Update success!' : 'Create success!');
+      enqueueSnackbar(currentDocumentType ? 'Update success!' : 'Create success!', {variant : 'success'});
       router.push(paths.dashboard.documentType.list);
     } catch (error) {
       console.error(error);

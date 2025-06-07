@@ -1,0 +1,58 @@
+[
+    {
+        nodeName : String,
+        component : {
+            keyName : answer
+        }
+    }
+]
+
+
+example : 
+Ingestion node
+
+{
+    nodeName : "Ingestion",
+    component : {
+        channelType : "ftp",
+        path : "http://server",
+    }
+}
+
+Classify node
+
+{
+    nodeName : "Classify",
+    component : {
+        model : "GenAI",
+        targetClassificationDocs : ["MOA", "AFS"]
+    }
+}
+
+Extract node
+
+{
+    nodeName : "Extract",
+    component : {
+        documentCat : "MOA",
+        extractionFields : [
+            {
+                prompt : "Fetch name of user",
+                fieldName : "User Name"
+            },
+            {
+                prompt : "Address of user",
+                fieldName : "User Address"
+            }
+        ]
+    }
+}
+
+validation node
+
+{
+    nodeName : "Validation",
+    component : {
+        "model" : "AI-based"
+    }
+}

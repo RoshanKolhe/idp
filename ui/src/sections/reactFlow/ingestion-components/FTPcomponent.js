@@ -11,7 +11,7 @@ export default function FTPComponent({setUrl, onClose}){
             return;
         }
 
-        setUrl(filePath);
+        setUrl('path', setFilePath);
         onClose();
     }
     return(
