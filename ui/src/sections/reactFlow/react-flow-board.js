@@ -1,5 +1,8 @@
-import React, { useCallback, useState } from 'react';
+/* eslint-disable no-shadow */
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useParams } from 'react-router';
+import { useSnackbar } from 'notistack';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ReactFlow, {
   MiniMap,
@@ -12,17 +15,21 @@ import ReactFlow, {
 } from 'reactflow';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'reactflow/dist/style.css';
+import { Box, Button } from '@mui/material';
+import axiosInstance from 'src/utils/axios';
+import { useGetBluePrint } from 'src/api/blue-print';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
-import { ReactFlowClassify, ReactFlowExtract, ReactFlowIngestion } from './components';
+import { ReactFlowClassify, ReactFlowExtract, ReactFlowIngestion, ReactFlowValidate } from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 
 const nodeTypes = {
-  custom : ReactFlowCustomNodeStructure,
+  custom: ReactFlowCustomNodeStructure,
   customAddNode: ReactFlowCustomAddNodeStructure,
-  ingestion : ReactFlowIngestion,
-  classify : ReactFlowClassify,
-  extract : ReactFlowExtract,
+  ingestion: ReactFlowIngestion,
+  classify: ReactFlowClassify,
+  extract: ReactFlowExtract,
+  validate: ReactFlowValidate,
 }
 
 const initialNodes = [
@@ -36,7 +43,7 @@ const initialNodes = [
       style: {
         border: `5px solid #2DCA73`,
         borderRight: '5px solid white',
-      }
+      },
     },
     position: { x: 0, y: 0 },
   },
@@ -57,19 +64,117 @@ const initialNodes = [
   },
 ];
 
-export default function ReactFlowBoard({isUnlock}) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([{
-    id: `e1-2`,
-    source: `1`,
-    target: `2`,
-    animated: true,
-    style: { stroke: 'black' },
-  }]);
+export default function ReactFlowBoard({ isUnlock }) {
+  const params = useParams();
+  const { enqueueSnackbar } = useSnackbar();
+  const { id } = params;
+  const [data, setData] = useState(null);
+  const { bluePrints, bluePrintsLoading } = useGetBluePrint(id);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState();
+  const [bluePrint, setBluePrint] = useState([]);
+  const [presentNodes, setPresentNodes] = useState([]);
   const [borderDirection, setBorderDirection] = useState('down');
   const [showModal, setShowModal] = useState(false);
-  const [lastNodeId, setLastNodeId] = useState(2);
+  const [lastNodeId, setLastNodeId] = useState(undefined);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+
+  useEffect(() => {
+    if (bluePrints && !bluePrintsLoading) {
+      if (bluePrints?.success) {
+        setData(bluePrints?.data);
+      }
+    }
+  }, [bluePrints, bluePrintsLoading]);
+
+  useEffect(() => {
+    if (data) {
+      // setting bluePrint
+      setBluePrint(data?.bluePrint);
+
+      const newPresentNodes = data?.bluePrint.length > 0 ? data?.bluePrint.map((item) => item.nodeName) : [];
+      setPresentNodes(newPresentNodes);
+
+      // setting nodes
+      const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
+          ...node,
+          data : {
+            ...node.data,
+            functions: {
+              addToLeft: addNodeToLeft,
+              addToRight: addNodeToRight,
+              deleteNode,
+              handleBluePrintComponent
+            },
+            bluePrint: data?.bluePrint?.find((item) => item.nodeName === node.data.label)?.component,
+          }
+        }));
+
+      setNodes(newNodes || initialNodes);
+
+      setLastNodeId(newNodes?.length || 2);
+
+      setEdges(data?.edges || []);
+    } else {
+      // setting up the nodes...
+      setNodes((prev) => [...prev, ...initialNodes.map((node) => (
+        {
+          ...node, data: {
+            ...node.data,
+            functions: {
+              addToLeft: addNodeToLeft,
+              addToRight: addNodeToRight,
+              deleteNode,
+              handleBluePrintComponent
+            },
+            bluePrint: bluePrint.find((item) => item.nodeName === node.data.label)?.component,
+          }
+        }))]);
+
+      setLastNodeId(2);
+
+      // setting up the edges...
+      setEdges([{
+        id: `e1-2`,
+        source: `1`,
+        target: `2`,
+        animated: true,
+        style: { stroke: 'black' },
+      }])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data])
+
+  useEffect(() => {
+    if (nodes && nodes.length > 0) {
+      const filteredNodes = nodes.filter((node) => node.type !== 'customAddNode');
+
+      setBluePrint((prev) => {
+        const existingNames = new Set(prev.map(item => item.nodeName));
+
+        const newBlueprintEntries = filteredNodes
+          .filter((node) => !existingNames.has(node.data.label))
+          .map((node) => ({
+            nodeName: node.data.label,
+            component: null,
+          }));
+
+        return [...prev, ...newBlueprintEntries];
+      });
+    }
+  }, [nodes]);
+
+  const handleBluePrintComponent = (label, updatedComponent) => {
+    setBluePrint((prev) => prev.map((node) => {
+      if (node.nodeName === label) {
+        return {
+          ...node,
+          component: updatedComponent
+        }
+      }
+      return node;
+    }))
+  };
 
   const onNodeClick = (_, node) => {
     if (node.data.label.includes('New Node')) {
@@ -78,6 +183,7 @@ export default function ReactFlowBoard({isUnlock}) {
     }
   };
 
+  console.log('present nodes', presentNodes);
   const addNewNode = (operation) => {
     // const newOpNodeId = `${lastNodeId + 1}`;
     const newOpCompNodeId = `${lastNodeId}`;
@@ -94,7 +200,7 @@ export default function ReactFlowBoard({isUnlock}) {
       type: operation.type,
       data: {
         id: newOpCompNodeId,
-        label: `${operation.title} Component`,
+        label: `${operation.title}`,
         icon: operation.icon,
         style: borderDirection === 'up' ? {
           border: `5px solid ${operation.color}`,
@@ -106,26 +212,29 @@ export default function ReactFlowBoard({isUnlock}) {
           borderLeft: '5px dashed lightgray',
         },
         functions: {
-          addToLeft : addNodeToLeft,
-          addToRight: addNodeToRight
-        } 
+          addToLeft: addNodeToLeft,
+          addToRight: addNodeToRight,
+          deleteNode,
+          handleBluePrintComponent
+        },
+        bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
       },
       position: { x: baseX - 20, y: baseY },
     };
 
-    if(borderDirection === 'up'){
+    if (borderDirection === 'up') {
       setBorderDirection('down');
-    }else{
+    } else {
       setBorderDirection('up');
     }
 
     const newAddNode = {
       id: newAddNodeId,
       type: 'customAddNode',
-      data: { 
+      data: {
         id: newAddNodeId,
-        label: '➕ New Node', 
-        icon: '/assets/icons/document-process/add.svg' ,
+        label: '➕ New Node',
+        icon: '/assets/icons/document-process/add.svg',
         style: borderDirection === 'down' ? { // reverse opration added
           border: '5px solid #2DCA73',
           borderBottom: '5px solid white',
@@ -164,8 +273,8 @@ export default function ReactFlowBoard({isUnlock}) {
     };
 
     const lastEdge = {
-      id: `e${lastNodeId-1}-${newOpCompNodeId}`,
-      source: `${lastNodeId-1}`,
+      id: `e${lastNodeId - 1}-${newOpCompNodeId}`,
+      source: `${lastNodeId - 1}`,
       target: `${newOpCompNodeId}`,
       animated: true,
       style: { stroke: 'black' },
@@ -177,12 +286,13 @@ export default function ReactFlowBoard({isUnlock}) {
         .concat(newOperationComponentNode, newAddNode)
     );
 
-    setEdges((eds) => 
+    setEdges((eds) =>
       eds
-      .filter((e) => e.target !== selectedNodeId)
-      .concat(lastEdge, addNewEdge)
+        .filter((e) => e.target !== selectedNodeId)
+        .concat(lastEdge, addNewEdge)
     );
 
+    setPresentNodes((prev) => [...prev, newOperationComponentNode?.data?.label]);
     setLastNodeId((id) => id + 1);
     setSelectedNodeId(null);
     setShowModal(false);
@@ -196,89 +306,320 @@ export default function ReactFlowBoard({isUnlock}) {
 
   // add node to left
   const addNodeToLeft = (id, operation) => {
-    const currentNode = nodes?.find((node) => node.id === String(id));
+    const targetId = Number(id);
+    const gapX = 370;
 
-    if(currentNode){
-      // revising edges...
-      const newEdges = edges.map((edge) => {
-        if(Number(edge.target) >= Number(id)){
+    const currentNode = nodes?.find((node) => Number(node.id) === targetId);
+    if (!currentNode) return;
+
+    setEdges((currentEdges) => currentEdges.map((edge) => {
+      const sourceNum = Number(edge.source);
+      const targetNum = Number(edge.target);
+
+      if (targetNum >= targetId) {
+        return {
+          ...edge,
+          id: `e${sourceNum + 1}-${targetNum + 1}`,
+          source: `${sourceNum + 1}`,
+          target: `${targetNum + 1}`,
+        };
+      }
+      return edge;
+    }));
+
+    setNodes((currentNodes) => {
+      const incrementedNodes = currentNodes.map((node) => {
+        const nodeIdNum = Number(node.id);
+        if (nodeIdNum >= targetId) {
+          const newId = nodeIdNum + 1;
           return {
-            id: `e${Number(edge.source) + 1}-${Number(edge.target) + 1}`,
-            source: `${Number(edge.source) + 1}`,
-            target: `${Number(edge.target) + 1}`,
-            animated: true,
-            style: { stroke: 'black' },
-          }
-        }
-
-        return edge;
-      })
-      setEdges(newEdges);
-
-      // revising nodes
-      const newNodes = nodes.map((node) => {
-        if(Number(node.id) >= Number(id)){
-          return{
             ...node,
-            id: `${node.id + 1}`,
+            id: `${newId}`,
             data: {
               ...node.data,
-              id : `${node.id + 1}`
-            }
-          }
+              id: `${newId}`,
+            },
+            position: {
+              x: node.position.x + gapX,
+              y: node.position.y,
+            },
+          };
         }
         return node;
-      })
+      });
 
-      setNodes(newNodes);
-
-      // Adding new node
-      const baseX = currentNode?.position?.x || 350;
-      const baseY = 0;
-
-      const newOperationComponentNode = {
-        id,
+      const newNode = {
+        id: `${targetId}`,
         type: operation.type,
         data: {
-          id,
-          label: `${operation.title} Component`,
+          id: `${targetId}`,
+          label: `${operation.title}`,
           icon: operation.icon,
-          style: borderDirection === 'up' ? {
-            border: `5px solid ${operation.color}`,
-            borderBottom: '5px dashed lightgray',
-            borderRight: '5px dashed lightgray',
-          } : {
-            border: `5px solid ${operation.color}`,
-            borderTop: '5px dashed lightgray',
-            borderLeft: '5px dashed lightgray',
-          } 
+          style:
+            borderDirection === 'up'
+              ? {
+                border: `5px solid ${operation.color}`,
+                borderBottom: '5px dashed lightgray',
+                borderRight: '5px dashed lightgray',
+              }
+              : {
+                border: `5px solid ${operation.color}`,
+                borderTop: '5px dashed lightgray',
+                borderLeft: '5px dashed lightgray',
+              },
+          functions: {
+            addToLeft: addNodeToLeft,
+            addToRight: addNodeToRight,
+            deleteNode,
+            handleBluePrintComponent
+          },
+          bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
         },
-        position: { x: baseX - 20, y: baseY },
+        position: {
+          x: currentNode.position.x,
+          y: currentNode.position.y,
+        },
       };
 
-      const beforeNodes = nodes.filter((node) => Number(node.id) < Number(id));
-      const afterNodes = nodes.filter((node) => Number(node.id) > Number(id));
+      const beforeNodes = incrementedNodes.filter((node) => Number(node.id) < targetId);
+      const afterNodes = incrementedNodes.filter((node) => Number(node.id) >= targetId);
 
+      return [...beforeNodes, newNode, ...afterNodes];
+    });
 
-      console.log('id', id);
-      console.log('beforeNodes', beforeNodes);
-      console.log('afterNodes', afterNodes);
-      console.log('currentNode', newOperationComponentNode);
-      const finalNodes = [...beforeNodes, newOperationComponentNode, ...afterNodes];
+    setEdges((prev) => [...prev, {
+      id: `${Number(id) - 1}-e${id}`,
+      source: `${Number(id) - 1}`,
+      target: `${id}`,
+      animated: true,
+      style: { stroke: 'black' },
+    }])
 
-      setNodes(finalNodes);
+    setPresentNodes((prev) => [...prev, operation?.title]);
+
+  };
+
+  // add node to right
+  const addNodeToRight = (id, operation) => {
+    const targetId = Number(id);
+    const gapX = 350; // horizontal gap for layout shift
+
+    const currentNode = nodes?.find((node) => Number(node.id) === targetId);
+    if (!currentNode) return;
+
+    // Update edges: shift edges with source or target >= targetId + 1
+    setEdges((currentEdges) =>
+      currentEdges.map((edge) => {
+        const sourceNum = Number(edge.source);
+        const targetNum = Number(edge.target);
+
+        if (sourceNum >= targetId + 1 || targetNum >= targetId + 1) {
+          return {
+            ...edge,
+            id: `e${sourceNum + 1}-${targetNum + 1}`,
+            source: `${sourceNum + 1}`,
+            target: `${targetNum + 1}`,
+            animated: true,
+            style: { stroke: 'black' },
+          };
+        }
+        return edge;
+      })
+    );
+
+    setNodes((currentNodes) => {
+      // Shift nodes with id >= targetId + 1
+      const incrementedNodes = currentNodes.map((node) => {
+        const nodeIdNum = Number(node.id);
+        if (nodeIdNum >= targetId + 1) {
+          const newId = nodeIdNum + 1;
+          return {
+            ...node,
+            id: `${newId}`,
+            data: { ...node.data, id: `${newId}` },
+            position: {
+              x: node.position.x + gapX,
+              y: node.position.y,
+            },
+          };
+        }
+        return node;
+      });
+
+      // New node inserted to the right of targetId
+      const newNodeId = targetId + 1;
+      const newNode = {
+        id: `${newNodeId}`,
+        type: operation.type,
+        data: {
+          id: `${newNodeId}`,
+          label: `${operation.title}`,
+          icon: operation.icon,
+          style:
+            borderDirection === 'up'
+              ? {
+                border: `5px solid ${operation.color}`,
+                borderBottom: '5px dashed lightgray',
+                borderRight: '5px dashed lightgray',
+              }
+              : {
+                border: `5px solid ${operation.color}`,
+                borderTop: '5px dashed lightgray',
+                borderLeft: '5px dashed lightgray',
+              },
+          functions: {
+            addToLeft: addNodeToLeft,
+            addToRight: addNodeToRight,
+            deleteNode,
+            handleBluePrintComponent
+          },
+          bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
+        },
+        position: {
+          x: currentNode.position.x + gapX,
+          y: currentNode.position.y,
+        },
+      };
+
+      // Place new node after the original node
+      const beforeNodes = incrementedNodes.filter((node) => Number(node.id) <= targetId);
+      const afterNodes = incrementedNodes.filter((node) => Number(node.id) > targetId);
+
+      return [...beforeNodes, newNode, ...afterNodes];
+    });
+
+    // Add edge from original node to the new node
+    setEdges((prev) => [
+      ...prev,
+      {
+        id: `e${targetId}-${targetId + 1}`,
+        source: `${targetId}`,
+        target: `${targetId + 1}`,
+        animated: true,
+        style: { stroke: 'black' },
+      },
+    ]);
+
+    setPresentNodes((prev) => [...prev, operation?.title]);
+  };
+
+  console.log('nodes', nodes);
+  // delete node
+  const deleteNode = (id, label) => {
+    const deleteId = Number(id);    
+    const gapX = 370;
+
+    let prevNodeId = null;
+    let nextNodeId = null;
+
+    // Step 1: Determine prev and next nodes from edges
+    setEdges((currentEdges) => {
+      const filteredEdges = currentEdges.filter(edge => {
+        const source = Number(edge.source);
+        const target = Number(edge.target);
+
+        if (target === deleteId) prevNodeId = source;
+        if (source === deleteId) nextNodeId = target;
+
+        return source !== deleteId && target !== deleteId;
+      });
+
+      // Step 2: If both neighbors exist, add a new edge between them
+      if (prevNodeId !== null && nextNodeId !== null) {
+        filteredEdges.push({
+          id: `e${prevNodeId}-${nextNodeId}`,
+          source: `${prevNodeId}`,
+          target: `${nextNodeId}`,
+          animated: true,
+          style: { stroke: 'black' },
+        });
+      }
+
+      // Step 3: Adjust remaining edge IDs
+      const updatedEdges = filteredEdges.map(edge => {
+        let sourceNum = Number(edge.source);
+        let targetNum = Number(edge.target);
+
+        if (sourceNum > deleteId) sourceNum -= 1;
+        if (targetNum > deleteId) targetNum -= 1;
+
+        return {
+          ...edge,
+          id: `e${sourceNum}-${targetNum}`,
+          source: `${sourceNum}`,
+          target: `${targetNum}`,
+        };
+      });
+
+      return updatedEdges;
+    });
+
+    // Step 4: Remove node and shift remaining nodes
+    setNodes((currentNodes) => {
+      const filteredNodes = currentNodes.filter(node => Number(node.id) !== deleteId);
+
+      return filteredNodes.map(node => {
+        const nodeIdNum = Number(node.id);
+        if (nodeIdNum > deleteId) {
+          const newId = nodeIdNum - 1;
+          return {
+            ...node,
+            id: `${newId}`,
+            data: { ...node.data, id: `${newId}` },
+            position: {
+              x: node.position.x - gapX,
+              y: node.position.y,
+            },
+          };
+        }
+        return node;
+      });
+    });
+
+    setPresentNodes((prev) => prev.filter((node) => node !== label));
+    setBluePrint((prev) => prev.filter((node) => node.nodeName !== label));
+
+  };
+
+  // handle empty components
+  const handleEmptyComponents = () => {
+    const emptyComponent = bluePrint.find((node) => node.component === null);
+    return emptyComponent;
+  }
+
+  // submit blueprint
+  const handleSubmitBluePrint = async () => {
+    try {
+      const emptyComponent = handleEmptyComponents();
+      if (emptyComponent) {
+        enqueueSnackbar(`Please complete ${emptyComponent.nodeName} node`, { variant: 'error' });
+        return;
+      }
+      const data = {
+        bluePrint,
+        nodes,
+        edges,
+        processesId: Number(id),
+        isActive: true
+      };
+
+      const response = await axiosInstance.post('/blue-prints', data);
+      if (response?.data) {
+        enqueueSnackbar("Blue Print Saved", { variant: 'success' });
+      }
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
+        variant: 'error',
+      });
     }
   }
 
-  // add node to right
-  const addNodeToRight = () => {
-    // new node...
-  }
-
-  console.log('nodes data', nodes);
-
   return (
     <div style={{ width: '100%', height: '100vh' }}>
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+        <Button onClick={() => handleSubmitBluePrint()} variant='contained'>Save</Button>
+      </Box>
       <ReactFlowProvider >
         <ReactFlow
           nodeTypes={nodeTypes}
@@ -289,18 +630,18 @@ export default function ReactFlowBoard({isUnlock}) {
           onNodeClick={onNodeClick}
           onConnect={onConnect}
           defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
-          nodesDraggable={isUnlock} 
+          nodesDraggable={isUnlock}
         >
           <MiniMap />
           <Controls />
           <Background />
         </ReactFlow>
-        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} handleLeftSelect={addNodeToLeft} onClose={() => setShowModal(false)} />}
+        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode = {presentNodes}/>}
       </ReactFlowProvider>
     </div>
   );
 }
 
 ReactFlowBoard.propTypes = {
-  isUnlock : PropTypes.bool
+  isUnlock: PropTypes.bool
 }

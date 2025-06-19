@@ -1,8 +1,9 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {Processes} from './processes.model';
+import {ProcessInstances} from './process-instances.model';
+import {DocumentType} from './document-type.model';
 
 @model()
-export class BluePrint extends Entity {
+export class ProcessInstanceDocuments extends Entity {
   @property({
     type: 'number',
     id: true,
@@ -11,25 +12,20 @@ export class BluePrint extends Entity {
   id?: number;
 
   @property({
-    type: 'array',
-    itemType: 'object',
+    type: 'object',
     required: true
   })
-  nodes: object[];
+  documentDetails: {
+    fileName: string;
+    fileUrl: string;
+    fileSize: string;
+  }
 
-  @property({
-    type: 'array',
-    itemType: 'object',
-    required: true
-  })
-  edges: object[];
+  @belongsTo(() => ProcessInstances)
+  processInstancesId: number;
 
-  @property({
-    type: 'array',
-    itemType: 'object',
-    required: true
-  })
-  bluePrint: object[];
+  @belongsTo(() => DocumentType)
+  documentTypeId: number;
 
   @property({
     type: 'date',
@@ -63,16 +59,13 @@ export class BluePrint extends Entity {
   })
   remark?: string;
 
-  @belongsTo(() => Processes)
-  processesId: number;
-
-  constructor(data?: Partial<BluePrint>) {
+  constructor(data?: Partial<ProcessInstanceDocuments>) {
     super(data);
   }
 }
 
-export interface BluePrintRelations {
+export interface ProcessInstanceDocumentsRelations {
   // describe navigational properties here
 }
 
-export type BluePrintWithRelations = BluePrint & BluePrintRelations;
+export type ProcessInstanceDocumentsWithRelations = ProcessInstanceDocuments & ProcessInstanceDocumentsRelations;

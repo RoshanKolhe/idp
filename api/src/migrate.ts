@@ -17,7 +17,8 @@ export async function migrate(args: string[]) {
       'IngestionChannelType',
       'AiModel',
       'BluePrint',
-      'ProcessInstances'
+      'ProcessInstances',
+      'ProcessInstanceDocuments',
     ],
   });
   // Connectors usually keep a pool of opened connections,

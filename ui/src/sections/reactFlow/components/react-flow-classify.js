@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
+import * as Yup from 'yup';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
 import {
   Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
+  Chip,
+  Grid,
   MenuItem,
-  Select,
   Stack,
   Typography,
-  Input,
-  FormControlLabel,
-  RadioGroup,
-  FormControl,
-  Radio,
 } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 import { useGetDocumentTypes } from "src/api/documentType";
+import FormProvider, { RHFAutocomplete, RHFSelect } from "src/components/hook-form";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
+import CustomProcessDialogue from "./components-dialogue";
 
 // Model options
 const modelOptions = [
@@ -27,17 +26,8 @@ const modelOptions = [
 ];
 
 export default function ReactFlowClassify({ data }) {
-  const [selectedModel, setSelectedModel] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [documentTypesData, setDocumentTypesData] = useState([]);
-  const [classificationArray, setClassificationArray] = useState([
-    {
-      id: 1,
-      docType: "",
-      sampleDoc: null,
-    },
-  ]);
-
   const { documentTypes, documentTypesEmpty } = useGetDocumentTypes();
 
   useEffect(() => {
@@ -49,90 +39,67 @@ export default function ReactFlowClassify({ data }) {
   const handleOpenModal = () => setIsOpen(true);
   const handleCloseModal = () => setIsOpen(false);
 
-  const handleDocTypeChange = (e) => {
-    const updated = [...classificationArray];
-    updated[0].docType = e.target.value;
-    setClassificationArray(updated);
-  };
+  const newClassificationSchema = Yup.object().shape({
+    model: Yup.string().required("Model is required"),
+    categories: Yup.array().of(Yup.object()).min(1, "Please select category"),
+  })
 
-  const handleSampleDocChange = (e) => {
-    const file = e.target.files[0];
-    const updated = [...classificationArray];
-    updated[0].sampleDoc = file;
-    setClassificationArray(updated);
-  };
+  const defaultValues = useMemo(
+    () => ({
+      model: data.bluePrint?.model || '',
+      categories: data.bluePrint?.categories || []
+    }),
+    [data]
+  );
 
-  const handleAddCategory = () => {
-    console.log("Final Classification:", classificationArray[0]);
+  const methods = useForm({
+    resolver: yupResolver(newClassificationSchema),
+    defaultValues
+  })
+
+  const {
+    reset,
+    watch,
+    control,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  const values = watch();
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  const onSubmit = handleSubmit(async (formData) => {
+    console.log('classify formData', formData);
+    data.functions.handleBluePrintComponent(data.label, formData);
     handleCloseModal();
-  };
+  })
 
   return (
     <Stack sx={{ marginTop: 3, zIndex: 100000 }} spacing={1}>
       <ReactFlowCustomNodeStructure data={data} />
       <Typography variant="h5">2. {data.label}</Typography>
-
-      {/* Model Selection */}
-      <Stack direction="column" spacing={1}>
-        <Typography variant="h6">Model</Typography>
-        <Select
-          variant="standard"
-          value={selectedModel}
-          onChange={(e) => setSelectedModel(e.target.value)}
-          displayEmpty
-          MenuProps={{
-            PaperProps: {
-            style: {
-                zIndex: 1302000,
-            },
-            },
-            disablePortal: false,
-         }}
-        >
-          <MenuItem value="">
-            <em>Select a model</em>
-          </MenuItem>
-          {modelOptions.map((model) => (
-            <MenuItem
-              key={model.value}
-              value={model.value}
-              disabled={model.isDisabled}
-            >
-              {model.label}
-            </MenuItem>
-          ))}
-        </Select>
-        <FormControl component="fieldset">
-            <RadioGroup
-                aria-label="model"
-                name="model"
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-            >
-                {modelOptions.map((model) => (
-                <FormControlLabel
-                    key={model.value}
-                    value={model.value}
-                    control={<Radio />}
-                    label={model.label}
-                    disabled={model.isDisabled}
-                />
-                ))}
-            </RadioGroup>
-        </FormControl>
-      </Stack>
-
+      {/* Model section */}
+      {values && values.model && (
+        <Stack spacing={1} direction='column'>
+          <Typography variant='h5'>Selected Model</Typography>
+          <Typography variant='h6'>{modelOptions.find((model) => model.value === values.model).label}</Typography>
+        </Stack>
+      )}
       {/* Classification Section */}
       <Typography variant="h6">Target Classification</Typography>
-      {classificationArray?.length > 0 && classificationArray.map((item) => {
-        if(item && item.docType !== '' && item.sampleDoc){
-            const fileURL = URL.createObjectURL(item.sampleDoc);
-            return(
-                <>
-                    <Typography sx={{fontWeight: 'bold'}} variant="body1">{item.docType}</Typography>
-                    <Typography variant="body1"><a href={fileURL} target="_blank" rel="noopener noreferrer">Click Here</a> for sample doc</Typography>
-                </>
-            )
+      {values.categories.length > 0 && values.categories.map((item) => {
+        if (item) {
+          const fileURL = item.sampleDocument.fileUrl;
+          return (
+            <>
+              <Typography sx={{ fontWeight: 'bold' }} variant="body1">{item.documentType}</Typography>
+              <Typography variant="body1"><a href={fileURL} target="_blank" rel="noopener noreferrer">Click Here</a> for sample doc</Typography>
+            </>
+          )
         }
         return null;
       })}
@@ -145,57 +112,51 @@ export default function ReactFlowClassify({ data }) {
       </Button>
 
       {/* Dialog */}
-      <Dialog open={isOpen} onClose={handleCloseModal} maxWidth="xs" fullWidth>
-        <DialogTitle>Add Category</DialogTitle>
-        <DialogContent dividers>
-          <Stack direction="column" spacing={2}>
-            {/* Channel Type */}
-            <div>
-              <Typography variant="h6">Document Type</Typography>
-              <Select
-                fullWidth
-                value={classificationArray[0].docType}
-                onChange={handleDocTypeChange}
-                displayEmpty
-              >
-                <MenuItem value="">
-                  <em>Select document type</em>
-                </MenuItem>
-                {documentTypesData.length > 0 ? (
-                  documentTypesData.map((docType) => (
-                    <MenuItem
-                      key={docType?.id}
-                      value={docType?.documentType}
-                    >
-                      {docType?.documentType}
-                    </MenuItem>
-                  ))
-                ) : (
-                  <MenuItem disabled value="">
-                    No document types found
-                  </MenuItem>
+      <CustomProcessDialogue
+        isOpen={isOpen}
+        handleCloseModal={handleCloseModal}
+        title='Add Category'
+      >
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <Grid container spacing={1}>
+            <Grid item xs={12} md={6}>
+              <RHFSelect name="model" label="Select model">
+                {modelOptions.length > 0 ? modelOptions.map((model) => (
+                  <MenuItem disabled={model.isDisabled} key={model.value} value={model.value}>{model.label}</MenuItem>
+                )) : (
+                  <MenuItem value=''>No models found</MenuItem>
                 )}
-              </Select>
-            </div>
-
-            {/* Sample Doc Upload */}
-            <div>
-              <Typography variant="h6">Sample Document</Typography>
-              <Input type="file" onChange={handleSampleDocChange} />
-            </div>
-
-            {/* Add Button */}
-            <Button
-              sx={{backgroundColor: 'black', '&:hover':{backgroundColor : 'black'}}}
-              variant="contained"
-              color="primary"
-              onClick={handleAddCategory}
-            >
+              </RHFSelect>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <RHFAutocomplete
+                name="categories"
+                label="Categories"
+                multiple
+                disableCloseOnSelect
+                options={documentTypesData || []}
+                getOptionLabel={(doc) => doc?.documentType || ''}
+                isOptionEqualToValue={(doc, value) => doc?.id === value?.id}
+                renderOption={(props, doc) => (
+                  <li {...props} key={doc.id}>
+                    {doc.documentType}
+                  </li>
+                )}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip label={option.documentType} {...getTagProps({ index })} />
+                  ))
+                }
+              />
+            </Grid>
+          </Grid>
+          <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
               Add
-            </Button>
+            </LoadingButton>
           </Stack>
-        </DialogContent>
-      </Dialog>
+        </FormProvider>
+      </CustomProcessDialogue>
     </Stack>
   );
 }

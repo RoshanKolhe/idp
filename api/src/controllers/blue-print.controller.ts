@@ -17,27 +17,27 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {BluePrint} from '../models';
-import {BluePrintRepository, ProcessesRepository} from '../repositories';
+import { BluePrint } from '../models';
+import { BluePrintRepository, ProcessesRepository } from '../repositories';
 import { authenticate } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
 
 export class BluePrintController {
   constructor(
     @repository(BluePrintRepository)
-    public bluePrintRepository : BluePrintRepository,
+    public bluePrintRepository: BluePrintRepository,
     @repository(ProcessesRepository)
-    public processesRepository : ProcessesRepository
-  ) {}
+    public processesRepository: ProcessesRepository
+  ) { }
 
   @authenticate({
     strategy: 'jwt',
-    options: {required : [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN]}
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
   })
   @post('/blue-prints')
   @response(200, {
     description: 'BluePrint model instance',
-    content: {'application/json': {schema: getModelSchemaRef(BluePrint)}},
+    content: { 'application/json': { schema: getModelSchemaRef(BluePrint) } },
   })
   async create(
     @requestBody({
@@ -52,19 +52,27 @@ export class BluePrintController {
     })
     bluePrint: Omit<BluePrint, 'id'>,
   ): Promise<BluePrint> {
-    const bluePrintData = await this.bluePrintRepository.create(bluePrint);
+    const existingBluePrint = await this.bluePrintRepository.findOne({ where: { processesId: bluePrint.processesId } });
 
-    if(bluePrintData && bluePrintData.processesId){
-      await this.processesRepository.updateById(bluePrintData.processesId, {bluePrintId : bluePrintData.id});
+    if (!existingBluePrint) {
+      const bluePrintData = await this.bluePrintRepository.create(bluePrint);
+
+      if (bluePrintData && bluePrintData.processesId) {
+        await this.processesRepository.updateById(bluePrintData.processesId, { bluePrintId: bluePrintData.id });
+      }
+
+      return bluePrintData;
     }
 
+    await this.bluePrintRepository.updateById(existingBluePrint.id, bluePrint);
+    const bluePrintData = await this.bluePrintRepository.findById(existingBluePrint.id);
     return bluePrintData;
   }
 
   @get('/blue-prints/count')
   @response(200, {
     description: 'BluePrint model count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async count(
     @param.where(BluePrint) where?: Where<BluePrint>,
@@ -74,7 +82,7 @@ export class BluePrintController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required : [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN]}
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
   })
   @get('/blue-prints')
   @response(200, {
@@ -83,7 +91,7 @@ export class BluePrintController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(BluePrint, {includeRelations: true}),
+          items: getModelSchemaRef(BluePrint, { includeRelations: true }),
         },
       },
     },
@@ -96,18 +104,18 @@ export class BluePrintController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required : [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN]}
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
   })
   @patch('/blue-prints')
   @response(200, {
     description: 'BluePrint PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(BluePrint, {partial: true}),
+          schema: getModelSchemaRef(BluePrint, { partial: true }),
         },
       },
     })
@@ -119,27 +127,27 @@ export class BluePrintController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required : [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN]}
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
   })
   @get('/blue-prints/{id}')
   @response(200, {
     description: 'BluePrint model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(BluePrint, {includeRelations: true}),
+        schema: getModelSchemaRef(BluePrint, { includeRelations: true }),
       },
     },
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(BluePrint, {exclude: 'where'}) filter?: FilterExcludingWhere<BluePrint>
+    @param.filter(BluePrint, { exclude: 'where' }) filter?: FilterExcludingWhere<BluePrint>
   ): Promise<BluePrint> {
     return this.bluePrintRepository.findById(id, filter);
   }
 
   @authenticate({
     strategy: 'jwt',
-    options: {required : [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN]}
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
   })
   @patch('/blue-prints/{id}')
   @response(204, {
@@ -150,7 +158,7 @@ export class BluePrintController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(BluePrint, {partial: true}),
+          schema: getModelSchemaRef(BluePrint, { partial: true }),
         },
       },
     })
@@ -161,7 +169,7 @@ export class BluePrintController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required : [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN]}
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
   })
   @put('/blue-prints/{id}')
   @response(204, {
@@ -176,7 +184,7 @@ export class BluePrintController {
 
   @authenticate({
     strategy: 'jwt',
-    options: {required : [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN]}
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
   })
   @del('/blue-prints/{id}')
   @response(204, {
@@ -184,5 +192,42 @@ export class BluePrintController {
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
     await this.bluePrintRepository.deleteById(id);
+  }
+
+  // Get blue print by process id
+  @authenticate({
+    strategy: 'jwt',
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+  })
+  @get('/blue-prints/processes/{id}')
+  async getBluePrintById(
+    @param.path.number('id') id: number,
+  ): Promise<{ success: boolean; message: string; data: {} | null }> {
+    try {
+      const bluePrint = await this.bluePrintRepository.findOne({
+        where: {
+          processesId: id,
+        },
+        include: [
+          { relation: 'processes' }
+        ]
+      });
+
+      if (bluePrint) {
+        return {
+          success: true,
+          message: `Blue print for process id ${id}`,
+          data: bluePrint
+        }
+      }
+
+      return {
+        success: false,
+        message: `No blue print found for process id ${id}`,
+        data: null
+      }
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@mui/material";
+import { Box, Dialog, DialogContent, DialogTitle, IconButton, Typography } from "@mui/material";
 import PropTypes from "prop-types";
 import Iconify from "src/components/iconify";
 
@@ -12,7 +12,9 @@ export default function CustomProcessDialogue({isOpen, handleCloseModal, title, 
                 </IconButton>
             </DialogTitle>
             <DialogContent dividers>
-                {children}
+                <Box sx={{my: '20px'}}>
+                    {children}
+                </Box>
             </DialogContent>
         </Dialog>
     )

@@ -16,6 +16,16 @@ export class DocumentType extends Entity {
   documentType: string;
 
   @property({
+    type: 'object',
+    required: true,
+  })
+  sampleDocument: {
+    fileName: string;
+    fileUrl: string;
+    size: string;
+  };
+
+  @property({
     type: 'string',
   })
   description?: string;

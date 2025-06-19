@@ -22,16 +22,17 @@ import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
-export default function ProcessesTableRow({
+export default function ProcessTypeTableRow({
   row,
   selected,
   onEditRow,
   onViewRow,
   onSelectRow,
   onDeleteRow,
+  onStatusChange
 }) {
   const navigate = useNavigate();
-  const { name, description, isActive, createdAt } = row;
+  const { id, processInstanceName, processes, currentStage, isInstanceRunning } = row;
 
   const confirm = useBoolean();
 
@@ -44,57 +45,77 @@ export default function ProcessesTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{name}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
-        <TableCell>
-          <ListItemText
-            primary={format(new Date(createdAt), 'dd MMM yyyy')}
-            secondary={format(new Date(createdAt), 'p')}
-            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
-          />
-        </TableCell>
-        <TableCell>
-          <Label
-            variant="soft"
-            color={(isActive && 'success') || (!isActive && 'error') || 'default'}
-          >
-            {isActive ? 'Active' : 'In-Active'}
-          </Label>
-        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processInstanceName}</TableCell>
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="blueprint" placement="top" arrow>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processes?.name}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{currentStage || 'NA'}</TableCell>
+
+        <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
+          <Tooltip title={isInstanceRunning ? 'Pause' : 'Start'} placement="top" arrow>
             <IconButton
+              sx={{
+                backgroundColor: 'rgba(65, 130, 235, 0.1)',
+                border: '1px solid rgba(65, 130, 235, 0.3)',
+                p: 1,
+                borderRadius: '12px',
+                color: '#4182EB',
+              }}
               onClick={() => {
-                navigate(paths.dashboard.processes.reactFlow(row.id));
+                onStatusChange();
               }}
             >
-              <Iconify icon="carbon:flow-modeler" />
+              <Iconify
+                icon={isInstanceRunning ? 'ic:round-pause-circle' : 'ic:round-play-circle'}
+                width={20}
+                height={20}
+              />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Documents" placement="top" arrow>
+            <IconButton
+              sx={{
+                backgroundColor: 'rgba(65, 130, 235, 0.1)',
+                border: '1px solid rgba(65, 130, 235, 0.3)',
+                p: 1,
+                borderRadius: '12px',
+                color: '#4182EB', // icon color
+              }}
+              onClick={() => console.log('documents clicked')}
+            >
+              <Iconify icon="ic:baseline-insert-drive-file" width={20} height={20} />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
-              color="default"
-              onClick={() => {
-                onEditRow();
+              sx={{
+                backgroundColor: 'rgba(65, 130, 235, 0.1)',
+                border: '1px solid rgba(65, 130, 235, 0.3)',
+                p: 1,
+                borderRadius: '12px',
+                color: '#4182EB', // icon color
               }}
+              onClick={() => onEditRow()}
             >
-              <Iconify icon="solar:pen-bold" />
+              <Iconify icon="solar:pen-bold" width={20} height={20} />
             </IconButton>
           </Tooltip>
+
           <Tooltip title="View" placement="top" arrow>
             <IconButton
-              onClick={() => {
-                onViewRow();
+              sx={{
+                backgroundColor: 'rgba(65, 130, 235, 0.1)',
+                border: '1px solid rgba(65, 130, 235, 0.3)',
+                p: 1,
+                borderRadius: '12px',
+                color: '#4182EB', // icon color
               }}
+              onClick={() => onViewRow()}
             >
-              <Iconify icon="carbon:view-filled" />
+              <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>
           </Tooltip>
         </TableCell>
@@ -143,11 +164,12 @@ export default function ProcessesTableRow({
   );
 }
 
-ProcessesTableRow.propTypes = {
+ProcessTypeTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,
   onSelectRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
+  onStatusChange: PropTypes.func,
 };

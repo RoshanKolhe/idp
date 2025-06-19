@@ -45,11 +45,13 @@ const ProcessesListPage = lazy(() => import('src/pages/dashboard/processes/list'
 const ProcessesCreatePage = lazy(() => import('src/pages/dashboard/processes/new'));
 const ProcessesEditPage = lazy(() => import('src/pages/dashboard/processes/edit'));
 const ProcessesViewPage = lazy(() => import('src/pages/dashboard/processes/view'));
-const ProcessesDocumentProcessingPage = lazy(() =>
-  import('src/pages/dashboard/processes/document-process')
-);
+const ProcessesDocumentProcessingPage = lazy(() => import('src/pages/dashboard/processes/document-process'));
 const ReactFlowPage = lazy(() => import('src/pages/dashboard/react-flow/board'));
-
+// PROCESSES-INSTANCES
+const ProcessInstanceCreatePage = lazy(() => import('src/pages/dashboard/processInstance/new'));
+const ProcessInstanceEditPage = lazy(() => import('src/pages/dashboard/processInstance/edit'));
+const ProcessInstanceListPage = lazy(() => import('src/pages/dashboard/processInstance/list'));
+const ProcessInstanceViewPage = lazy(() => import('src/pages/dashboard/processInstance/view'));
 // FILE TYPE
 const FileTypeListPage = lazy(() => import('src/pages/dashboard/fileType/list'));
 const FileTypeCreatePage = lazy(() => import('src/pages/dashboard/fileType/new'));
@@ -142,7 +144,17 @@ export const dashboardRoutes = [
           { path: ':id/edit', element: <ProcessesEditPage /> },
           { path: ':id/view', element: <ProcessesViewPage /> },
           { path: 'document-process', element: <ProcessesDocumentProcessingPage /> },
-          { path: 'react-flow', element: <ReactFlowPage /> },
+          { path: ':id/react-flow', element: <ReactFlowPage /> },
+        ],
+      },
+      {
+        path: 'processesInstance',
+        children: [
+          { element: <ProcessInstanceListPage />, index: true },
+          { path: 'list', element: <ProcessInstanceListPage /> },
+          { path: 'new', element: <ProcessInstanceCreatePage /> },
+          { path: ':id/edit', element: <ProcessInstanceEditPage /> },
+          { path: ':id/view', element: <ProcessInstanceViewPage /> },
         ],
       },
       {

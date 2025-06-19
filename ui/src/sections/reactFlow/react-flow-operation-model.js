@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -43,14 +43,15 @@ const operations = [
     title: 'External Data Sources',
     description: 'Link to third-party data.',
     icon: '/assets/icons/document-process/external-data-source.svg',
-    type: 'default'
+    type: 'default',
   },
   {
     id: 5,
     title: 'Validate',
     description: 'Ensure data accuracy.',
     icon: '/assets/icons/document-process/validate.svg',
-    type: 'default'
+    type: 'validate',
+    color: '#ED63D2'
   },
   {
     id: 6,
@@ -89,14 +90,23 @@ const operations = [
   },
 ];
 
-export default function OperationSelectorModal({ onSelect, onClose, open }) {
+export default function OperationSelectorModal({ onSelect, onClose, open, bluePrintNode }) {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const newData = operations.filter((opt) => !bluePrintNode?.includes(opt.title));
+    setData(newData);
+  }, [bluePrintNode])
+
+  console.log('nodes already present', bluePrintNode)
+  
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>Select a Node</DialogTitle>
       <DialogContent dividers>
         <List>
-          {operations.map((operation) => (
-            <ListItem key={operation.id} disablePadding sx={{borderBottom: '1px solid lightgray'}}>
+          {data.map((operation) => (
+            <ListItem key={operation.id} disablePadding sx={{ borderBottom: '1px solid lightgray' }}>
               <ListItemButton onClick={() => onSelect(operation)}>
                 <ListItemAvatar>
                   <Avatar
@@ -105,7 +115,7 @@ export default function OperationSelectorModal({ onSelect, onClose, open }) {
                     sx={{ width: 32, height: 32 }}
                   />
                 </ListItemAvatar>
-                <ListItemText primary={operation.title} secondary={operation.description}/>
+                <ListItemText primary={operation.title} secondary={operation.description} />
               </ListItemButton>
             </ListItem>
           ))}
@@ -122,4 +132,5 @@ OperationSelectorModal.propTypes = {
   onSelect: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
+  bluePrintNode: PropTypes.array,
 };

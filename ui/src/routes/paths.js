@@ -100,7 +100,16 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/processes/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/processes/${id}/view`,
       documentProcess: `${ROOTS.DASHBOARD}/processes/document-process`,
-      reactFlow: `${ROOTS.DASHBOARD}/processes/react-flow`,
+      reactFlow: (id) => `${ROOTS.DASHBOARD}/processes/${id}/react-flow`,
+    },
+    processesInstance: {
+      root: `${ROOTS.DASHBOARD}/processesInstance`,
+      new: `${ROOTS.DASHBOARD}/processesInstance/new`,
+      list: `${ROOTS.DASHBOARD}/processesInstance/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/view`,
+      // documentProcess: `${ROOTS.DASHBOARD}/processes/document-process`,
+      // reactFlow: (id) => `${ROOTS.DASHBOARD}/processes/${id}/react-flow`,
     },
     fileType: {
       root: `${ROOTS.DASHBOARD}/fileType`,

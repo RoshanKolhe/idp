@@ -44,6 +44,10 @@ export default function ReactFlowCustomNodeStructure({ data }){
         setIsOpen(false);
     }
 
+    const handleDeleteNode = () => {
+        data?.functions?.deleteNode(data.id, data.label);
+    }
+
     const open = Boolean(anchorEl);
 
     return(
@@ -154,7 +158,7 @@ export default function ReactFlowCustomNodeStructure({ data }){
                 </Tooltip>
 
                 <Tooltip title="Delete" placement="top" arrow>
-                    <IconButton color="error" onClick={() => console.log('Delete')}>
+                    <IconButton color="error" onClick={() => handleDeleteNode()}>
                         <Iconify icon="mdi:delete" />
                     </IconButton>
                 </Tooltip>

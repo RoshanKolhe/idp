@@ -48,6 +48,12 @@ export const endpoints = {
     list: '/processes',
     filterList: (filter) => `/processes?${filter}`,
     details: (id) => `/processes/${id}`,
+    bluePrint: (id) => `/blue-prints/processes/${id}`
+  },
+  processInstance: {
+    list: '/process-instances',
+    filterList: (filter) => `/process-instances?${filter}`,
+    details: (id) => `/process-instances/${id}`,
   },
   fileType: {
     list: '/file-types',

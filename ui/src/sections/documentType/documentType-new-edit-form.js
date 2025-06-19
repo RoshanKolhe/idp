@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -17,8 +17,10 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
   RHFSelect,
+  RHFUpload,
 } from 'src/components/hook-form';
-import { MenuItem } from '@mui/material';
+import { Box, Button, MenuItem, Typography } from '@mui/material';
+import Iconify from 'src/components/iconify';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
 
@@ -31,6 +33,7 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
 
   const NewDocumentTypeSchema = Yup.object().shape({
     documentType: Yup.string().required('Document Type is required'),
+    sampleDocument: Yup.object().required('Sample Document is required'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });
@@ -39,6 +42,7 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
     () => ({
       documentType: currentDocumentType?.documentType || '',
       description: currentDocumentType?.description || '',
+      sampleDocument: currentDocumentType?.sampleDocument || null,
       isActive: currentDocumentType ? (currentDocumentType?.isActive ? '1' : '0') : '1',
     }),
     [currentDocumentType]
@@ -62,11 +66,10 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
-      console.info('DATA', formData);
-
       const inputData = {
         documentType: formData.documentType,
         description: formData.description,
+        sampleDocument: formData.sampleDocument,
         isActive: currentDocumentType ? formData.isActive : true,
       };
 
@@ -76,7 +79,7 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
         await axiosInstance.patch(`/document-types/${currentDocumentType.id}`, inputData);
       }
       reset();
-      enqueueSnackbar(currentDocumentType ? 'Update success!' : 'Create success!', {variant : 'success'});
+      enqueueSnackbar(currentDocumentType ? 'Update success!' : 'Create success!', { variant: 'success' });
       router.push(paths.dashboard.documentType.list);
     } catch (error) {
       console.error(error);
@@ -91,6 +94,28 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
       reset(defaultValues);
     }
   }, [currentDocumentType, defaultValues, reset]);
+
+  const handleDrop = useCallback(
+    async (acceptedFiles) => {
+     const file = acceptedFiles[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await axiosInstance.post('/files', formData);
+        const { data } = response;
+        setValue('sampleDocument', {
+          fileUrl: data.files[0].fileUrl,
+          fileName: data.files[0].fileName,
+          size: data.files[0]?.size
+        });
+      }
+    },
+    [setValue]
+  );
+
+  const handleRemoveFile = useCallback(() => {
+    setValue('sampleDocument', null);
+  }, [setValue]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -119,6 +144,47 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
 
               <Grid item xs={12} sm={6}>
                 <RHFTextField name="description" label="Description" />
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
+                <Stack spacing={1.5}>
+                  <Typography variant="subtitle2">Sample Document</Typography>
+                  {!values.sampleDocument  ? <RHFUpload
+                    accept={{
+                      'application/pdf': [],
+                      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+                    }}
+                    name="sampleDocument"
+                    maxSize={3145728}
+                    onDrop={handleDrop}
+                    onDelete={handleRemoveFile}
+                  /> : (
+                      <Box sx={{ px: 2, py: 2, border: '1px dashed #ccc', borderRadius: 2, mb: '10px' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Iconify icon="material-symbols:insert-drive-file" width={24} />
+                    <Typography variant="body2">
+                      {values.sampleDocument.fileName} ({(values.sampleDocument.size / 1024).toFixed(1)} KB)
+                    </Typography>
+                  </Box>
+
+                  {/* Optional Preview Link */}
+                  <Typography variant="body2">
+                    <a href={values.sampleDocument.fileUrl} target="_blank" rel="noopener noreferrer">
+                      View / Download File
+                    </a>
+                  </Typography>
+
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{ mt: 2 }}
+                    onClick={() => handleRemoveFile()} // reset state to show upload again
+                  >
+                    Remove File
+                  </Button>
+                </Box>
+                  )}
+                </Stack>
               </Grid>
             </Grid>
 

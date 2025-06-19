@@ -13,3 +13,4 @@ export * from './blue-print.controller';
 export * from './file-upload.controller';
 export * from './process-instances.controller';
 export * from './process-instances-processes.controller';
+export * from './process-instance-documents.controller';

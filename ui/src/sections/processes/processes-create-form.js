@@ -68,14 +68,19 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
       };
 
       if (!currentProcess) {
-        await axiosInstance.post('/processes', inputData);
+        const response = await axiosInstance.post('/processes', inputData);
+        if (response.data) {
+          reset();
+          router.push(paths.dashboard.processes.reactFlow(response.data.id));
+          onClose();
+          enqueueSnackbar('Process created successfully!');
+        }
       } else {
         await axiosInstance.patch(`/processes/${currentProcess.id}`, inputData);
+        reset();
+        onClose();
+        enqueueSnackbar('Process updated successfully!');
       }
-      reset();
-      router.push(paths.dashboard.processes.reactFlow)
-      onClose();
-      enqueueSnackbar('Process created successfully!');
     } catch (error) {
       console.error(error);
     }
