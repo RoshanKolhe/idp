@@ -58,7 +58,8 @@ const operations = [
     title: 'Deliver',
     description: 'Send documents or data.',
     icon: '/assets/icons/document-process/deliver.svg',
-    type: 'default'
+    type: 'deliver',
+    color: '#7551E9'
   },
   {
     id: 7,

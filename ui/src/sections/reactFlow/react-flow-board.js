@@ -20,7 +20,7 @@ import axiosInstance from 'src/utils/axios';
 import { useGetBluePrint } from 'src/api/blue-print';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
-import { ReactFlowClassify, ReactFlowExtract, ReactFlowIngestion, ReactFlowValidate } from './components';
+import { ReactFlowClassify, ReactFlowDeliver, ReactFlowExtract, ReactFlowIngestion, ReactFlowValidate } from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 
 const nodeTypes = {
@@ -30,6 +30,7 @@ const nodeTypes = {
   classify: ReactFlowClassify,
   extract: ReactFlowExtract,
   validate: ReactFlowValidate,
+  deliver: ReactFlowDeliver,
 }
 
 const initialNodes = [
