@@ -1,6 +1,6 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
-import {ProcessInstances} from './process-instances.model';
-import {DocumentType} from './document-type.model';
+import { Entity, model, property, belongsTo } from '@loopback/repository';
+import { ProcessInstances } from './process-instances.model';
+import { DocumentType } from './document-type.model';
 
 @model()
 export class ProcessInstanceDocuments extends Entity {
@@ -15,12 +15,20 @@ export class ProcessInstanceDocuments extends Entity {
     type: 'object',
     required: true
   })
-  documentDetails: {
-    fileName: string;
-    fileUrl: string;
-    fileSize: string;
-  }
+  documentDetails: {}
 
+  @property({
+    type: 'object',
+    required: true
+  })
+  fileDetails: {}
+
+  @property({
+    type: 'object',
+    required: true
+  })
+  extractedFields: {}
+  
   @belongsTo(() => ProcessInstances)
   processInstancesId: number;
 
