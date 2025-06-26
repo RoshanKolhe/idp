@@ -3,6 +3,7 @@ import {
   CountSchema,
   Filter,
   FilterExcludingWhere,
+  relation,
   repository,
   Where,
 } from '@loopback/repository';
@@ -164,7 +165,20 @@ export class ProcessInstancesController {
     @param.path.number('id') id: number,
     @param.filter(ProcessInstances, { exclude: 'where' }) filter?: FilterExcludingWhere<ProcessInstances>
   ): Promise<ProcessInstances> {
-    return this.processInstancesRepository.findById(id, { ...filter, include: [{ relation: 'processes' }] });
+    return this.processInstancesRepository.findById(
+      id, { 
+        ...filter, 
+        include: [
+          { relation: 'processes', 
+            scope: {
+              include: [
+                { relation : 'bluePrint' },
+              ]
+            },
+          },
+        ] 
+      }
+    );
   }
 
   @authenticate({

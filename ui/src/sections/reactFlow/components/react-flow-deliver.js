@@ -144,7 +144,12 @@ export default function ReactFlowDeliver({ data }) {
             <Typography variant='h5'>5. {data.label}</Typography>
             {values.channelType !== '' && <Typography variant='h6'>{channelOptions.find((channel) => channel.value === values.channelType).label}</Typography>}
             {getComponent(values)}
-            <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenModal()}>Add Destination</Button>
+            {
+                (data?.isProcessInstance !== true) ?
+                    <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenModal()}>Add Destination</Button>
+                    :
+                    <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => console.log('Output Data')}>Show Output data</Button>
+            }
             <CustomProcessDialogue
                 isOpen={isOpen}
                 handleCloseModal={handleCloseModal}

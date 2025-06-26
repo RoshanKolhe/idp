@@ -145,7 +145,7 @@ export default function ReactFlowIngestion({ data }) {
             <Typography variant='h5'>1. {data.label}</Typography>
             {values.channelType !== '' && <Typography variant='h6'>{channelOptions.find((channel) => channel.value === values.channelType).label}</Typography>}
             {getComponent(values)}
-            <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenModal()}>Add Channel</Button>
+            {(data?.isProcessInstance !== true) && <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenModal()}>Add Channel</Button>}
             <CustomProcessDialogue
                 isOpen={isOpen}
                 handleCloseModal={handleCloseModal}
@@ -166,11 +166,11 @@ export default function ReactFlowIngestion({ data }) {
                             <Switch opt={values.channelType} onClose={handleCloseModal} />
                         </Grid>
                     </Grid>
-                    <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
+                    {(data?.isProcessInstance !== true) && <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
                         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                             Add
                         </LoadingButton>
-                    </Stack>
+                    </Stack>}
                 </FormProvider>
             </CustomProcessDialogue>
         </Stack>

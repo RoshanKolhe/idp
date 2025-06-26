@@ -100,7 +100,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/processes/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/processes/${id}/view`,
       documentProcess: `${ROOTS.DASHBOARD}/processes/document-process`,
-      reactFlow: (id) => `${ROOTS.DASHBOARD}/processes/${id}/react-flow`,
+      reactFlow: (id) => `${ROOTS.DASHBOARD}/processes/${id}/blueprint`,
     },
     processesInstance: {
       root: `${ROOTS.DASHBOARD}/processesInstance`,
@@ -108,6 +108,8 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/processesInstance/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/view`,
+      reactFlow: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/blueprint`,
+      extractedDocs: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/extracted-documents`,
       // documentProcess: `${ROOTS.DASHBOARD}/processes/document-process`,
       // reactFlow: (id) => `${ROOTS.DASHBOARD}/processes/${id}/react-flow`,
     },

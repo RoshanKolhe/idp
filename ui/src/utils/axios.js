@@ -54,6 +54,7 @@ export const endpoints = {
     list: '/process-instances',
     filterList: (filter) => `/process-instances?${filter}`,
     details: (id) => `/process-instances/${id}`,
+    extractedDocuments: (id) => `/process-instance-documents/by-process-instance/${id}`
   },
   fileType: {
     list: '/file-types',

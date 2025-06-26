@@ -103,13 +103,13 @@ export default function ReactFlowClassify({ data }) {
         }
         return null;
       })}
-      <Button
+      {(data?.isProcessInstance !== true) && <Button
         sx={{ width: "200px", color: "royalBlue", borderColor: "royalBlue" }}
         onClick={handleOpenModal}
         variant="outlined"
       >
         Add Category
-      </Button>
+      </Button>}
 
       {/* Dialog */}
       <CustomProcessDialogue

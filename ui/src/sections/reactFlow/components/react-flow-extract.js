@@ -142,13 +142,13 @@ export default function ReactFlowExtract({ data }) {
                     </Stack>
                 </Stack>
             )))}
-            <Button
+            {(data?.isProcessInstance !== true) && <Button
                 sx={{ width: "200px", color: "royalBlue", borderColor: "royalBlue" }}
                 variant="outlined"
                 onClick={handleOpenModal}
             >
                 Add Extractor
-            </Button>
+            </Button>}
             {/* Dialog */}
             <CustomProcessDialogue
                 title="Select Extractor"

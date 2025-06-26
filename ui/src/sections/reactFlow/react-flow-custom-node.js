@@ -12,7 +12,7 @@ export default function ReactFlowCustomNodeStructure({ data }){
     const [direction, setDirection] = useState(null);
 
     const handleMouseEnter = (e) => {
-        if(data?.label?.toLowerCase() !== 'ingestion'){
+        if(data?.label?.toLowerCase() !== 'ingestion' && (data?.isProcessInstance !== true)){
             setAnchorEl(e.currentTarget);
         }
     };

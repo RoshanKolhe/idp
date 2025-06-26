@@ -111,9 +111,9 @@ export default function ProcessTypeTableRow({
                 border: '1px solid rgba(65, 130, 235, 0.3)',
                 p: 1,
                 borderRadius: '12px',
-                color: '#4182EB', // icon color
+                color: '#4182EB',
               }}
-              onClick={() => onViewRow()}
+              onClick={() => navigate(paths.dashboard.processesInstance.reactFlow(row.id))}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>

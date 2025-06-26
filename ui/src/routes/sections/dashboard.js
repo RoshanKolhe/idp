@@ -52,6 +52,8 @@ const ProcessInstanceCreatePage = lazy(() => import('src/pages/dashboard/process
 const ProcessInstanceEditPage = lazy(() => import('src/pages/dashboard/processInstance/edit'));
 const ProcessInstanceListPage = lazy(() => import('src/pages/dashboard/processInstance/list'));
 const ProcessInstanceViewPage = lazy(() => import('src/pages/dashboard/processInstance/view'));
+const ProcessInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/processInstance/extractedDocuments'));
+const ProcessInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/processInstance/react-flow'));
 // FILE TYPE
 const FileTypeListPage = lazy(() => import('src/pages/dashboard/fileType/list'));
 const FileTypeCreatePage = lazy(() => import('src/pages/dashboard/fileType/new'));
@@ -144,7 +146,7 @@ export const dashboardRoutes = [
           { path: ':id/edit', element: <ProcessesEditPage /> },
           { path: ':id/view', element: <ProcessesViewPage /> },
           { path: 'document-process', element: <ProcessesDocumentProcessingPage /> },
-          { path: ':id/react-flow', element: <ReactFlowPage /> },
+          { path: ':id/blueprint', element: <ReactFlowPage /> },
         ],
       },
       {
@@ -155,6 +157,8 @@ export const dashboardRoutes = [
           { path: 'new', element: <ProcessInstanceCreatePage /> },
           { path: ':id/edit', element: <ProcessInstanceEditPage /> },
           { path: ':id/view', element: <ProcessInstanceViewPage /> },
+          { path: ':id/extracted-documents', element: <ProcessInstanceExtractedDocumentsPage /> },
+          { path: ':id/blueprint', element: <ProcessInstanceReactFlowPage /> },
         ],
       },
       {

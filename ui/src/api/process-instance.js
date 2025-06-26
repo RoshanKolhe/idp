@@ -26,6 +26,27 @@ export function useGetProcessInstances() {
   };
 }
 
+// ---------------------------------------------------------------------
+
+export function useGetProcessInstanceDocuments(processInstanceId) {
+  const URL = processInstanceId ? [endpoints.processInstance.extractedDocuments(processInstanceId)] : null;
+
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+
+  const memoizedValue = useMemo(
+    () => ({
+      processInstancesDocs: data || null,
+      processInstancesDocsLoading: isLoading,
+      processInstancesDocsError: error,
+      processInstancesDocsValidating: isValidating,
+      processInstancesDocsEmpty: !isLoading && !data?.data.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return memoizedValue;
+}
+
 // ----------------------------------------------------------------------
 
 export function useGetProcessInstance(processInstanceId) {
