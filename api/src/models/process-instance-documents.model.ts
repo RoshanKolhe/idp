@@ -24,16 +24,28 @@ export class ProcessInstanceDocuments extends Entity {
   fileDetails: {}
 
   @property({
-    type: 'object',
+    type: 'array',
+    itemType: 'object',
     required: true
   })
-  extractedFields: {}
-  
+  extractedFields: object[];
+
+  @property({
+    type: 'number',
+  })
+  overAllScore: number;
+
   @belongsTo(() => ProcessInstances)
   processInstancesId: number;
 
   @belongsTo(() => DocumentType)
   documentTypeId: number;
+
+  @property({
+    type: 'boolean',
+    default: false
+  })
+  isHumanUpdated: boolean;
 
   @property({
     type: 'date',

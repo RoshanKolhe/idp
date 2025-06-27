@@ -151,8 +151,14 @@ export class ProcessInstanceDocumentsController {
       },
     })
     processInstanceDocuments: ProcessInstanceDocuments,
-  ): Promise<void> {
+  ): Promise<{success: boolean, message: string; data: ProcessInstanceDocuments}> {
     await this.processInstanceDocumentsRepository.updateById(id, processInstanceDocuments);
+    const updatedData = await this.processInstanceDocumentsRepository.findById(id)
+    return{
+      success: true,
+      message: 'Update success',
+      data: updatedData
+    }
   }
 
   @authenticate({
