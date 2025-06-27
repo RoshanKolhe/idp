@@ -182,7 +182,7 @@ export class FileUploadController {
 
   }
 
-  @get('/files/file/:path/:fileName')
+  @get('/files/file/{path}/{fileName}')
   @oas.response.file()
   downloadFile(
     @param.path.string('path') folderPath: string,
@@ -202,7 +202,7 @@ export class FileUploadController {
     return response;
   }
 
-  @get('/files/file/:fileName')
+  @get('/files/file/{fileName}')
   @oas.response.file()
   downloadFileOutsideFolder(
     @param.path.string('fileName') fileName: string,
@@ -246,7 +246,7 @@ export class FileUploadController {
       fieldname: f.fieldname,
       fileName: f.originalname,
       newFileName: f.filename,
-      fileUrl: `${process.env.API_ENDPOINT}/files/file?path=${encodeURIComponent(slug ? slug + '/' + f.filename : f.filename)}`,
+      fileUrl: `${process.env.API_ENDPOINT}/files/file/${encodeURIComponent(slug ? slug + '/' + f.filename : f.filename)}`,
       encoding: f.encoding,
       mimetype: f.mimetype,
       size: f.size,
