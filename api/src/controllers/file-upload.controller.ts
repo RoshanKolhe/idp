@@ -182,13 +182,33 @@ export class FileUploadController {
 
   }
 
-  @get('/files/file')
+  @get('/files/file/:path/:fileName')
   @oas.response.file()
   downloadFile(
-    @param.query.string('path') filePath: string,
+    @param.path.string('path') folderPath: string,
+    @param.path.string('fileName') fileName: string,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ) {
-    const file = this.validateFileName(filePath);
+    const file = this.validateFileName(`${folderPath}/${fileName}`);
+    fs.readFile(file, function (err, data) {
+      if (err) {
+        response.writeHead(404);
+        response.end('Something Went Wrong');
+      } else {
+        response.writeHead(200);
+        response.end(data);
+      }
+    });
+    return response;
+  }
+
+  @get('/files/file/:fileName')
+  @oas.response.file()
+  downloadFileOutsideFolder(
+    @param.path.string('fileName') fileName: string,
+    @inject(RestBindings.Http.RESPONSE) response: Response,
+  ) {
+    const file = this.validateFileName(fileName);
     fs.readFile(file, function (err, data) {
       if (err) {
         response.writeHead(404);
