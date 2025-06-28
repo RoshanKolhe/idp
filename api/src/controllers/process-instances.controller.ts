@@ -63,7 +63,7 @@ export class ProcessInstancesController {
     fs.mkdirSync(folderPath, { recursive: true });
     console.log(`Created folder: ${folderPath}`);
 
-    return folderPath;
+    return slugifyName;
   }
 
   @authenticate({
@@ -89,7 +89,7 @@ export class ProcessInstancesController {
     processInstances: Omit<ProcessInstances, 'id'>,
   ): Promise<ProcessInstances> {
     const folderString = await this.createProcessFolder(processInstances.processInstanceName);
-    return this.processInstancesRepository.create({...processInstances, processInstanceFolderName: folderString});
+    return this.processInstancesRepository.create({ ...processInstances, processInstanceFolderName: folderString });
   }
 
   @get('/process-instances/count')
@@ -166,18 +166,19 @@ export class ProcessInstancesController {
     @param.filter(ProcessInstances, { exclude: 'where' }) filter?: FilterExcludingWhere<ProcessInstances>
   ): Promise<ProcessInstances> {
     return this.processInstancesRepository.findById(
-      id, { 
-        ...filter, 
-        include: [
-          { relation: 'processes', 
-            scope: {
-              include: [
-                { relation : 'bluePrint' },
-              ]
-            },
+      id, {
+      ...filter,
+      include: [
+        {
+          relation: 'processes',
+          scope: {
+            include: [
+              { relation: 'bluePrint' },
+            ]
           },
-        ] 
-      }
+        },
+      ]
+    }
     );
   }
 
@@ -218,15 +219,27 @@ export class ProcessInstancesController {
     await this.processInstancesRepository.replaceById(id, processInstances);
   }
 
-  @authenticate({
-    strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
-  })
+  // @authenticate({
+  //   strategy: 'jwt',
+  //   options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+  // })
   @del('/process-instances/{id}')
   @response(204, {
     description: 'ProcessInstances DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
+    const processInstance = await this.processInstancesRepository.findById(id);
     await this.processInstancesRepository.deleteById(id);
+
+    // Build the folder path: .sandbox/<processinstanceFolder>
+    const folderPath = path.join(__dirname, '../../.sandbox', `${processInstance.processInstanceFolderName}`);
+
+    // Delete the folder if it exists
+    if (fs.existsSync(folderPath)) {
+      fs.rmSync(folderPath, { recursive: true, force: true });
+      console.log(`Deleted folder: ${folderPath}`);
+    } else {
+      console.warn(`Folder not found: ${folderPath}`);
+    }
   }
 }
