@@ -17,6 +17,11 @@ export class ProcessInstances extends Entity {
   processInstanceName: string;
 
   @property({
+    type: 'string'
+  })
+  processInstanceFolderName: string;
+
+  @property({
     type: 'string',
     // required: true,
   })

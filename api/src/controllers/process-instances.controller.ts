@@ -89,7 +89,7 @@ export class ProcessInstancesController {
     processInstances: Omit<ProcessInstances, 'id'>,
   ): Promise<ProcessInstances> {
     const folderString = await this.createProcessFolder(processInstances.processInstanceName);
-    return this.processInstancesRepository.create(processInstances);
+    return this.processInstancesRepository.create({...processInstances, processInstanceFolderName: folderString});
   }
 
   @get('/process-instances/count')
