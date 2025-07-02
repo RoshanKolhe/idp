@@ -68,11 +68,11 @@ Switch.propTypes = {
 
 // getComponent to show
 const getComponent = (values = {}) => {
-    const { channelType, path, url } = values;
+    const { channelType, host, path, url } = values;
 
     switch (channelType) {
         case 'ftp':
-            return <Typography variant="body1">{path}</Typography>;
+            return <Typography variant="body1">{`${host}/${path}`}</Typography>;
 
         case 'http':
             return <Typography variant="body1">{url}</Typography>;
@@ -90,6 +90,9 @@ export default function ReactFlowDeliver({ data }) {
         () => ({
             channelType: data.bluePrint?.channelType || '',
             path: data.bluePrint?.path || '',
+            host: data.bluePrint?.host || '',
+            userName: data.bluePrint?.userName || '',
+            password: '',
             url: data.bluePrint?.url || '',
         }),
         [data]
@@ -156,8 +159,8 @@ export default function ReactFlowDeliver({ data }) {
                 title='Add Channel'
             >
                 <FormProvider methods={methods} onSubmit={onSubmit}>
-                    <Grid container spacing={1}>
-                        <Grid item xs={12} md={6}>
+                    <Grid container spacing={1} sx={{ mb: 2 }}>
+                        <Grid item xs={12} md={12}>
                             <RHFSelect name='channelType' label='Channel Type'>
                                 {(channelOptions && channelOptions.length) > 0 ? channelOptions.map((channel) => (
                                     <MenuItem key={channel.value} value={channel.value} disabled={channel.isDisabled}>{channel.label}</MenuItem>
@@ -166,8 +169,10 @@ export default function ReactFlowDeliver({ data }) {
                                 )}
                             </RHFSelect>
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Switch opt={values.channelType} onClose={handleCloseModal} />
+                        <Grid item xs={12}>
+                            <Grid container spacing={1}>
+                                <Switch opt={values.channelType} onClose={handleCloseModal} />
+                            </Grid>
                         </Grid>
                     </Grid>
                     <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>

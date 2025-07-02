@@ -1,6 +1,8 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import * as Yup from 'yup';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import bcrypt from 'bcryptjs';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { Button, Grid, MenuItem, Stack, Typography } from "@mui/material";
@@ -23,6 +25,9 @@ const channelOptions = [
 const channelSchemas = {
     ftp: Yup.object().shape({
         path: Yup.string().required('FTP path is required'),
+        host: Yup.string().required("FTP Host is required"),
+        password: Yup.string().required("FTP Password is required"),
+        userName: Yup.string().required("FTP Username is required"),
     }),
     api: Yup.object().shape({
         endpoint: Yup.string().url('Invalid URL').required('Endpoint is required'),
@@ -38,11 +43,11 @@ const channelSchemas = {
 
 // getComponent to show
 const getComponent = (values = {}) => {
-    const { channelType, path, url } = values;
+    const { channelType, host, path, url } = values;
 
     switch (channelType) {
         case 'ftp':
-            return <Typography variant="body1">{path}</Typography>;
+            return <Typography variant="body1">{`${host}/${path}`}</Typography>;
 
         case 'http':
             return <Typography variant="body1">{url}</Typography>;
@@ -93,6 +98,9 @@ export default function ReactFlowIngestion({ data }) {
         () => ({
             channelType: data.bluePrint?.channelType || '',
             path: data.bluePrint?.path || '',
+            host: data.bluePrint?.host || '',
+            userName: data.bluePrint?.userName || '',
+            password: '',
             url: data.bluePrint?.url || '',
         }),
         [data]
@@ -117,7 +125,13 @@ export default function ReactFlowIngestion({ data }) {
 
     const onSubmit = handleSubmit(async (formData) => {
         console.log(formData);
-        data.functions.handleBluePrintComponent(data.label, { ...formData });
+        let newFormData = formData;
+        if(formData.channelType && formData.channelType === 'ftp'){
+            const pass = formData.password;
+            const hash = await bcrypt.hash(pass, 10);
+            newFormData = {...formData, password: hash};
+        }
+        data.functions.handleBluePrintComponent(data.label, { ...newFormData });
         handleCloseModal();
     })
 
@@ -152,19 +166,23 @@ export default function ReactFlowIngestion({ data }) {
                 title='Add Channel'
             >
                 <FormProvider methods={methods} onSubmit={onSubmit}>
-                    <Grid container spacing={1}>
-                        <Grid item xs={12} md={6}>
+                    <Grid container spacing={1} sx={{ mb: 2 }}>
+                        <Grid item xs={12} md={12}>
                             <RHFSelect name='channelType' label='Channel Type'>
-                                {(channelOptions && channelOptions.length) > 0 ? channelOptions.map((channel) => (
-                                    <MenuItem key={channel.value} value={channel.value} disabled={channel.isDisabled}>{channel.label}</MenuItem>
-                                )) : (
-                                    <MenuItem value=''>No channels found</MenuItem>
-                                )}
+                                {(channelOptions?.length > 0)
+                                    ? channelOptions.map((channel) => (
+                                        <MenuItem key={channel.value} value={channel.value} disabled={channel.isDisabled}>
+                                            {channel.label}
+                                        </MenuItem>
+                                    ))
+                                    : <MenuItem value=''>No channels found</MenuItem>
+                                }
                             </RHFSelect>
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Switch opt={values.channelType} onClose={handleCloseModal} />
-                        </Grid>
+                    </Grid>
+
+                    <Grid container spacing={1}>
+                        <Switch opt={values.channelType} onClose={handleCloseModal} />
                     </Grid>
                     {(data?.isProcessInstance !== true) && <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
                         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
