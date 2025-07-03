@@ -95,7 +95,9 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
         response = await axiosInstance.post('/process-instances', inputData);
       } else {
         await axiosInstance.patch(`/process-instances/${currentProcessInstance.id}`, inputData);
-        response = { data: { ...currentProcessInstance, ...inputData } };
+        reset();
+        enqueueSnackbar(currentProcessInstance ? 'Update success!' : 'Create success!');
+        router.push(paths.dashboard.processesInstance.list);
       }
 
       if (response?.data) {
@@ -112,13 +114,9 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
           setUploadDocSection(true);
           setProcessInstanceData(processData);
         } else {
-          reset(); // reset form in all cases
+          reset();
           router.push(paths.dashboard.processesInstance.list);
         }
-      } else {
-        enqueueSnackbar(currentProcessInstance ? 'Update failure!' : 'Create failure!', {
-          variant: 'error',
-        });
       }
     } catch (error) {
       console.error(error);
@@ -142,6 +140,19 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
       setProcessesData((prev) => [...prev, currentProcessInstance?.processes]);
     }
   }, [currentProcessInstance, defaultValues, reset, setValue]);
+
+  useEffect(() => {
+    if (currentProcessInstance) {
+      const bluePrint = currentProcessInstance?.processes?.bluePrint?.bluePrint ?? [];
+      const ingestionNode = bluePrint?.find((node) => node?.nodeName === 'Ingestion');
+      const isUIChannel = ingestionNode?.component?.channelType === 'ui';
+
+      if (isUIChannel) {
+        setUploadDocSection(true);
+        setProcessInstanceData(currentProcessInstance);
+      }
+    }
+  }, [currentProcessInstance])
 
   const fetchProcesses = async (searchTerm) => {
     try {
@@ -202,15 +213,15 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
               </Grid>
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                {((!currentProcessInstance && !openUploadDocSection) || (currentProcessInstance)) && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                   {!currentProcessInstance ? 'Create Process Instance' : 'Save Changes'}
-                </LoadingButton>
+                </LoadingButton>}
               </Stack>
             </Card>
           </Grid>
         </Grid>
       </FormProvider>
-      {processInstanceData && <Box component='div' sx={{mt: 2}}>
+      {openUploadDocSection && processInstanceData && <Box component='div' sx={{ mt: 2 }}>
         <ProcessInstanceUploadDoc handleClose={handleClose} data={processInstanceData} />
       </Box>}
     </>

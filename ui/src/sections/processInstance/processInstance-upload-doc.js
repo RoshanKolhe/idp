@@ -10,18 +10,25 @@ import * as Yup from 'yup';
 
 export default function ProcessInstanceUploadDoc({ handleClose, data }) {
     const fetchDocs = async (foldername) => {
-        try{
+        try {
             const response = await axiosInstance.get(`/files/${foldername}`);
-            console.log('response', response?.data);
-        }catch(error){
+            const filesArray = response?.data ?? [];
+
+            const filesData = filesArray.map(
+                (file) => `${process.env.REACT_APP_HOST_API}/files/file/${foldername}/${file}`
+            );
+
+            setValue('files', filesData);
+        } catch (error) {
             console.error('Error while fetching docs', error);
         }
     };
 
     useEffect(() => {
-        if(data){
+        if (data) {
             fetchDocs(data?.processInstanceFolderName);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
     const newFileUploadSchema = Yup.object().shape({
@@ -124,7 +131,7 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                     />
                 </Grid>
             </Grid>
-            <Stack direction='row' spacing={1} sx={{mt: 3, display: 'flex', justifyContent: 'flex-end'}}>
+            <Stack direction='row' spacing={1} sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                 <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                     Upload
                 </LoadingButton>
