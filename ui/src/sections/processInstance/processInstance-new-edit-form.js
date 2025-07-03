@@ -36,13 +36,15 @@ import FormProvider, {
 import { IconButton, InputAdornment, MenuItem } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
+import ProcessInstanceUploadDoc from './processInstance-upload-doc';
 
 // ----------------------------------------------------------------------
 
 export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
   const router = useRouter();
   const [processesData, setProcessesData] = useState([]);
-
+  const [openUploadDocSection, setUploadDocSection] = useState(false);
+  const [processInstanceData, setProcessInstanceData] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProcessTypeSchema = Yup.object().shape({
@@ -88,21 +90,50 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
         isActive: currentProcessInstance ? formData.isActive : true,
       };
 
+      let response;
       if (!currentProcessInstance) {
-        await axiosInstance.post('/process-instances', inputData);
+        response = await axiosInstance.post('/process-instances', inputData);
       } else {
         await axiosInstance.patch(`/process-instances/${currentProcessInstance.id}`, inputData);
+        response = { data: { ...currentProcessInstance, ...inputData } };
       }
-      reset();
-      enqueueSnackbar(currentProcessInstance ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.processesInstance.list);
+
+      if (response?.data) {
+        const processData = response.data;
+        const bluePrint = processData?.processes?.bluePrint?.bluePrint ?? [];
+
+        const ingestionNode = bluePrint?.find((node) => node?.nodeName === 'Ingestion');
+
+        const isUIChannel = ingestionNode?.component?.channelType === 'ui';
+
+        enqueueSnackbar(currentProcessInstance ? 'Update success!' : 'Create success!');
+
+        if (isUIChannel) {
+          setUploadDocSection(true);
+          setProcessInstanceData(processData);
+        } else {
+          reset(); // reset form in all cases
+          router.push(paths.dashboard.processesInstance.list);
+        }
+      } else {
+        enqueueSnackbar(currentProcessInstance ? 'Update failure!' : 'Create failure!', {
+          variant: 'error',
+        });
+      }
     } catch (error) {
       console.error(error);
-      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
+      enqueueSnackbar(error?.response?.data?.message || 'Something went wrong!', {
         variant: 'error',
       });
     }
   });
+
+
+  const handleClose = () => {
+    reset();
+    router.push(paths.dashboard.processesInstance.list);
+    setUploadDocSection(false);
+  }
 
   useEffect(() => {
     if (currentProcessInstance) {
@@ -131,53 +162,58 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
   }
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={12}>
-          <Card sx={{ p: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <RHFTextField name="processInstanceName" label="Process Instance Name" />
+    <>
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={12}>
+            <Card sx={{ p: 3 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <RHFTextField name="processInstanceName" label="Process Instance Name" />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <RHFAutocomplete
+                    name="processes"
+                    label="Select Process *"
+                    options={processesData || []}
+                    onInputChange={(event) => fetchProcesses(event?.target?.value)}
+                    getOptionLabel={(option) => `${option?.name}` || ''}
+                    isOptionEqualToValue={(option, value) => option?.id === value.id}
+                    filterOptions={(options, { inputValue }) =>
+                      options?.filter((option) => option?.name?.toLowerCase().includes(inputValue?.toLowerCase()))
+                    }
+                    renderOption={(props, option) => (
+                      <li {...props}>
+                        <div>
+                          <Typography variant="subtitle2" fontWeight="bold">
+                            {`${option?.name}`}
+                          </Typography>
+                        </div>
+                      </li>
+                    )}
+
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={12}>
+                  <RHFTextField multiline rows={3} name="processInstanceDescription" label="Process Instance Description" />
+                </Grid>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
-                <RHFAutocomplete
-                  name="processes"
-                  label="Select Process *"
-                  options={processesData || []}
-                  onInputChange={(event) => fetchProcesses(event?.target?.value)}
-                  getOptionLabel={(option) => `${option?.name}` || ''}
-                  isOptionEqualToValue={(option, value) => option?.id === value.id}
-                  filterOptions={(options, { inputValue }) =>
-                    options?.filter((option) => option?.name?.toLowerCase().includes(inputValue?.toLowerCase()))
-                  }
-                  renderOption={(props, option) => (
-                    <li {...props}>
-                      <div>
-                        <Typography variant="subtitle2" fontWeight="bold">
-                          {`${option?.name}`}
-                        </Typography>
-                      </div>
-                    </li>
-                  )}
-
-                />
-              </Grid>
-              
-              <Grid item xs={12} sm={12}>
-                <RHFTextField multiline rows={3} name="processInstanceDescription" label="Process Instance Description" />
-              </Grid>
-            </Grid>
-
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentProcessInstance ? 'Create Process Instance' : 'Save Changes'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentProcessInstance ? 'Create Process Instance' : 'Save Changes'}
+                </LoadingButton>
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </FormProvider>
+      </FormProvider>
+      {processInstanceData && <Box component='div' sx={{mt: 2}}>
+        <ProcessInstanceUploadDoc handleClose={handleClose} data={processInstanceData} />
+      </Box>}
+    </>
   );
 }
 

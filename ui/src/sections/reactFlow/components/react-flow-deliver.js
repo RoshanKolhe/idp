@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import CryptoJS from 'crypto-js';
 import PropTypes from "prop-types";
 import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -82,6 +84,27 @@ const getComponent = (values = {}) => {
     }
 };
 
+function encryptPassword(password) {
+    const secretKey = process.env.REACT_APP_SECRET_KEY;
+
+    if (!secretKey || secretKey.length < 32) {
+        throw new Error('Invalid AES secret key. Must be 32 characters for AES-256.');
+    }
+
+    const key = CryptoJS.enc.Utf8.parse(secretKey); // 32-byte key
+    const iv = CryptoJS.lib.WordArray.random(16); // 16-byte IV
+
+    const encrypted = CryptoJS.AES.encrypt(password, key, {
+        iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+    });
+
+    // Combine IV + ciphertext and encode in Base64
+    const encryptedWithIV = iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
+    return encryptedWithIV;
+}
+
 export default function ReactFlowDeliver({ data }) {
     const [isOpen, setIsOpen] = useState(false);
     const [dynamicSchema, setDynamicSchema] = useState(getValidationSchema(''));
@@ -117,7 +140,13 @@ export default function ReactFlowDeliver({ data }) {
 
     const onSubmit = handleSubmit(async (formData) => {
         console.log(formData);
-        data.functions.handleBluePrintComponent(data.label, { ...formData });
+        let newFormData = formData;
+        if (formData.channelType && formData.channelType === 'ftp') {
+            const pass = formData.password;
+            const hash = encryptPassword(pass);
+            newFormData = { ...formData, password: hash };
+        }
+        data.functions.handleBluePrintComponent(data.label, { ...newFormData });
         handleCloseModal();
     })
 

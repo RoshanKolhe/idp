@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import CryptoJS from 'crypto-js';
 import * as Yup from 'yup';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bcrypt from 'bcryptjs';
@@ -17,8 +19,8 @@ import CustomProcessDialogue from "./components-dialogue";
 const channelOptions = [
     { label: 'FTP', value: 'ftp', isDisabled: false },
     { label: 'API', value: 'api', isDisabled: true },
-    { label: 'HTTP/HTTPS', value: 'http', isDisabled: false },
-    { label: 'UI/PORTAL', value: 'ui', isDisabled: true },
+    { label: 'HTTP/HTTPS', value: 'http', isDisabled: true },
+    { label: 'UI/PORTAL', value: 'ui', isDisabled: false },
 ]
 
 // const channelSchemas
@@ -35,9 +37,6 @@ const channelSchemas = {
     }),
     http: Yup.object().shape({
         url: Yup.string().url('Invalid URL').required('URL is required'),
-    }),
-    ui: Yup.object().shape({
-        uploaderName: Yup.string().required('Uploader name is required'),
     }),
 };
 
@@ -56,7 +55,6 @@ const getComponent = (values = {}) => {
             return null;
     }
 };
-
 
 const getValidationSchema = (channelType) =>
     Yup.object().shape({
@@ -85,9 +83,29 @@ function Switch({ opt }) {
         <>{component}</>
     )
 }
-
 Switch.propTypes = {
     opt: PropTypes.string,
+}
+
+function encryptPassword(password) {
+    const secretKey = process.env.REACT_APP_SECRET_KEY;
+
+    if (!secretKey || secretKey.length < 32) {
+        throw new Error('Invalid AES secret key. Must be 32 characters for AES-256.');
+    }
+
+    const key = CryptoJS.enc.Utf8.parse(secretKey); // 32-byte key
+    const iv = CryptoJS.lib.WordArray.random(16); // 16-byte IV
+
+    const encrypted = CryptoJS.AES.encrypt(password, key, {
+        iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7,
+    });
+
+    // Combine IV + ciphertext and encode in Base64
+    const encryptedWithIV = iv.concat(encrypted.ciphertext).toString(CryptoJS.enc.Base64);
+    return encryptedWithIV;
 }
 
 export default function ReactFlowIngestion({ data }) {
@@ -126,10 +144,10 @@ export default function ReactFlowIngestion({ data }) {
     const onSubmit = handleSubmit(async (formData) => {
         console.log(formData);
         let newFormData = formData;
-        if(formData.channelType && formData.channelType === 'ftp'){
+        if (formData.channelType && formData.channelType === 'ftp') {
             const pass = formData.password;
-            const hash = await bcrypt.hash(pass, 10);
-            newFormData = {...formData, password: hash};
+            const hash = encryptPassword(pass);
+            newFormData = { ...formData, password: hash };
         }
         data.functions.handleBluePrintComponent(data.label, { ...newFormData });
         handleCloseModal();
