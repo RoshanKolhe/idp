@@ -120,7 +120,7 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
       }
     } catch (error) {
       console.error(error);
-      enqueueSnackbar(error?.response?.data?.message || 'Something went wrong!', {
+      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
         variant: 'error',
       });
     }
