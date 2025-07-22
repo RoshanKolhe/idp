@@ -8,3 +8,4 @@ export * from './ai-model.model';
 export * from './blue-print.model';
 export * from './process-instances.model';
 export * from './process-instance-documents.model';
+export * from './log-entry.model';

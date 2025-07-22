@@ -8,3 +8,4 @@ export * from './ai-model.repository';
 export * from './blue-print.repository';
 export * from './process-instances.repository';
 export * from './process-instance-documents.repository';
+export * from './log-entry.repository';
