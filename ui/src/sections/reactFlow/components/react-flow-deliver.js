@@ -11,6 +11,7 @@ import FormProvider, { RHFSelect } from "src/components/hook-form";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
 import { FTPComponent, HTTPComponent } from "../deliver-components";
 import CustomProcessDialogue from "./components-dialogue";
+import LogsProcessDialogue from "./logs-dialogue";
 
 // channel options
 const channelOptions = [
@@ -107,6 +108,8 @@ function encryptPassword(password) {
 
 export default function ReactFlowDeliver({ data }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [logsOpen, setLogsOpen] = useState(false);
+
     const [dynamicSchema, setDynamicSchema] = useState(getValidationSchema(''));
 
     const defaultValues = useMemo(
@@ -169,6 +172,15 @@ export default function ReactFlowDeliver({ data }) {
         setIsOpen(false);
     }
 
+    // Open logs modal
+    const handleOpenLogsModal = () => {
+        setLogsOpen(true);
+    };
+
+    // Close logs modal
+    const handleCloseLogsModal = () => {
+        setLogsOpen(false);
+    }
 
     return (
         <Stack sx={{ marginTop: 3 }} spacing={1}>
@@ -182,6 +194,8 @@ export default function ReactFlowDeliver({ data }) {
                     :
                     <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => console.log('Output Data')}>Show Output data</Button>
             }
+            {(data?.isProcessInstance === true) && <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenLogsModal()}>View Logs</Button>}
+
             <CustomProcessDialogue
                 isOpen={isOpen}
                 handleCloseModal={handleCloseModal}
@@ -211,6 +225,9 @@ export default function ReactFlowDeliver({ data }) {
                     </Stack>
                 </FormProvider>
             </CustomProcessDialogue>
+
+            {/* logs modal */}
+            <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceId={14} nodeName={data.label} />
         </Stack>
     )
 }

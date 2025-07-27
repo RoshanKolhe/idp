@@ -17,19 +17,19 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {LogEntry} from '../models';
-import {LogEntryRepository} from '../repositories';
+import { LogEntry } from '../models';
+import { LogEntryRepository } from '../repositories';
 
 export class LogEntryController {
   constructor(
     @repository(LogEntryRepository)
-    public logEntryRepository : LogEntryRepository,
-  ) {}
+    public logEntryRepository: LogEntryRepository,
+  ) { }
 
   @post('/log-entries')
   @response(200, {
     description: 'LogEntry model instance',
-    content: {'application/json': {schema: getModelSchemaRef(LogEntry)}},
+    content: { 'application/json': { schema: getModelSchemaRef(LogEntry) } },
   })
   async create(
     @requestBody({
@@ -50,7 +50,7 @@ export class LogEntryController {
   @get('/log-entries/count')
   @response(200, {
     description: 'LogEntry model count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async count(
     @param.where(LogEntry) where?: Where<LogEntry>,
@@ -65,7 +65,7 @@ export class LogEntryController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(LogEntry, {includeRelations: true}),
+          items: getModelSchemaRef(LogEntry, { includeRelations: true }),
         },
       },
     },
@@ -79,13 +79,13 @@ export class LogEntryController {
   @patch('/log-entries')
   @response(200, {
     description: 'LogEntry PATCH success count',
-    content: {'application/json': {schema: CountSchema}},
+    content: { 'application/json': { schema: CountSchema } },
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(LogEntry, {partial: true}),
+          schema: getModelSchemaRef(LogEntry, { partial: true }),
         },
       },
     })
@@ -100,13 +100,13 @@ export class LogEntryController {
     description: 'LogEntry model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(LogEntry, {includeRelations: true}),
+        schema: getModelSchemaRef(LogEntry, { includeRelations: true }),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(LogEntry, {exclude: 'where'}) filter?: FilterExcludingWhere<LogEntry>
+    @param.filter(LogEntry, { exclude: 'where' }) filter?: FilterExcludingWhere<LogEntry>
   ): Promise<LogEntry> {
     return this.logEntryRepository.findById(id, filter);
   }
@@ -120,7 +120,7 @@ export class LogEntryController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(LogEntry, {partial: true}),
+          schema: getModelSchemaRef(LogEntry, { partial: true }),
         },
       },
     })
@@ -146,5 +146,51 @@ export class LogEntryController {
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
     await this.logEntryRepository.deleteById(id);
+  }
+
+  @post('/log-entries/logs-by-node')
+  async logsByNode(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              processInstanceId: { type: 'number' },
+              nodeName: { type: 'string' },
+              limit: { type: 'number', default: 10 }, 
+              skip: { type: 'number', default: 0 },    
+            },
+            required: ['processInstanceId', 'nodeName']
+          }
+        }
+      }
+    })
+    requestBody: {
+      processInstanceId: number;
+      nodeName: string;
+      limit?: number;
+      skip?: number;
+    }
+  ): Promise<LogEntry[]> {
+    try {
+      const { processInstanceId, nodeName, limit = 10, skip = 0 } = requestBody;
+
+      const logs = await this.logEntryRepository.find({
+        where: {
+          and: [
+            { processInstanceId },
+            { nodeName }
+          ]
+        },
+        limit,
+        skip,
+        order: ['createdAt DESC'],
+      });
+
+      return logs;
+    } catch (error) {
+      throw error;
+    }
   }
 }

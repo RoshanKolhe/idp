@@ -1,5 +1,5 @@
 import { Button, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import * as Yup from 'yup';
 import { useForm } from "react-hook-form";
@@ -8,11 +8,14 @@ import { useNavigate } from "react-router";
 import { paths } from "src/routes/paths";
 import { useParams } from "src/routes/hook";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
+import LogsProcessDialogue from "./logs-dialogue";
 
 export default function ReactFlowValidate({ data }) {
     const navigate = useNavigate();
     const params = useParams();
     const { id } = params;
+    const [logsOpen, setLogsOpen] = useState(false);
+
     const newValidationSchema = Yup.object().shape({
         method: Yup.string().required('Validation method is required')
     });
@@ -56,6 +59,17 @@ export default function ReactFlowValidate({ data }) {
     useEffect(() => {
         reset(defaultValues);
     }, [defaultValues, reset]);
+
+    // Open logs modal
+    const handleOpenLogsModal = () => {
+        setLogsOpen(true);
+    };
+
+    // Close logs modal
+    const handleCloseLogsModal = () => {
+        setLogsOpen(false);
+    }
+
     return (
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
@@ -89,6 +103,10 @@ export default function ReactFlowValidate({ data }) {
                     )}
                 </RadioGroup>
             </FormControl>
+            {(data?.isProcessInstance === true) && <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenLogsModal()}>View Logs</Button>}
+
+            {/* logs modal */}
+            <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceId={14} nodeName={data.label} />
         </Stack>
     )
 }

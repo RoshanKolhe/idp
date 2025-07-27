@@ -16,6 +16,7 @@ import { useGetDocumentTypes } from "src/api/documentType";
 import FormProvider, { RHFAutocomplete, RHFSelect } from "src/components/hook-form";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
 import CustomProcessDialogue from "./components-dialogue";
+import LogsProcessDialogue from "./logs-dialogue";
 
 // Model options
 const modelOptions = [
@@ -27,6 +28,7 @@ const modelOptions = [
 
 export default function ReactFlowClassify({ data }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [logsOpen, setLogsOpen] = useState(false);
   const [documentTypesData, setDocumentTypesData] = useState([]);
   const { documentTypes, documentTypesEmpty } = useGetDocumentTypes();
 
@@ -38,6 +40,16 @@ export default function ReactFlowClassify({ data }) {
 
   const handleOpenModal = () => setIsOpen(true);
   const handleCloseModal = () => setIsOpen(false);
+
+  // Open logs modal
+  const handleOpenLogsModal = () => {
+    setLogsOpen(true);
+  };
+
+  // Close logs modal
+  const handleCloseLogsModal = () => {
+    setLogsOpen(false);
+  }
 
   const newClassificationSchema = Yup.object().shape({
     model: Yup.string().required("Model is required"),
@@ -110,6 +122,7 @@ export default function ReactFlowClassify({ data }) {
       >
         Add Category
       </Button>}
+      {(data?.isProcessInstance === true) && <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenLogsModal()}>View Logs</Button>}
 
       {/* Dialog */}
       <CustomProcessDialogue
@@ -157,6 +170,9 @@ export default function ReactFlowClassify({ data }) {
           </Stack>
         </FormProvider>
       </CustomProcessDialogue>
+
+      {/* logs modal */}
+      <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceId={14} nodeName={data.label} />
     </Stack>
   );
 }

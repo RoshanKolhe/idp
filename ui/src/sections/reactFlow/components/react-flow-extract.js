@@ -10,6 +10,7 @@ import { useGetDocumentTypes } from "src/api/documentType";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node"
 import CustomProcessDialogue from "./components-dialogue";
 import { GenAIComponent } from "../extract-components";
+import LogsProcessDialogue from "./logs-dialogue";
 
 // Model options
 const modelOptions = [
@@ -80,6 +81,7 @@ ExtractorSwitch.propTypes = {
 
 export default function ReactFlowExtract({ data }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [logsOpen, setLogsOpen] = useState(false);
     const [documentTypesData, setDocumentTypesData] = useState([]);
     const { documentTypes, documentTypesEmpty } = useGetDocumentTypes();
 
@@ -129,6 +131,16 @@ export default function ReactFlowExtract({ data }) {
     const handleOpenModal = () => setIsOpen(true);
     const handleCloseModal = () => setIsOpen(false);
 
+    // Open logs modal
+    const handleOpenLogsModal = () => {
+        setLogsOpen(true);
+    };
+
+    // Close logs modal
+    const handleCloseLogsModal = () => {
+        setLogsOpen(false);
+    }
+
     return (
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
@@ -149,6 +161,8 @@ export default function ReactFlowExtract({ data }) {
             >
                 Add Extractor
             </Button>}
+            {(data?.isProcessInstance === true) && <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenLogsModal()}>View Logs</Button>}
+
             {/* Dialog */}
             <CustomProcessDialogue
                 title="Select Extractor"
@@ -207,6 +221,9 @@ export default function ReactFlowExtract({ data }) {
                     </Stack>
                 </FormProvider>
             </CustomProcessDialogue>
+
+            {/* logs modal */}
+            <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceId={14} nodeName={data.label} />
         </Stack >
     )
 }

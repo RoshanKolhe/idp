@@ -1,10 +1,11 @@
-import {HttpErrors} from '@loopback/rest';
-import {securityId, UserProfile} from '@loopback/security';
-import {promisify} from 'util';
+import { HttpErrors } from '@loopback/rest';
+import { securityId, UserProfile } from '@loopback/security';
+import { promisify } from 'util';
 const jwt = require('jsonwebtoken');
 const signAsync = promisify(jwt.sign);
 const verifyAsync = promisify(jwt.verify);
 export class JWTService {
+
   async generateToken(userProfile: UserProfile): Promise<string> {
     if (!userProfile) {
       throw new HttpErrors.NotFound(
@@ -75,4 +76,28 @@ export class JWTService {
 
     return userProfile;
   }
+
+  // async generateShortLivedProcessInstanceToken(
+  //   processInstanceProfile: {
+  //     processInstanceId: number,
+  //     processInstanceName: string,
+  //     processInstanceSecretKey: string,
+  //     processId: number
+  //   }
+  // ): Promise<string>{
+  //       if (!processInstanceProfile) {
+  //     throw new HttpErrors.NotFound(
+  //       'Error while generating token process instance profile is null',
+  //     );
+  //   }
+  //   let token = '';
+  //   try {
+  //     token = await signAsync(processInstanceProfile, 'idp-process-instance', {
+  //       expiresIn: '7h',
+  //     });
+  //   } catch (err) {
+  //     throw new HttpErrors.Unauthorized(`error generating token${err}`);
+  //   }
+  //   return token;
+  // }
 }
