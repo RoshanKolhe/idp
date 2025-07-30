@@ -20,16 +20,26 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import { ProcessInstances } from '../models';
-import { ProcessInstancesRepository } from '../repositories';
+import { ProcessesRepository, ProcessInstanceSecretsRepository, ProcessInstancesRepository } from '../repositories';
 import { authenticate } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
 import fs from 'fs';
 import path from 'path';
+import { promisify } from 'util';
+import { randomBytes } from 'crypto';
+import { inject } from '@loopback/core';
+import { JWTService } from '../services/jwt-service';
 
 export class ProcessInstancesController {
   constructor(
     @repository(ProcessInstancesRepository)
     public processInstancesRepository: ProcessInstancesRepository,
+    @repository(ProcessesRepository)
+    public processesRepository: ProcessesRepository,
+    @repository(ProcessInstanceSecretsRepository)
+    public processInstanceSecretsRepository: ProcessInstanceSecretsRepository,
+    @inject('service.jwt.service')
+    public jwtService: JWTService,
   ) { }
 
   slugify(input: string): string {
@@ -66,6 +76,71 @@ export class ProcessInstancesController {
     return slugifyName;
   }
 
+  async generateSecretKey(processInstanceId: number): Promise<{ secretKey: string; shortLivedToken: string }> {
+    try {
+      const processInstanceData = await this.processInstancesRepository.findById(processInstanceId);
+      const generateRandomBytes = promisify(randomBytes);
+
+      // Generate a 32-byte random key and convert it to hex (64 characters)
+      const secretKey = (await generateRandomBytes(32)).toString('hex');
+
+      await this.processInstanceSecretsRepository.create({ processInstancesId: processInstanceId, secretKey: secretKey });
+
+      const processInstanceProfile = {
+        processInstanceId: processInstanceId,
+        processInstanceName: processInstanceData.processInstanceName,
+        processInstanceSecretKey: secretKey,
+        processId: processInstanceData.processesId
+      };
+
+      const shortLivedToken = await this.jwtService.generateShortLivedProcessInstanceToken(processInstanceProfile);
+
+      return {
+        secretKey,
+        shortLivedToken
+      };
+
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @authenticate({
+    strategy: 'jwt',
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+  })
+  @get('/regenrate-token/{processInstanceId}')
+  async regenrateToken(
+    @param.path.number('processInstanceId') id: number,
+  ): Promise<string> {
+    try {
+      const processInstance = await this.processInstancesRepository.findById(id);
+
+      if (!processInstance) {
+        throw new HttpErrors.BadRequest('No process instance found');
+      }
+
+      const secretData = await this.processInstanceSecretsRepository.findOne({ where: { processInstancesId: processInstance.id } });
+
+      if (!secretData) {
+        throw new HttpErrors.BadRequest('Something went wrong');
+      }
+
+      const processInstanceProfile = {
+        processInstanceId: id,
+        processInstanceName: processInstance.processInstanceName,
+        processInstanceSecretKey: secretData?.secretKey,
+        processId: processInstance.processesId
+      };
+
+      const shortLivedToken = await this.jwtService.generateShortLivedProcessInstanceToken(processInstanceProfile);
+
+      return shortLivedToken;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @authenticate({
     strategy: 'jwt',
     options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
@@ -87,10 +162,73 @@ export class ProcessInstancesController {
       },
     })
     processInstances: Omit<ProcessInstances, 'id'>,
-  ): Promise<ProcessInstances> {
-    const folderString = await this.createProcessFolder(processInstances.processInstanceName);
-    const createdProcessInstance = await this.processInstancesRepository.create({ ...processInstances, processInstanceFolderName: folderString });
-    const processInstanceData = await this.processInstancesRepository.findById(createdProcessInstance.id, {include : [{relation: 'processes', scope: {include: [{relation : 'bluePrint'}]}}]})
+  ): Promise<ProcessInstances | {}> {
+    const processData: any = await this.processesRepository.findById(
+      processInstances.processesId,
+      {
+        include: [{ relation: 'bluePrint' }],
+      },
+    );
+
+    if (!processData) {
+      throw new HttpErrors.BadRequest('Process not found.');
+    }
+
+    if (!processData.bluePrint) {
+      throw new HttpErrors.NotFound(
+        `Blueprint is missing for process ${processData.name}`,
+      );
+    }
+
+    const ingestionType = processData.bluePrint?.bluePrint?.find(
+      (node: any) => node.nodeName === 'Ingestion',
+    );
+
+    if (!ingestionType) {
+      throw new HttpErrors.BadRequest(
+        'Blueprint is missing the "Ingestion" node.',
+      );
+    }
+
+    const newProcessInstanceData: any = {
+      ...processInstances,
+    };
+
+    if (
+      ingestionType?.component?.channelType === 'ui' ||
+      ingestionType?.component?.channelType === 'api'
+    ) {
+      const folderString = await this.createProcessFolder(
+        processInstances.processInstanceName,
+      );
+      newProcessInstanceData.processInstanceFolderName = folderString;
+    }
+
+    const createdProcessInstance = await this.processInstancesRepository.create(newProcessInstanceData);
+
+    const processInstanceData = await this.processInstancesRepository.findById(
+      createdProcessInstance.id,
+      {
+        include: [
+          {
+            relation: 'processes',
+            scope: {
+              include: [{ relation: 'bluePrint' }],
+            },
+          },
+        ],
+      },
+    );
+
+    if (ingestionType?.component?.channelType === 'api' && processInstanceData.id) {
+      const response = await this.generateSecretKey(processInstanceData.id);
+
+      return {
+        ...processInstanceData,
+        ...response
+      }
+    }
+
     return processInstanceData;
   }
 
@@ -167,7 +305,7 @@ export class ProcessInstancesController {
     @param.path.number('id') id: number,
     @param.filter(ProcessInstances, { exclude: 'where' }) filter?: FilterExcludingWhere<ProcessInstances>
   ): Promise<ProcessInstances> {
-    return this.processInstancesRepository.findById(
+    const processInstance: any = await this.processInstancesRepository.findById(
       id, {
       ...filter,
       include: [
@@ -182,6 +320,26 @@ export class ProcessInstancesController {
       ]
     }
     );
+
+    if (processInstance) {
+      const processes = processInstance?.processes;
+      const bluePrint = processes?.bluePrint;
+      const ingestionNode = bluePrint?.bluePrint?.find((node: any) => node.nodeName === 'Ingestion');
+      const ingestionType = ingestionNode?.component?.channelType === 'api';
+
+      if (ingestionType) {
+        const secretData = await this.processInstanceSecretsRepository.findOne({ where: { processInstancesId: processInstance.id } });
+
+        if (secretData) {
+          return {
+            ...processInstance,
+            secretKey: secretData.secretKey
+          }
+        }
+      }
+    }
+
+    return processInstance;
   }
 
   @authenticate({
@@ -221,10 +379,10 @@ export class ProcessInstancesController {
     await this.processInstancesRepository.replaceById(id, processInstances);
   }
 
-  // @authenticate({
-  //   strategy: 'jwt',
-  //   options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
-  // })
+  @authenticate({
+    strategy: 'jwt',
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+  })
   @del('/process-instances/{id}')
   @response(204, {
     description: 'ProcessInstances DELETE success',
@@ -233,15 +391,17 @@ export class ProcessInstancesController {
     const processInstance = await this.processInstancesRepository.findById(id);
     await this.processInstancesRepository.deleteById(id);
 
-    // Build the folder path: .sandbox/<processinstanceFolder>
-    const folderPath = path.join(__dirname, '../../.sandbox', `${processInstance.processInstanceFolderName}`);
+    if (processInstance.processInstanceFolderName) {
+      // Build the folder path: .sandbox/<processinstanceFolder>
+      const folderPath = path.join(__dirname, '../../.sandbox', `${processInstance.processInstanceFolderName}`);
 
-    // Delete the folder if it exists
-    if (fs.existsSync(folderPath)) {
-      fs.rmSync(folderPath, { recursive: true, force: true });
-      console.log(`Deleted folder: ${folderPath}`);
-    } else {
-      console.warn(`Folder not found: ${folderPath}`);
+      // Delete the folder if it exists
+      if (fs.existsSync(folderPath)) {
+        fs.rmSync(folderPath, { recursive: true, force: true });
+        console.log(`Deleted folder: ${folderPath}`);
+      } else {
+        console.warn(`Folder not found: ${folderPath}`);
+      }
     }
   }
 }

@@ -2,49 +2,53 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-// utils
-import { fData } from 'src/utils/format-number';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-// assets
-import { countries } from 'src/assets/data';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
-  RHFSwitch,
   RHFTextField,
-  RHFUploadAvatar,
   RHFAutocomplete,
-  RHFSelect,
 } from 'src/components/hook-form';
-import { IconButton, InputAdornment, MenuItem } from '@mui/material';
-import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
-import ProcessInstanceUploadDoc from './processInstance-upload-doc';
+import ProcessInstanceUploadDoc from './component/processInstance-upload-doc';
+import ProcessInstanceCredentials from './component/processInstance-api-section';
 
 // ----------------------------------------------------------------------
+
+function SwitchComponent({ channelType, extraDetails }) {
+  switch (channelType) {
+    case 'ui':
+      return <ProcessInstanceUploadDoc handleClose={extraDetails?.handleClose} data={extraDetails?.processInstanceData} />;
+
+    case 'api':
+      return <ProcessInstanceCredentials handleClose={extraDetails?.handleClose} data={extraDetails?.processInstanceData}/>;
+
+    default:
+      return null;
+  }
+}
+SwitchComponent.propTypes = {
+  channelType: PropTypes.string,
+  extraDetails: PropTypes.object
+}
+
 
 export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
   const router = useRouter();
   const [processesData, setProcessesData] = useState([]);
-  const [openUploadDocSection, setUploadDocSection] = useState(false);
-  const [processInstanceData, setProcessInstanceData] = useState(null);
+  const [channelType, setChannelType] = useState('');
+  const [extraDetailsData, setExtraDetailsData] = useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProcessTypeSchema = Yup.object().shape({
@@ -106,13 +110,16 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
 
         const ingestionNode = bluePrint?.find((node) => node?.nodeName === 'Ingestion');
 
-        const isUIChannel = ingestionNode?.component?.channelType === 'ui';
-
         enqueueSnackbar(currentProcessInstance ? 'Update success!' : 'Create success!');
 
-        if (isUIChannel) {
-          setUploadDocSection(true);
-          setProcessInstanceData(processData);
+        if ((ingestionNode?.component?.channelType === 'ui' || ingestionNode?.component?.channelType === 'api')) {
+          setChannelType(ingestionNode?.component?.channelType ? ingestionNode?.component?.channelType : '');
+          setExtraDetailsData(
+            {
+              handleClose,
+              processInstanceData: processData
+            }
+          );
         } else {
           reset();
           router.push(paths.dashboard.processesInstance.list);
@@ -126,12 +133,12 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
     }
   });
 
-
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     reset();
     router.push(paths.dashboard.processesInstance.list);
-    setUploadDocSection(false);
-  }
+    setChannelType('');
+    setExtraDetailsData(null);
+  }, [reset, router])
 
   useEffect(() => {
     if (currentProcessInstance) {
@@ -145,14 +152,18 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
     if (currentProcessInstance) {
       const bluePrint = currentProcessInstance?.processes?.bluePrint?.bluePrint ?? [];
       const ingestionNode = bluePrint?.find((node) => node?.nodeName === 'Ingestion');
-      const isUIChannel = ingestionNode?.component?.channelType === 'ui';
 
-      if (isUIChannel) {
-        setUploadDocSection(true);
-        setProcessInstanceData(currentProcessInstance);
+      if ((ingestionNode?.component?.channelType === 'ui' || ingestionNode?.component?.channelType === 'api')) {
+        setChannelType(ingestionNode?.component?.channelType ? ingestionNode?.component?.channelType : '');
+        setExtraDetailsData(
+          {
+            handleClose,
+            processInstanceData: currentProcessInstance
+          }
+        );
       }
     }
-  }, [currentProcessInstance])
+  }, [currentProcessInstance, handleClose])
 
   const fetchProcesses = async (searchTerm) => {
     try {
@@ -213,7 +224,7 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
               </Grid>
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                {((!currentProcessInstance && !openUploadDocSection) || (currentProcessInstance)) && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                {((!currentProcessInstance && channelType === '') || (currentProcessInstance)) && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                   {!currentProcessInstance ? 'Create Process Instance' : 'Save Changes'}
                 </LoadingButton>}
               </Stack>
@@ -221,9 +232,9 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
           </Grid>
         </Grid>
       </FormProvider>
-      {openUploadDocSection && processInstanceData && <Box component='div' sx={{ mt: 2 }}>
-        <ProcessInstanceUploadDoc handleClose={handleClose} data={processInstanceData} />
-      </Box>}
+      <Box component='div' sx={{ mt: 2 }}>
+        <SwitchComponent channelType={channelType} extraDetails={extraDetailsData} />
+      </Box>
     </>
   );
 }

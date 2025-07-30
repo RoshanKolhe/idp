@@ -14,11 +14,10 @@ export async function migrate(args: string[]) {
       'FileType', 
       'Processes',
       'DocumentType',
-      'IngestionChannelType',
-      'AiModel',
       'BluePrint',
       'ProcessInstances',
       'ProcessInstanceDocuments',
+      'ProcessInstanceSecrets',
     ],
   });
   // Connectors usually keep a pool of opened connections,

@@ -77,27 +77,57 @@ export class JWTService {
     return userProfile;
   }
 
-  // async generateShortLivedProcessInstanceToken(
-  //   processInstanceProfile: {
-  //     processInstanceId: number,
-  //     processInstanceName: string,
-  //     processInstanceSecretKey: string,
-  //     processId: number
-  //   }
-  // ): Promise<string>{
-  //       if (!processInstanceProfile) {
-  //     throw new HttpErrors.NotFound(
-  //       'Error while generating token process instance profile is null',
-  //     );
-  //   }
-  //   let token = '';
-  //   try {
-  //     token = await signAsync(processInstanceProfile, 'idp-process-instance', {
-  //       expiresIn: '7h',
-  //     });
-  //   } catch (err) {
-  //     throw new HttpErrors.Unauthorized(`error generating token${err}`);
-  //   }
-  //   return token;
-  // }
+
+  // IDP process instance token for API channel type 
+
+  // short-lived token
+  async generateShortLivedProcessInstanceToken(
+    processInstanceProfile: {
+      processInstanceId: number,
+      processInstanceName: string,
+      processInstanceSecretKey: string,
+      processId: number
+    }
+  ): Promise<string> {
+    if (!processInstanceProfile) {
+      throw new HttpErrors.NotFound(
+        'Error while generating token process instance profile is null',
+      );
+    }
+    let token = '';
+    try {
+      token = await signAsync(processInstanceProfile, 'idp-process-instance', {
+        expiresIn: '48h',
+      });
+    } catch (err) {
+      throw new HttpErrors.Unauthorized(`error generating token${err}`);
+    }
+    return token;
+  }
+
+  // long-lived token
+  async generateLongLivedProcessInstanceToken(
+    processInstanceProfile: {
+      processInstanceId: number,
+      processInstanceName: string,
+      processInstanceSecretKey: string,
+      processId: number
+    }
+  ): Promise<string> {
+    if (!processInstanceProfile) {
+      throw new HttpErrors.NotFound(
+        'Error while generating token process instance profile is null',
+      );
+    }
+    let token = '';
+    try {
+      token = await signAsync(processInstanceProfile, 'idp-process-instance', {
+        expiresIn: '60d',
+      });
+    } catch (err) {
+      throw new HttpErrors.Unauthorized(`error generating token${err}`);
+    }
+    return token;
+  }
+
 }

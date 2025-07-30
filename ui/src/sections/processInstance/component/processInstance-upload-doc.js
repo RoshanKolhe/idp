@@ -28,7 +28,7 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
         if (data) {
             fetchDocs(data?.processInstanceFolderName);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
     const newFileUploadSchema = Yup.object().shape({

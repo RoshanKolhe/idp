@@ -15,6 +15,7 @@ export class JWTStrategy implements AuthenticationStrategy {
     const userPrfile = await this.jwtService.verifyToken(token);
     return Promise.resolve(userPrfile);
   }
+
   extractCredentials(request: Request): string {
     if (!request.headers.authorization) {
       throw new HttpErrors.Unauthorized('Autherization header is missing');

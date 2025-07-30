@@ -19,8 +19,8 @@ import LogsProcessDialogue from "./logs-dialogue";
 // channel options
 const channelOptions = [
     { label: 'FTP', value: 'ftp', isDisabled: false },
-    { label: 'API', value: 'api', isDisabled: true },
-    { label: 'HTTP/HTTPS', value: 'http', isDisabled: true },
+    { label: 'API', value: 'api', isDisabled: false },
+    { label: 'WEBHOOK', value: 'webhook', isDisabled: true },
     { label: 'UI/PORTAL', value: 'ui', isDisabled: false },
 ]
 
@@ -32,13 +32,9 @@ const channelSchemas = {
         password: Yup.string().required("FTP Password is required"),
         userName: Yup.string().required("FTP Username is required"),
     }),
-    api: Yup.object().shape({
-        endpoint: Yup.string().url('Invalid URL').required('Endpoint is required'),
-        token: Yup.string().required('Token is required'),
-    }),
-    http: Yup.object().shape({
-        url: Yup.string().url('Invalid URL').required('URL is required'),
-    }),
+    // http: Yup.object().shape({
+    //     url: Yup.string().url('Invalid URL').required('URL is required'),
+    // }),
 };
 
 // getComponent to show
