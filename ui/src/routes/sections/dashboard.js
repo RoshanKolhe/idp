@@ -71,6 +71,9 @@ const BlogPostsPage = lazy(() => import('src/pages/dashboard/post/list'));
 const BlogPostPage = lazy(() => import('src/pages/dashboard/post/details'));
 const BlogNewPostPage = lazy(() => import('src/pages/dashboard/post/new'));
 const BlogEditPostPage = lazy(() => import('src/pages/dashboard/post/edit'));
+// NOTIFICATION SETTING
+
+const NotificationSettingListPage = lazy(()=> import('src/pages/dashboard/notification-setting/list'));
 // JOB
 const JobDetailsPage = lazy(() => import('src/pages/dashboard/job/details'));
 const JobListPage = lazy(() => import('src/pages/dashboard/job/list'));
@@ -219,6 +222,15 @@ export const dashboardRoutes = [
           { path: ':title', element: <BlogPostPage /> },
           { path: ':title/edit', element: <BlogEditPostPage /> },
           { path: 'new', element: <BlogNewPostPage /> },
+        ],
+      },
+
+      {
+        path: 'notificationSetting',
+        children: [
+          { element: <NotificationSettingListPage />, index: true },
+          { path: 'list', element: <NotificationSettingListPage /> },
+         
         ],
       },
       {

@@ -162,6 +162,12 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}/edit`,
       },
     },
+
+    notificationSetting: {
+      root: `${ROOTS.DASHBOARD}/notificationSetting`,
+       list: `${ROOTS.DASHBOARD}/notificationSetting/list`,
+
+    },
     order: {
       root: `${ROOTS.DASHBOARD}/order`,
       details: (id) => `${ROOTS.DASHBOARD}/order/${id}`,
