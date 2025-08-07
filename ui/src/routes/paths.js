@@ -166,6 +166,8 @@ export const paths = {
     notificationSetting: {
       root: `${ROOTS.DASHBOARD}/notificationSetting`,
        list: `${ROOTS.DASHBOARD}/notificationSetting/list`,
+       new: `${ROOTS.DASHBOARD}/notificationSetting/new`,
+
 
     },
     order: {

@@ -1,6 +1,10 @@
 import { Helmet } from 'react-helmet-async';
+import { NotificationSettingListView } from 'src/sections/notification-setting/view';
+
+
+
 // sections
-import { PostListView } from 'src/sections/blog/view';
+
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +12,10 @@ export default function NotificationSettingListPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Post List</title>
+        <title> Dashboard: Notification Setting List</title>
       </Helmet>
-
-      <PostListView />
+       <NotificationSettingListView/>
+     
     </>
   );
 }
