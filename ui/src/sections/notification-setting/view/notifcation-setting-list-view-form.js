@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { Box, Button, Container, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Stack,
+} from '@mui/material';
 
 import { useSettingsContext } from 'src/components/settings';
 import Iconify from 'src/components/iconify';
@@ -7,11 +13,11 @@ import { HexagonLevel } from 'src/components/level-cards';
 import AddMemberNewEditForm from '../add-member-new-edit-form';
 import AddLevelNewForm from '../add-level-new';
 import MemberItemHorizontal from '../member-details-horizontal';
+import EscalationMatrixLayout from '../escalation-matrix-layout';
 
 export default function NotificationSettingListView() {
   const settings = useSettingsContext();
 
-  // Dummy levels JSON array
   const levels = [
     {
       id: 1,
@@ -32,13 +38,13 @@ export default function NotificationSettingListView() {
       description: 'Secondary contact',
       members: [
         {
-          id: 102,
+          id: 104,
           name: 'Bob Johnson',
           email: 'bob@example.com',
           phone: '+91 9123456789',
         },
         {
-          id: 103,
+          id: 105,
           name: 'Charlie Brown',
           email: 'charlie@example.com',
           phone: '+91 9012345678',
@@ -49,19 +55,58 @@ export default function NotificationSettingListView() {
       id: 3,
       name: 'Level 3',
       description: 'Tertiary backup',
-      members: [],
+     members: [
+        {
+          id: 106,
+          name: 'Bob Johnson',
+          email: 'bob@example.com',
+          phone: '+91 9123456789',
+        },
+        {
+          id: 107,
+          name: 'Charlie Brown',
+          email: 'charlie@example.com',
+          phone: '+91 9012345678',
+        },
+      ],
     },
-     {
+    {
       id: 4,
       name: 'Level 4',
       description: 'Tertiary backup',
-      members: [],
+     members: [
+        {
+          id: 108,
+          name: 'Bob Johnson',
+          email: 'bob@example.com',
+          phone: '+91 9123456789',
+        },
+        {
+          id: 109,
+          name: 'Charlie Brown',
+          email: 'charlie@example.com',
+          phone: '+91 9012345678',
+        },
+      ],
     },
-     {
+    {
       id: 5,
       name: 'Level 5',
       description: 'Tertiary backup',
-      members: [],
+     members: [
+        {
+          id: 110,
+          name: 'Bob Johnson',
+          email: 'bob@example.com',
+          phone: '+91 9123456789',
+        },
+        {
+          id: 111,
+          name: 'Charlie Brown',
+          email: 'charlie@example.com',
+          phone: '+91 9012345678',
+        },
+      ],
     },
   ];
 
@@ -80,6 +125,7 @@ export default function NotificationSettingListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+        {/* Header & Buttons */}
         <Box
           sx={{
             mb: 3,
@@ -136,9 +182,12 @@ export default function NotificationSettingListView() {
           </Box>
         </Box>
 
-      
-        <HexagonLevel levels={levels} />
-        {/* <MemberItemHorizontal/> */}
+
+ {/* mapping here all the levels with cards  */}
+     <EscalationMatrixLayout levels={levels}  />
+
+
+
       </Container>
 
       {/* Dialogs */}
@@ -156,5 +205,3 @@ export default function NotificationSettingListView() {
     </>
   );
 }
-
-

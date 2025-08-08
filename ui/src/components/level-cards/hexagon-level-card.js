@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import { Box, Typography, Stack } from '@mui/material';
 
 // Single hexagon item component
-function SingleHexagon({ level, color }) {
+ export default function SingleHexagon({ level, color }) {
   return (
     <Box
       sx={{
-        width: 120,
-        height: 120,
+        width: 100,
+        height: 100,
         position: 'relative',
         mx: 0.5,
       }}
@@ -72,29 +72,29 @@ SingleHexagon.propTypes = {
 };
 
 // Hexagon group with color array logic
-export default function HexagonLevel({ levels = [] }) {
-  const colors = ['#68aeff', '#978444ff', '#a6b0ecff', '#d89c2dff']; // Your 4 colors
+// export default function HexagonLevel({ levels = [] }) {
+//   const colors = ['#68aeff', '#978444ff', '#a6b0ecff', '#d89c2dff']; // Your 4 colors
 
-  return (
-    <Stack direction="row" flexWrap="wrap" justifyContent="left" spacing={1}>
-      {levels.map((item, index) => (
-        <SingleHexagon
-          key={item.id}
-          level={item.name}
-          color={colors[index % colors.length]} // Rotate colors
-        />
-      ))}
-    </Stack>
-  );
-}
+//   return (
+//     <Stack direction="row" flexWrap="wrap" justifyContent="left" spacing={1}>
+//       {levels.map((item, index) => (
+//         <SingleHexagon
+//           key={item.id}
+//           level={item.name}
+//           color={colors[index % colors.length]} // Rotate colors
+//         />
+//       ))}
+//     </Stack>
+//   );
+// }
 
-HexagonLevel.propTypes = {
-  levels: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number.isRequired,
-      name: PropTypes.string.isRequired,
-      description: PropTypes.string,
-      members: PropTypes.array,
-    })
-  )
-};
+// HexagonLevel.propTypes = {
+//   levels: PropTypes.arrayOf(
+//     PropTypes.shape({
+//       id: PropTypes.number.isRequired,
+//       name: PropTypes.string.isRequired,
+//       description: PropTypes.string,
+//       members: PropTypes.array,
+//     })
+//   )
+// };

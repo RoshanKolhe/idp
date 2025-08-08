@@ -27,15 +27,13 @@ import FormProvider, {
 import Iconify from 'src/components/iconify';
 
 const defaultValues = {
-  level: '',
-  search: '',
   name: '',
-  email: '',
-  phoneNumber: '',
+  description: '',
+
 };
 
 const AddMemberSchema = Yup.object().shape({
-  level: Yup.string().required('Level is required'),
+  name: Yup.string().required('Level is required'),
   description: Yup.string(),
  
 });
@@ -64,6 +62,7 @@ export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
   };
 
   return (
+    
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
       <DialogTitle sx={{color: 'black'}}>
         Add New Level
@@ -83,9 +82,8 @@ export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
 
       <DialogContent dividers>
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-          <Grid container spacing={3}>
+          <Box container spacing={3}>
             <Grid item xs={12} md={8}>
-              
                 <Box
                   rowGap={3}
                   columnGap={2}
@@ -95,8 +93,8 @@ export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
                     sm: 'repeat(2, 1fr)',
                   }}
                 >
-                  <RHFTextField name="level" label="Level" />
-                  <RHFTextField name="description" label="Description" />
+                  <RHFTextField name="name" label="Level" />
+                  <RHFTextField name="description" label="Description" multiline />
                 </Box>
 
                 <Stack alignItems="flex-end" sx={{ mt: 3 }} >
@@ -106,7 +104,7 @@ export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
                 </Stack>
           
             </Grid>
-          </Grid>
+          </Box>
         </FormProvider>
       </DialogContent>
     </Dialog>
