@@ -25,46 +25,74 @@ import FormProvider, {
   RHFUploadAvatar,
 } from 'src/components/hook-form';
 import Iconify from 'src/components/iconify';
+import { useRouter } from 'src/routes/hook';
+import { useSnackbar } from 'notistack';
+import { useMemo } from 'react';
+import axiosInstance from 'src/utils/axios';
+import { reset } from 'numeral';
+import { paths } from 'src/routes/paths';
 
-const defaultValues = {
-  name: '',
-  description: '',
 
-};
+export default function AddLevelNewForm({ open, onClose, currentLevel}) {
 
-const AddMemberSchema = Yup.object().shape({
-  name: Yup.string().required('Level is required'),
-  description: Yup.string(),
- 
-});
+  const router = useRouter();
+  const {enqueueSnackbar} = useSnackbar();
 
-export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
+  const AddLevelSchema = Yup.object().shape({
+    name: Yup.string().required('Level is required'),
+    description: Yup.string(),
+  })
+
+
+
+const defaultValues = useMemo(
+    () => ({
+      name: currentLevel?.name || '',
+      description: currentLevel?.description || '',
+
+    }),
+    [currentLevel]
+  );
+
   const methods = useForm({
-    resolver: yupResolver(AddMemberSchema),
+    resolver: yupResolver(AddLevelSchema),
     defaultValues,
   });
+
 
   const {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = async (data) => {
+  const onSubmit = handleSubmit(async (formData) => {
     try {
-      if (onSubmitForm) {
-        await onSubmitForm(data);
+      const inputData = {
+        name: formData.name,
+        description: formData.description,
+      };
+
+      if (!currentLevel) {
+        await axiosInstance.post('/levels', inputData);
+      } else {
+        await axiosInstance.patch(`/levels/${currentLevel.id}`, inputData);
+            console.log("Saved member:", inputData.data);
       }
-      console.log('Submitted data:', data);
-      onClose(); // close dialog after submit
+      reset();
+      enqueueSnackbar(currentLevel ? 'Update success!' : 'Create success!', { variant: 'success' });
+      router.push(paths.dashboard.notificationSetting.list);
     } catch (error) {
-      console.error('Submit error:', error);
+      console.error(error);
+      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
+        variant: 'error',
+      });
     }
-  };
+  });
 
   return (
-    
+
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <DialogTitle sx={{color: 'black'}}>
+      <DialogTitle sx={{ color: 'black' }}>
         Add New Level
         <IconButton
           aria-label="close"
@@ -76,7 +104,7 @@ export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
             color: (theme) => theme.palette.grey[500],
           }}
         >
-          <Iconify icon="mdi:close" color="black"/>
+          <Iconify icon="mdi:close" color="black" />
         </IconButton>
       </DialogTitle>
 
@@ -84,25 +112,25 @@ export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
           <Box container spacing={3}>
             <Grid item xs={12} md={8}>
-                <Box
-                  rowGap={3}
-                  columnGap={2}
-                  display="grid"
-                  gridTemplateColumns={{
-                    xs: 'repeat(1, 1fr)',
-                    sm: 'repeat(2, 1fr)',
-                  }}
-                >
-                  <RHFTextField name="name" label="Level" />
-                  <RHFTextField name="description" label="Description" multiline />
-                </Box>
+              <Stack spacing={3}>
+                <RHFTextField name="name" label="Level" />
+                <RHFTextField
+                  name="description"
+                  label="Description"
+                  multiline
+                  minRows={3}
+                />
+              </Stack>
 
-                <Stack alignItems="flex-end" sx={{ mt: 3 }} >
-                  <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                    Add Level
-                  </LoadingButton>
-                </Stack>
-          
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton
+                  type="submit"
+                  variant="contained"
+                  loading={isSubmitting}
+                >
+                  Add Level
+                </LoadingButton>
+              </Stack>
             </Grid>
           </Box>
         </FormProvider>
@@ -114,5 +142,5 @@ export default function AddLevelNewForm({ open, onClose, onSubmitForm }) {
 AddLevelNewForm.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  onSubmitForm: PropTypes.func,
+  currentLevel: PropTypes.object,
 };

@@ -77,4 +77,12 @@ export const endpoints = {
     details: '/api/product/details',
     search: '/api/product/search',
   },
+  level:{
+    list: '/levels/list',
+    details: (id) => `/levels/${id}`,
+  },
+  member:{
+    list: '/members/list',
+    details: (id) => `/members/${id}`,
+  }
 };

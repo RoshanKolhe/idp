@@ -22,6 +22,7 @@ import Image from 'src/components/image';
 import Iconify from 'src/components/iconify';
 import TextMaxLine from 'src/components/text-max-line';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { Grid } from '@mui/material';
 
 // ----------------------------------------------------------------------
 export default function MemberItemHorizontal({ levelName, levelDescription, member }) {
@@ -33,51 +34,51 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
 
   return (
     <>
-      <Stack component={Card} direction="row">
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-              <Iconify icon="eva:more-horizontal-fill" />
-            </IconButton>
-        
-        <Stack
-          sx={{
-            p: (theme) => theme.spacing(3,3,2,2),
-          }}
-        >
-          <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
-            <Label variant="soft" >
-              {levelName}
-            </Label>
-          </Stack>
-         
-          <Stack spacing={1} flexGrow={1}>
-            <Link color="inherit" >
-              <TextMaxLine variant="subtitle2" line={2}>
-                {member.name}
-              </TextMaxLine>
-            </Link>
+      <Stack component={Card} sx={{ p: 2 }}>
+        <Grid container alignItems="center">
+          <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Avatar
+              // src={member.avatarUrl}
+              alt={member.name}
+              sx={{
+                width: 48,
+                height: 48,
+              }}
+            />
+          </Grid>
+          <Grid item xs={8}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <Stack sx={{ flexGrow: 1, pr: 1 }}>
+                <TextMaxLine variant="subtitle2" line={2}>
+                  {member.name}
+                </TextMaxLine>
+                <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
+                  {member.email}
+                </TextMaxLine>
+              </Stack>
 
-            <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
-              {levelDescription}
-            </TextMaxLine>
-          </Stack>
-        </Stack>
-          <Stack direction="row" alignItems="right">
-      <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen} sx={{
-      position: 'absolute',
-      top: 8,
-      right: 8,
-    }}>
-              <Iconify icon="eva:more-horizontal-fill" />
-            </IconButton>
-            </Stack>
+              <IconButton
+                color={popover.open ? 'inherit' : 'default'}
+                onClick={popover.onOpen}
+              >
+                <Iconify icon="eva:more-horizontal-fill" />
+              </IconButton>
+            </Box>
+          </Grid>
+        </Grid>
       </Stack>
-        
 
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="bottom-center"
-        sx={{ width: 40 }}
+        sx={{ width: 80 }}
       >
         {/* <MenuItem
           onClick={() => {
@@ -95,11 +96,11 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
             // router.push(paths.dashboard.post.edit(title));
           }}
         >
-          <Iconify icon="solar:pen-bold" />
-     
+          <Iconify icon="solar:pen-bold" sx={{ width: 20 }} />
+          Edit
         </MenuItem>
-
-        {/* <MenuItem
+        {/* 
+        <MenuItem
           onClick={() => {
             popover.onClose();
           }}
@@ -108,12 +109,12 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
         </MenuItem>  */}
-      </CustomPopover> 
+      </CustomPopover>
     </>
   );
 }
 
- MemberItemHorizontal.propTypes = {
+MemberItemHorizontal.propTypes = {
   levelName: PropTypes.string,
   levelDescription: PropTypes.string,
   member: PropTypes.shape({

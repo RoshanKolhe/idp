@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Box,
   Button,
   Container,
   Typography,
   Stack,
+  Pagination,
 } from '@mui/material';
 
 import { useSettingsContext } from 'src/components/settings';
@@ -30,6 +31,19 @@ export default function NotificationSettingListView() {
           email: 'alice@example.com',
           phone: '+91 9876543210',
         },
+         {
+          id: 111,
+          name: 'Charlie Brown',
+          email: 'charlie@example.com',
+          phone: '+91 9012345678',
+        },
+        {
+          id: 101,
+          name: 'Alice Smith',
+          email: 'alice@example.com',
+          phone: '+91 9876543210',
+        },
+        
       ],
     },
     {
@@ -49,6 +63,32 @@ export default function NotificationSettingListView() {
           email: 'charlie@example.com',
           phone: '+91 9012345678',
         },
+             {
+          id: 101,
+          name: 'Alice Smith',
+          email: 'alice@example.com',
+          phone: '+91 9876543210',
+        },
+         {
+          id: 111,
+          name: 'Charlie Brown',
+          email: 'charlie@example.com',
+          phone: '+91 9012345678',
+        },
+        {
+          id: 101,
+          name: 'Alice Smith',
+          email: 'alice@example.com',
+          phone: '+91 9876543210',
+        },
+         {
+          id: 111,
+          name: 'Charlie Brown',
+          email: 'charlie@example.com',
+          phone: '+91 9012345678',
+        },
+      
+        
       ],
     },
     {
@@ -109,6 +149,20 @@ export default function NotificationSettingListView() {
       ],
     },
   ];
+
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const itemsPerPage = 7;
+
+  // const filter = useMemo(() => ({
+  //   limit: itemsPerPage,
+  //   skip: (currentPage - 1) * itemsPerPage
+  // }), [currentPage]);
+
+
+  // const filterString = encodeURIComponent(JSON.stringify(filter));
+  // const {  count } = levels(filterString);
+
+  // const totalPages = Math.round(count / itemsPerPage);
 
   const [openLevelDialog, setOpenLevelDialog] = useState(false);
   const handleOpenLevel = () => setOpenLevelDialog(true);
@@ -185,6 +239,11 @@ export default function NotificationSettingListView() {
 
  {/* mapping here all the levels with cards  */}
      <EscalationMatrixLayout levels={levels}  />
+     
+ {/* This box is for pagination  */}
+        {/* <Box component='div' sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 3 }}>
+        {totalPages > 0 && <Pagination page={currentPage} onChange={(e, value) => setCurrentPage(value)} count={totalPages} variant="outlined" color="primary" />}
+      </Box> */}
 
 
 

@@ -10,3 +10,6 @@ export * from './process-instances.controller';
 export * from './process-instance-documents.controller';
 export * from './log-entry.controller';
 export * from './api-handler.controller';
+export * from './member.controller';
+export * from './levels.controller';
+export * from './member-levels.controller';

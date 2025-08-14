@@ -8,3 +8,5 @@ export * from './process-instances.repository';
 export * from './process-instance-documents.repository';
 export * from './log-entry.repository';
 export * from './process-instance-secrets.repository';
+export * from './member.repository';
+export * from './levels.repository';

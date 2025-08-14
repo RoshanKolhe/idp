@@ -2,68 +2,139 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useCallback, useEffect, useMemo } from 'react';
+
 // @mui
+import LoadingButton from '@mui/lab/LoadingButton';
+import Card from '@mui/material/Card';
+import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Unstable_Grid2';
+// routes
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hook';
+// components
+import { useSnackbar } from 'src/components/snackbar';
+import FormProvider, {
+  RHFTextField,
+  RHFSelect,
+  RHFUpload,
+  RHFUploadAvatar,
+} from 'src/components/hook-form';
+
+import Iconify from 'src/components/iconify';
+import axiosInstance from 'src/utils/axios';
+// @mui
+
 import {
-  Box,
-  Grid,
-  Stack,
-  Card,
+
   Dialog,
-  Button,
+
   DialogTitle,
   DialogContent,
-  Typography,
+
   IconButton,
+  Box, Button, MenuItem, Typography
 } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+
 
 // utils
 import { fData } from 'src/utils/format-number';
 // components
-import FormProvider, {
-  RHFTextField,
-  RHFUploadAvatar,
-} from 'src/components/hook-form';
-import Iconify from 'src/components/iconify';
 
-const defaultValues = {
-  level: '',
-  search: '',
-  name: '',
-  email: '',
-  phoneNumber: '',
-};
 
-const AddMemberSchema = Yup.object().shape({
-  level: Yup.string().required('Level is required'),
-  search: Yup.string(),
-  name: Yup.string().required('Name is required'),
-  email: Yup.string().email('Email must be a valid email').required('Email is required'),
-  phoneNumber: Yup.string().required('Phone number is required'),
-});
+export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
 
-export default function AddMemberNewEditForm({ open, onClose, onSubmitForm }) {
+  const router = useRouter();
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const MemberSchema = Yup.object().shape({
+    fullName: Yup.string().required('Full name is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    phoneNumber: Yup.string().required('Phone number is required'),
+    levelsId: Yup.string().required('Level is required'),
+    avatarUrl: Yup.mixed().nullable().required('Avatar is required'),
+  });
+
+  const defaultValues = useMemo(
+    () => ({
+      fullName: currentMember?.fullName || '',
+      email: currentMember?.email || '',
+      phoneNumber: currentMember?.phoneNumber || '',
+      levelsId: currentMember?.levelId || '',
+      avatarUrl: currentMember?.avatarUrl || '',
+
+    }),
+    [currentMember]
+  );
+
   const methods = useForm({
-    resolver: yupResolver(AddMemberSchema),
+    resolver: yupResolver(MemberSchema),
     defaultValues,
   });
 
   const {
+    reset,
+    watch,
+    control,
+    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = async (data) => {
+  const values = watch();
+
+  const onSubmit = handleSubmit(async (formData) => {
     try {
-      if (onSubmitForm) {
-        await onSubmitForm(data);
+      const inputData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        avatarUrl:formData.avatarUrl ,
+        levelsId: formData.levelId,
+      };
+
+      if (!currentMember) {
+        await axiosInstance.post('/members', inputData);
+      } else {
+        await axiosInstance.patch(`/members/${currentMember.id}`, inputData);
+            console.log("Saved member:", inputData.data);
       }
-      console.log('Submitted data:', data);
-      onClose(); // close dialog after submit
+      reset();
+      enqueueSnackbar(currentMember ? 'Update success!' : 'Create success!', { variant: 'success' });
+      router.push(paths.dashboard.notificationSetting.list);
     } catch (error) {
-      console.error('Submit error:', error);
+      console.error(error);
+      enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
+        variant: 'error',
+      });
     }
-  };
+  });
+
+  useEffect(() => {
+    if (currentMember) {
+      reset(defaultValues);
+    }
+  }, [currentMember, defaultValues, reset]);
+
+const handleDrop = useCallback(
+  async (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await axiosInstance.post('/files', formData);
+      const { data } = response;
+      setValue('avatarUrl', data.files[0].fileUrl); 
+    }
+  },
+  [setValue]
+);
+
+const handleRemoveFile = useCallback(() => {
+  setValue('avatarUrl', null);
+}, [setValue]);
+
 
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
@@ -79,7 +150,7 @@ export default function AddMemberNewEditForm({ open, onClose, onSubmitForm }) {
             color: (theme) => theme.palette.grey[500],
           }}
         >
-          <Iconify icon="mdi:close" color="black"/>
+          <Iconify icon="mdi:close" color="black" />
         </IconButton>
       </DialogTitle>
 
@@ -92,6 +163,8 @@ export default function AddMemberNewEditForm({ open, onClose, onSubmitForm }) {
                 <RHFUploadAvatar
                   name="avatarUrl"
                   maxSize={3145728}
+                  onDrop={handleDrop}
+                  onDelete={handleRemoveFile}
                   helperText={
                     <Typography
                       variant="caption"
@@ -123,9 +196,9 @@ export default function AddMemberNewEditForm({ open, onClose, onSubmitForm }) {
                     sm: 'repeat(2, 1fr)',
                   }}
                 >
-                  <RHFTextField name="level" label="Level" />
-                  <RHFTextField name="search" label="Search Name" />
-                  <RHFTextField name="name" label="Full Name" />
+                  <RHFTextField name="levelId" label="Level" />
+                  {/* <RHFTextField name="search" label="Search Name" /> */}
+                  <RHFTextField name="fullName" label="Full Name" />
                   <RHFTextField name="email" label="Email Address" />
                   <RHFTextField name="phoneNumber" label="Phone Number" />
                 </Box>
@@ -145,7 +218,7 @@ export default function AddMemberNewEditForm({ open, onClose, onSubmitForm }) {
 }
 
 AddMemberNewEditForm.propTypes = {
+  currentMember: PropTypes.object,
   open: PropTypes.bool,
   onClose: PropTypes.func,
-  onSubmitForm: PropTypes.func,
 };
