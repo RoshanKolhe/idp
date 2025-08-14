@@ -8,3 +8,4 @@ export * from './process-instances.model';
 export * from './process-instance-documents.model';
 export * from './log-entry.model';
 export * from './process-instance-secrets.model';
+export * from './mail-server.model';

@@ -120,6 +120,10 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/view`,
     },
+    mailServer:{
+      root: `${ROOTS.DASHBOARD}/mailServer`,
+      // view: `${ROOTS.DASHBOARD}/rootServer/${id}/view`,
+    },
     user: {
       root: `${ROOTS.DASHBOARD}/user`,
       new: `${ROOTS.DASHBOARD}/user/new`,

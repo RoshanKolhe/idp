@@ -94,7 +94,8 @@ const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission')
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 // LINKEDIN PAGE
 const LinkedInPage = lazy(() => import('src/pages/linkedin-page'));
-
+// MAIL SERVER
+const MailServerViewPage = lazy(() => import('src/pages/dashboard/mailServer/view'));
 // ----------------------------------------------------------------------
 
 export const dashboardRoutes = [
@@ -248,6 +249,10 @@ export const dashboardRoutes = [
       { path: 'kanban', element: <KanbanPage /> },
       { path: 'permission', element: <PermissionDeniedPage /> },
       { path: 'blank', element: <BlankPage /> },
+      {
+        path: 'mailServer',
+        element: <MailServerViewPage />
+      },
     ],
   },
   {
@@ -255,5 +260,6 @@ export const dashboardRoutes = [
     element: (
       <LinkedInPage />
     )
-  }
+  },
+
 ];

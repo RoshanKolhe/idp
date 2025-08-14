@@ -21,6 +21,9 @@ import { BcryptHasher } from './services/hash.password.bcrypt';
 import { JWTService } from './services/jwt-service';
 import { MyUserService } from './services/user-service';
 import { EmailService } from './services/email.service';
+import { IdpDataSource } from './datasources';
+import { MailServerRepository } from './repositories';
+
 
 export {ApplicationConfig};
 
@@ -29,6 +32,9 @@ export class IdpApplication extends BootMixin(
 ) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
+
+    this.dataSource(IdpDataSource,'idp');
+    this.repository(MailServerRepository);
 
     // Set up the custom sequence
     this.sequence(MySequence);
