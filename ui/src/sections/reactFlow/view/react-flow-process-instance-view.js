@@ -20,6 +20,7 @@ export default function ReactFlowProcessInstanceView() {
                     { name: currentProcessInstance?.processInstanceName }
                 ]}
             />
+            
             {/* <Box component='div' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                 <Box component='div' sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <IconButton sx={{ paddingLeft: '0px' }}>

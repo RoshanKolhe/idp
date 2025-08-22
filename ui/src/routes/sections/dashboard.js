@@ -54,6 +54,8 @@ const ProcessInstanceListPage = lazy(() => import('src/pages/dashboard/processIn
 const ProcessInstanceViewPage = lazy(() => import('src/pages/dashboard/processInstance/view'));
 const ProcessInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/processInstance/extractedDocuments'));
 const ProcessInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/processInstance/react-flow'));
+// WORKFLOW
+const WorkFlowBoardPage = lazy(() => import('src/pages/dashboard/workflow/board'));
 // FILE TYPE
 const FileTypeListPage = lazy(() => import('src/pages/dashboard/fileType/list'));
 const FileTypeCreatePage = lazy(() => import('src/pages/dashboard/fileType/new'));
@@ -160,6 +162,13 @@ export const dashboardRoutes = [
           { path: ':id/extracted-documents', element: <ProcessInstanceExtractedDocumentsPage /> },
           { path: ':id/blueprint', element: <ProcessInstanceReactFlowPage /> },
         ],
+      },
+      {
+        path: 'workflow',
+        children: [
+          { element: <WorkFlowBoardPage />, index: true},
+          { path: 'bluePrint', element: <WorkFlowBoardPage />}
+        ]
       },
       {
         path: 'fileType',

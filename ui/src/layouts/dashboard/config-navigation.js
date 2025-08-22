@@ -63,6 +63,7 @@ export function useNavData() {
           { title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard },
           { title: t('Processes'), path: paths.dashboard.processes.root, icon: ICONS.processes },
           { title: t('Process Instance'), path: paths.dashboard.processesInstance.root, icon: ICONS.processInstance },
+          { title: t('workflow'), path: paths.dashboard.workflow.reactFlow, icon: ICONS.processInstance},
           {
             title: t('Settings'),
             path: paths.dashboard.processType.list,
