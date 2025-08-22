@@ -43,7 +43,7 @@ import { useGetLevels } from 'src/api/levels';
 // components
 
 
-export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
+export default function AddMemberNewEditForm({ currentMember, open, onClose, refreshLevels }) {
 
   const router = useRouter();
   const { levels, levelsEmpty } = useGetLevels();
@@ -105,7 +105,7 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
         fullName: formData.fullName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
-        avatarUrl: formData.avatarUrl, 
+        avatarUrl: formData.avatarUrl,
         levelsId: Number(formData.levelsId),
       };
 
@@ -118,7 +118,9 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
       }
       reset();
       enqueueSnackbar(currentMember ? 'Update success!' : 'Create success!', { variant: 'success' });
-      router.push(paths.dashboard.notificationSetting.list);
+      refreshLevels();
+      onClose();
+
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
@@ -133,26 +135,26 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
     }
   }, [currentMember, defaultValues, reset]);
 
-const handleDrop = useCallback(
-  async (acceptedFiles) => {
-    const file = acceptedFiles[0];
+  const handleDrop = useCallback(
+    async (acceptedFiles) => {
+      const file = acceptedFiles[0];
 
-    if (!file) return;
+      if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
+      const formData = new FormData();
+      formData.append('file', file);
 
-    try {
-      const response = await axiosInstance.post('/files', formData); 
-      const uploadedFileUrl = response.data.files[0].fileUrl;
+      try {
+        const response = await axiosInstance.post('/files', formData);
+        const uploadedFileUrl = response.data.files[0].fileUrl;
 
-      setValue('avatarUrl', { fileUrl: uploadedFileUrl }, { shouldValidate: true });
-    } catch (error) {
-      console.error('File upload failed:', error);
-    }
-  },
-  [setValue]
-);
+        setValue('avatarUrl', { fileUrl: uploadedFileUrl }, { shouldValidate: true });
+      } catch (error) {
+        console.error('File upload failed:', error);
+      }
+    },
+    [setValue]
+  );
 
 
   const handleRemoveFile = useCallback(() => {
@@ -256,4 +258,5 @@ AddMemberNewEditForm.propTypes = {
   currentMember: PropTypes.object,
   open: PropTypes.bool,
   onClose: PropTypes.func,
+  refreshLevels: PropTypes.func
 };

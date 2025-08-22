@@ -13,3 +13,4 @@ export * from './api-handler.controller';
 export * from './member.controller';
 export * from './levels.controller';
 export * from './member-levels.controller';
+export * from './mail-server.controller';

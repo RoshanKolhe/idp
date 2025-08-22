@@ -54,6 +54,8 @@ const ProcessInstanceListPage = lazy(() => import('src/pages/dashboard/processIn
 const ProcessInstanceViewPage = lazy(() => import('src/pages/dashboard/processInstance/view'));
 const ProcessInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/processInstance/extractedDocuments'));
 const ProcessInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/processInstance/react-flow'));
+// WORKFLOW
+const WorkFlowBoardPage = lazy(() => import('src/pages/dashboard/workflow/board'));
 // FILE TYPE
 const FileTypeListPage = lazy(() => import('src/pages/dashboard/fileType/list'));
 const FileTypeCreatePage = lazy(() => import('src/pages/dashboard/fileType/new'));
@@ -98,7 +100,8 @@ const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission')
 const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 // LINKEDIN PAGE
 const LinkedInPage = lazy(() => import('src/pages/linkedin-page'));
-
+// MAIL SERVER
+const MailServerViewPage = lazy(() => import('src/pages/dashboard/mailServer/view'));
 // ----------------------------------------------------------------------
 
 export const dashboardRoutes = [
@@ -164,6 +167,13 @@ export const dashboardRoutes = [
           { path: ':id/extracted-documents', element: <ProcessInstanceExtractedDocumentsPage /> },
           { path: ':id/blueprint', element: <ProcessInstanceReactFlowPage /> },
         ],
+      },
+      {
+        path: 'workflow',
+        children: [
+          { element: <WorkFlowBoardPage />, index: true},
+          { path: 'bluePrint', element: <WorkFlowBoardPage />}
+        ]
       },
       {
         path: 'fileType',
@@ -263,6 +273,10 @@ export const dashboardRoutes = [
       { path: 'kanban', element: <KanbanPage /> },
       { path: 'permission', element: <PermissionDeniedPage /> },
       { path: 'blank', element: <BlankPage /> },
+      {
+        path: 'mailServer',
+        element: <MailServerViewPage />
+      },
     ],
   },
   {
@@ -270,5 +284,6 @@ export const dashboardRoutes = [
     element: (
       <LinkedInPage />
     )
-  }
+  },
+
 ];

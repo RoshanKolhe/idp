@@ -110,8 +110,16 @@ export const paths = {
       view: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/view`,
       reactFlow: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/blueprint`,
       extractedDocs: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/extracted-documents`,
-      // documentProcess: `${ROOTS.DASHBOARD}/processes/document-process`,
-      // reactFlow: (id) => `${ROOTS.DASHBOARD}/processes/${id}/react-flow`,
+    },
+    // workflows
+    workflow: {
+      root: `${ROOTS.DASHBOARD}/workflow`,
+      new: `${ROOTS.DASHBOARD}/workflow/new`,
+      list: `${ROOTS.DASHBOARD}/workflow/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/workflow/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/workflow/${id}/view`,
+      documentProcess: `${ROOTS.DASHBOARD}/workflow/document-process`,
+      reactFlow: `${ROOTS.DASHBOARD}/workflow/blueprint`,
     },
     fileType: {
       root: `${ROOTS.DASHBOARD}/fileType`,
@@ -119,6 +127,10 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/fileType/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/view`,
+    },
+    mailServer:{
+      root: `${ROOTS.DASHBOARD}/mailServer`,
+      // view: `${ROOTS.DASHBOARD}/rootServer/${id}/view`,
     },
     user: {
       root: `${ROOTS.DASHBOARD}/user`,

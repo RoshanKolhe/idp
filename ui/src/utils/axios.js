@@ -77,13 +77,4 @@ export const endpoints = {
     details: '/api/product/details',
     search: '/api/product/search',
   },
-  level:{
-    list: '/levels',
-    details: (id) => `/levels/${id}`,
-    filterList: (filter) => `/levels?filter=${filter}`,
-  },
-  member:{
-    list: '/members',
-    details: (id) => `/members/${id}`,
-  }
 };
