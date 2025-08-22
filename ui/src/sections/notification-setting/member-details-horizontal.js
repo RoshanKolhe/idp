@@ -47,14 +47,8 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
             />
           </Grid>
           <Grid item xs={8}>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-              }}
-            >
-              <Stack sx={{ flexGrow: 1, pr: 1 }}>
+             <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between' }}>
+            <Stack spacing={0.5} pr={1} overflow="hidden">
                 <TextMaxLine variant="subtitle2" line={2}>
                   {member.fullName}
                 </TextMaxLine>

@@ -7,7 +7,7 @@ import {
   Stack,
   CircularProgress,
 } from '@mui/material';
-import { useGetFilteredLevels, useGetLevels } from 'src/api/levels';
+import {  useGetLevels } from 'src/api/levels';
 import { useSettingsContext } from 'src/components/settings';
 import Iconify from 'src/components/iconify';
 import EscalationMatrixLayout from '../escalation-matrix-layout';

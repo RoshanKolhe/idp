@@ -55,7 +55,7 @@ export default function EscalationMatrixPage({ levels }) {
             }}
           >
             {(level.members || []).map((member) => (
-              <Box key={member.id} sx={{ minWidth: isSmallScreen ? '100%' : 280 }}>
+              <Box key={member.id} sx={{ minWidth: isSmallScreen ? '100%' : 300 }}>
                 <MemberItemHorizontal
                   levelName={level.name}
                   member={member}

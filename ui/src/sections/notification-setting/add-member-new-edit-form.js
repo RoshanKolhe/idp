@@ -235,7 +235,7 @@ const handleDrop = useCallback(
                   {/* <RHFTextField name="search" label="Search Name" /> */}
                   <RHFTextField name="fullName" label="Full Name" />
                   <RHFTextField name="email" label="Email Address" />
-                  <RHFTextField name="phoneNumber" label="Phone Number" />
+                  <RHFTextField name="phoneNumber" label="Phone Number" type="number" />
                 </Box>
 
                 <Stack alignItems="flex-end" sx={{ mt: 3 }}>

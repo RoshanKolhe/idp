@@ -18,7 +18,7 @@ export class Member extends Entity {
   @property({
     type: 'object',
   })
- avatarUrl?: object;
+ avatarUrl: object;
 
   @property({
     type: 'string',
