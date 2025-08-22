@@ -18,6 +18,8 @@ export async function migrate(args: string[]) {
       'ProcessInstances',
       'ProcessInstanceDocuments',
       'ProcessInstanceSecrets',
+      'Levels',
+      'Member',
     ],
   });
   // Connectors usually keep a pool of opened connections,

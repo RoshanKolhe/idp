@@ -53,6 +53,7 @@ export class UserController {
     @inject('service.jwt.service')
     public jwtService: JWTService,
   ) {}
+  
   @post('/register', {
     responses: {
       '200': {

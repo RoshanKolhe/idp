@@ -39,7 +39,7 @@ export const endpoints = {
     filterList: (filter) => `/process-types?${filter}`,
     details: (id) => `/process-types/${id}`,
   },
-  documentType: {
+  documentType: { 
     list: '/document-types',
     filterList: (filter) => `/document-types?${filter}`,
     details: (id) => `/document-types/${id}`,
@@ -77,4 +77,13 @@ export const endpoints = {
     details: '/api/product/details',
     search: '/api/product/search',
   },
+  level:{
+    list: '/levels',
+    details: (id) => `/levels/${id}`,
+    filterList: (filter) => `/levels?filter=${filter}`,
+  },
+  member:{
+    list: '/members',
+    details: (id) => `/members/${id}`,
+  }
 };

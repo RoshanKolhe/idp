@@ -85,6 +85,11 @@ export function useNavData() {
                 path: paths.dashboard.fileType.list,
                 roles: ['super_admin'],
               },
+               {
+                title: t('Notification Setting'),
+                path: paths.dashboard.notificationSetting.list,
+                roles: ['super_admin'],
+              },
             ],
           },
         ],
