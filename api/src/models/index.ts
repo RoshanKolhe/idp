@@ -10,3 +10,4 @@ export * from './log-entry.model';
 export * from './process-instance-secrets.model';
 export * from './levels.model';
 export * from './member.model';
+export * from './mail-server.model';
