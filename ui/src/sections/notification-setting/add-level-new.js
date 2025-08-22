@@ -33,7 +33,7 @@ import { reset } from 'numeral';
 import { paths } from 'src/routes/paths';
 
 
-export default function AddLevelNewForm({ open, onClose, currentLevel}) {
+export default function AddLevelNewForm({ open, onClose, currentLevel, refreshLevels}) {
 
   const router = useRouter();
   const {enqueueSnackbar} = useSnackbar();
@@ -80,7 +80,8 @@ const defaultValues = useMemo(
       }
       reset();
       enqueueSnackbar(currentLevel ? 'Update success!' : 'Create success!', { variant: 'success' });
-      router.push(paths.dashboard.notificationSetting.list);
+      refreshLevels();
+      onClose();
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
@@ -110,7 +111,7 @@ const defaultValues = useMemo(
 
       <DialogContent dividers>
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
-          <Box container spacing={3}>
+          <Box container spacing={3} sx={{mt: 2}}>
             <Grid item xs={12} md={8}>
               <Stack spacing={3} >
                 <RHFTextField name="name" label="Level" />
@@ -127,7 +128,6 @@ const defaultValues = useMemo(
                   type="submit"
                   variant="contained"
                   loading={isSubmitting}
-                
                 >
                   Add Level
                 </LoadingButton>
@@ -144,4 +144,5 @@ AddLevelNewForm.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
   currentLevel: PropTypes.object,
+  refreshLevels: PropTypes.func
 };

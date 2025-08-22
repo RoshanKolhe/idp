@@ -6,7 +6,7 @@ import MemberItemHorizontal from './member-details-horizontal';
 
 const LEVEL_COLORS = ['#853cc2ff', '#F5B800', '#33B679', '#00B8D9'];
 
-export default function EscalationMatrixPage({ levels }) {
+export default function EscalationMatrixPage({ levels, refreshLevels }) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -86,4 +86,5 @@ EscalationMatrixPage.propTypes = {
       ),
     })
   ),
+  refreshLevels: PropTypes.func
 };

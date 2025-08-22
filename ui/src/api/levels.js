@@ -1,4 +1,4 @@
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { useMemo } from 'react';
 // utils
 import { fetcher, endpoints } from 'src/utils/axios';
@@ -9,6 +9,10 @@ export function useGetLevels() {
   const URL = endpoints.level.list;
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+
+  const refreshLevels = () => {
+    mutate(URL);
+  }
 
   const memoizedValue = useMemo(
     () => ({
@@ -21,7 +25,7 @@ export function useGetLevels() {
     [data, error, isLoading, isValidating]
   );
 
-  return memoizedValue;
+  return {...memoizedValue, refreshLevels};
 }
 
 

@@ -17,7 +17,7 @@ import AddLevelNewForm from '../add-level-new';
 export default function NotificationSettingListView() {
   const settings = useSettingsContext();
 
- const{levels}= useGetLevels();
+ const{levels, refreshLevels}= useGetLevels();
   const [openLevelDialog, setOpenLevelDialog] = useState(false);
   const [openMemberDialog, setOpenMemberDialog] = useState(false);
 
@@ -94,7 +94,7 @@ export default function NotificationSettingListView() {
         {/* Content: Loading / Empty / Display */}
         
 
-         <EscalationMatrixLayout levels={levels} />
+         <EscalationMatrixLayout levels={levels} refreshLevels={refreshLevels}/>
       </Container>
 
       {/* Dialogs */}
@@ -102,12 +102,14 @@ export default function NotificationSettingListView() {
         open={openLevelDialog}
         onClose={handleCloseLevel}
         onSubmitForm={handleSubmit}
+        refreshLevels={refreshLevels}
       />
 
       <AddMemberNewEditForm
         open={openMemberDialog}
         onClose={handleCloseMember}
         onSubmitForm={handleSubmit}
+        refreshLevels={refreshLevels}
       />
     </>
   );
