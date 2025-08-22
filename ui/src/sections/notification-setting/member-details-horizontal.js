@@ -38,8 +38,8 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
         <Grid container alignItems="center">
           <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'center' }}>
             <Avatar
-              // src={member.avatarUrl}
-              alt={member.name}
+              src={member.avatarUrl}
+              alt={member.fullName}
               sx={{
                 width: 48,
                 height: 48,
@@ -56,10 +56,13 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
             >
               <Stack sx={{ flexGrow: 1, pr: 1 }}>
                 <TextMaxLine variant="subtitle2" line={2}>
-                  {member.name}
+                  {member.fullName}
                 </TextMaxLine>
                 <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
                   {member.email}
+                </TextMaxLine>
+                 <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
+                  {member.phoneNumber}
                 </TextMaxLine>
               </Stack>
 
@@ -119,8 +122,9 @@ MemberItemHorizontal.propTypes = {
   levelDescription: PropTypes.string,
   member: PropTypes.shape({
     id: PropTypes.number,
-    name: PropTypes.string,
+    fullName: PropTypes.string,
     email: PropTypes.string,
-    phone: PropTypes.string,
+    phoneNumber: PropTypes.string,
+    avatarUrl: PropTypes.object,
   }),
 };

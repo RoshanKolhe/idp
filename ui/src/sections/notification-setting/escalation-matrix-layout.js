@@ -54,7 +54,7 @@ export default function EscalationMatrixPage({ levels }) {
               pr: 1,
             }}
           >
-            {level.members.map((member) => (
+            {(level.members || []).map((member) => (
               <Box key={member.id} sx={{ minWidth: isSmallScreen ? '100%' : 280 }}>
                 <MemberItemHorizontal
                   levelName={level.name}
@@ -78,9 +78,10 @@ EscalationMatrixPage.propTypes = {
       members: PropTypes.arrayOf(
         PropTypes.shape({
           id: PropTypes.number,
-          name: PropTypes.string,
+          fullName: PropTypes.string,
           email: PropTypes.string,
-          phone: PropTypes.string,
+          phoneNumber: PropTypes.string,
+          avatarUrl: PropTypes.object,
         })
       ),
     })

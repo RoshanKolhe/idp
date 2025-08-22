@@ -1,4 +1,4 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Entity, model, property, belongsTo, hasMany} from '@loopback/repository';
 import {Levels} from './levels.model';
 
 @model()
@@ -51,7 +51,7 @@ export class Member extends Entity {
     default: false,
   })
   isDeleted: boolean;
-
+  
   @belongsTo(() => Levels)
   levelsId: number;
 

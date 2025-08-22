@@ -112,7 +112,7 @@ const defaultValues = useMemo(
         <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
           <Box container spacing={3}>
             <Grid item xs={12} md={8}>
-              <Stack spacing={3}>
+              <Stack spacing={3} >
                 <RHFTextField name="name" label="Level" />
                 <RHFTextField
                   name="description"
@@ -127,6 +127,7 @@ const defaultValues = useMemo(
                   type="submit"
                   variant="contained"
                   loading={isSubmitting}
+                
                 >
                   Add Level
                 </LoadingButton>

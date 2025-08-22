@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -39,12 +39,26 @@ import {
 
 // utils
 import { fData } from 'src/utils/format-number';
+import { useGetLevels } from 'src/api/levels';
 // components
 
 
 export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
 
   const router = useRouter();
+  const { levels, levelsEmpty } = useGetLevels();
+
+  console.log("Levels data:", levels, levelsEmpty);
+
+  const [levelsData, setLevelsData] = useState([]);
+
+  useEffect(() => {
+    if (levels && levels.length > 0) {
+      setLevelsData(levels);
+    } else {
+      setLevelsData([]);
+    }
+  }, [levels]);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -61,8 +75,8 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
       fullName: currentMember?.fullName || '',
       email: currentMember?.email || '',
       phoneNumber: currentMember?.phoneNumber || '',
-      levelsId: currentMember?.levelId || '',
-      avatarUrl: currentMember?.avatarUrl || '',
+      levelsId: currentMember?.levelsId || '',
+      avatarUrl: currentMember?.avatarUrl || null,
 
     }),
     [currentMember]
@@ -83,22 +97,24 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
   } = methods;
 
   const values = watch();
-
   const onSubmit = handleSubmit(async (formData) => {
     try {
+      // when file uploaded
+      // and in onSubmit
       const inputData = {
         fullName: formData.fullName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
-        avatarUrl:formData.avatarUrl ,
-        levelsId: formData.levelId,
+        avatarUrl: formData.avatarUrl, 
+        levelsId: Number(formData.levelsId),
       };
+
 
       if (!currentMember) {
         await axiosInstance.post('/members', inputData);
       } else {
         await axiosInstance.patch(`/members/${currentMember.id}`, inputData);
-            console.log("Saved member:", inputData.data);
+        console.log("Saved member:", inputData.data);
       }
       reset();
       enqueueSnackbar(currentMember ? 'Update success!' : 'Create success!', { variant: 'success' });
@@ -120,20 +136,28 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose }) {
 const handleDrop = useCallback(
   async (acceptedFiles) => {
     const file = acceptedFiles[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      const response = await axiosInstance.post('/files', formData);
-      const { data } = response;
-      setValue('avatarUrl', data.files[0].fileUrl); 
+
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axiosInstance.post('/files', formData); 
+      const uploadedFileUrl = response.data.files[0].fileUrl;
+
+      setValue('avatarUrl', { fileUrl: uploadedFileUrl }, { shouldValidate: true });
+    } catch (error) {
+      console.error('File upload failed:', error);
     }
   },
   [setValue]
 );
 
-const handleRemoveFile = useCallback(() => {
-  setValue('avatarUrl', null);
-}, [setValue]);
+
+  const handleRemoveFile = useCallback(() => {
+    setValue('avatarUrl', null);
+  }, [setValue]);
 
 
   return (
@@ -196,7 +220,18 @@ const handleRemoveFile = useCallback(() => {
                     sm: 'repeat(2, 1fr)',
                   }}
                 >
-                  <RHFTextField name="levelId" label="Level" />
+                  <RHFSelect name="levelsId" label="Level">
+                    {levels && levels.length > 0
+                      ? levelsData.map((level) => (
+                        <MenuItem key={level.id} value={String(level.id)}>
+                          {level.name}
+                        </MenuItem>
+                      ))
+                      : <MenuItem disabled>No Levels Available</MenuItem>}
+                  </RHFSelect>
+
+
+
                   {/* <RHFTextField name="search" label="Search Name" /> */}
                   <RHFTextField name="fullName" label="Full Name" />
                   <RHFTextField name="email" label="Email Address" />

@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import { Entity, hasMany, model, property } from '@loopback/repository';
+import { Member } from './member.model';
 
 @model()
 export class Levels extends Entity {
@@ -9,7 +10,7 @@ export class Levels extends Entity {
   })
   id?: number;
 
-@property({
+  @property({
     type: 'string',
   })
   name: string;
@@ -19,27 +20,30 @@ export class Levels extends Entity {
   })
   description: string;
 
-    @property({
-      type: 'date',
-    })
-    createdAt?: Date;
-  
-    @property({
-      type: 'date',
-    })
-    updatedAt?: Date;
-  
-    @property({
-      type: 'date',
-    })
-    deletedAt?: Date;
-  
-    @property({
-      type: 'boolean',
-      default: false,
-    })
-    isDeleted: boolean;
+  @property({
+    type: 'date',
+  })
+  createdAt?: Date;
 
+  @property({
+    type: 'date',
+  })
+  updatedAt?: Date;
+
+  @property({
+    type: 'date',
+  })
+  deletedAt?: Date;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  isDeleted: boolean;
+
+  @hasMany(() => Member, { keyTo: 'levelId' })
+  members: Member[];
+  
   constructor(data?: Partial<Levels>) {
     super(data);
   }

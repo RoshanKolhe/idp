@@ -58,23 +58,29 @@ export class LevelsController {
     return this.levelsRepository.count(where);
   }
 
-  @get('/levels')
-  @response(200, {
-    description: 'Array of Levels model instances',
-    content: {
-      'application/json': {
-        schema: {
-          type: 'array',
-          items: getModelSchemaRef(Levels, {includeRelations: true}),
-        },
+ // LevelsController.ts
+
+@get('/levels')
+@response(200, {
+  description: 'Array of Levels model instances',
+  content: {
+    'application/json': {
+      schema: {
+        type: 'array',
+        items: getModelSchemaRef(Levels, {includeRelations: true}),
       },
     },
-  })
-  async find(
-    @param.filter(Levels) filter?: Filter<Levels>,
-  ): Promise<Levels[]> {
-    return this.levelsRepository.find(filter);
-  }
+  },
+})
+async find(
+  @param.filter(Levels) filter?: Filter<Levels>,
+): Promise<Levels[]> {
+  const filterWithIncludes = {
+    ...filter,
+    include: [{relation: 'members'}], 
+  };
+  return this.levelsRepository.find(filterWithIncludes);
+}
 
   @patch('/levels')
   @response(200, {

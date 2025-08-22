@@ -5,170 +5,25 @@ import {
   Container,
   Typography,
   Stack,
-  Pagination,
+  CircularProgress,
 } from '@mui/material';
-
+import { useGetFilteredLevels, useGetLevels } from 'src/api/levels';
 import { useSettingsContext } from 'src/components/settings';
 import Iconify from 'src/components/iconify';
-import { HexagonLevel } from 'src/components/level-cards';
+import EscalationMatrixLayout from '../escalation-matrix-layout';
 import AddMemberNewEditForm from '../add-member-new-edit-form';
 import AddLevelNewForm from '../add-level-new';
-import MemberItemHorizontal from '../member-details-horizontal';
-import EscalationMatrixLayout from '../escalation-matrix-layout';
 
 export default function NotificationSettingListView() {
   const settings = useSettingsContext();
 
-  const levels = [
-    {
-      id: 1,
-      name: 'Level 1',
-      description: 'Primary contact',
-      members: [
-        {
-          id: 101,
-          name: 'Alice Smith',
-          email: 'alice@example.com',
-          phone: '+91 9876543210',
-        },
-         {
-          id: 111,
-          name: 'Charlie Brown',
-          email: 'charlie@example.com',
-          phone: '+91 9012345678',
-        },
-        {
-          id: 101,
-          name: 'Alice Smith',
-          email: 'alice@example.com',
-          phone: '+91 9876543210',
-        },
-        
-      ],
-    },
-    {
-      id: 2,
-      name: 'Level 2',
-      description: 'Secondary contact',
-      members: [
-        {
-          id: 104,
-          name: 'Bob Johnson',
-          email: 'bob@example.com',
-          phone: '+91 9123456789',
-        },
-        {
-          id: 105,
-          name: 'Charlie Brown',
-          email: 'charlie@example.com',
-          phone: '+91 9012345678',
-        },
-             {
-          id: 101,
-          name: 'Alice Smith',
-          email: 'alice@example.com',
-          phone: '+91 9876543210',
-        },
-         {
-          id: 111,
-          name: 'Charlie Brown',
-          email: 'charlie@example.com',
-          phone: '+91 9012345678',
-        },
-        {
-          id: 101,
-          name: 'Alice Smith',
-          email: 'alice@example.com',
-          phone: '+91 9876543210',
-        },
-         {
-          id: 111,
-          name: 'Charlie Brown',
-          email: 'charlie@example.com',
-          phone: '+91 9012345678',
-        },
-      
-        
-      ],
-    },
-    {
-      id: 3,
-      name: 'Level 3',
-      description: 'Tertiary backup',
-     members: [
-        {
-          id: 106,
-          name: 'Bob Johnson',
-          email: 'bob@example.com',
-          phone: '+91 9123456789',
-        },
-        {
-          id: 107,
-          name: 'Charlie Brown',
-          email: 'charlie@example.com',
-          phone: '+91 9012345678',
-        },
-      ],
-    },
-    {
-      id: 4,
-      name: 'Level 4',
-      description: 'Tertiary backup',
-     members: [
-        {
-          id: 108,
-          name: 'Bob Johnson',
-          email: 'bob@example.com',
-          phone: '+91 9123456789',
-        },
-        {
-          id: 109,
-          name: 'Charlie Brown',
-          email: 'charlie@example.com',
-          phone: '+91 9012345678',
-        },
-      ],
-    },
-    {
-      id: 5,
-      name: 'Level 5',
-      description: 'Tertiary backup',
-     members: [
-        {
-          id: 110,
-          name: 'Bob Johnson',
-          email: 'bob@example.com',
-          phone: '+91 9123456789',
-        },
-        {
-          id: 111,
-          name: 'Charlie Brown',
-          email: 'charlie@example.com',
-          phone: '+91 9012345678',
-        },
-      ],
-    },
-  ];
-
-  // const [currentPage, setCurrentPage] = useState(1);
-  // const itemsPerPage = 7;
-
-  // const filter = useMemo(() => ({
-  //   limit: itemsPerPage,
-  //   skip: (currentPage - 1) * itemsPerPage
-  // }), [currentPage]);
-
-
-  // const filterString = encodeURIComponent(JSON.stringify(filter));
-  // const {  count } = levels(filterString);
-
-  // const totalPages = Math.round(count / itemsPerPage);
-
+ const{levels}= useGetLevels();
   const [openLevelDialog, setOpenLevelDialog] = useState(false);
+  const [openMemberDialog, setOpenMemberDialog] = useState(false);
+
   const handleOpenLevel = () => setOpenLevelDialog(true);
   const handleCloseLevel = () => setOpenLevelDialog(false);
 
-  const [openMemberDialog, setOpenMemberDialog] = useState(false);
   const handleOpenMember = () => setOpenMemberDialog(true);
   const handleCloseMember = () => setOpenMemberDialog(false);
 
@@ -179,7 +34,7 @@ export default function NotificationSettingListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        {/* Header & Buttons */}
+        {/* Header */}
         <Box
           sx={{
             mb: 3,
@@ -189,7 +44,7 @@ export default function NotificationSettingListView() {
             justifyContent: 'space-between',
           }}
         >
-          <Typography variant="h4" component="h1" fontWeight={600}>
+          <Typography variant="h4" fontWeight={600}>
             Escalation Matrix
           </Typography>
 
@@ -236,17 +91,10 @@ export default function NotificationSettingListView() {
           </Box>
         </Box>
 
+        {/* Content: Loading / Empty / Display */}
+        
 
- {/* mapping here all the levels with cards  */}
-     <EscalationMatrixLayout levels={levels}  />
-     
- {/* This box is for pagination  */}
-        {/* <Box component='div' sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 3 }}>
-        {totalPages > 0 && <Pagination page={currentPage} onChange={(e, value) => setCurrentPage(value)} count={totalPages} variant="outlined" color="primary" />}
-      </Box> */}
-
-
-
+         <EscalationMatrixLayout levels={levels} />
       </Container>
 
       {/* Dialogs */}
