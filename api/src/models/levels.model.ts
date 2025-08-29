@@ -1,5 +1,6 @@
-import { Entity, hasMany, model, property } from '@loopback/repository';
+import { Entity, hasMany, model, property, belongsTo} from '@loopback/repository';
 import { Member } from './member.model';
+import {Escalation} from './escalation.model';
 
 @model()
 export class Levels extends Entity {
@@ -41,9 +42,12 @@ export class Levels extends Entity {
   })
   isDeleted: boolean;
 
-  @hasMany(() => Member, { keyTo: 'levelId' })
+  @hasMany(() => Member, {keyTo: 'levelId'})
   members: Member[];
-  
+
+  @belongsTo(() => Escalation)
+  escalationId: number;
+
   constructor(data?: Partial<Levels>) {
     super(data);
   }

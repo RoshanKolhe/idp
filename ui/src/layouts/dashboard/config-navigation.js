@@ -65,7 +65,7 @@ export function useNavData() {
           { title: t('Processes'), path: paths.dashboard.processes.root, icon: ICONS.processes },
           { title: t('Process Instance'), path: paths.dashboard.processesInstance.root, icon: ICONS.processInstance },
           { title: t('workflow'), path: paths.dashboard.workflow.reactFlow, icon: ICONS.processInstance },
-          { title: t(' Mail Server '), path: paths.dashboard.mailServer.root, icon: ICONS.mailServer },
+          // { title: t(' Mail Server '), path: paths.dashboard.mailServer.root, icon: ICONS.mailServer },
           {
             title: t('Settings'),
             path: paths.dashboard.processType.list,

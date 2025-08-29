@@ -2,13 +2,24 @@ import { Box, Stack, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import SingleHexagon from 'src/components/level-cards/hexagon-level-card';
+
+import { useRouter } from 'src/routes/hook';
+import { useCallback } from 'react';
+import { paths } from 'src/routes/paths';
 import MemberItemHorizontal from './member-details-horizontal';
+
 
 const LEVEL_COLORS = ['#853cc2ff', '#F5B800', '#33B679', '#00B8D9'];
 
-export default function EscalationMatrixPage({ levels, refreshLevels }) {
+export default function EscalationMatrixPage({ levels, refreshLevels, onEditMember }) {
   const theme = useTheme();
+  const { router } = useRouter();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const handleEditRow = useCallback((id) => {
+    router.push(paths.dashboard.notificationSetting.edit(id));
+  }, [router]);
+
 
   return (
     <Stack
@@ -52,6 +63,10 @@ export default function EscalationMatrixPage({ levels, refreshLevels }) {
               height: isSmallScreen ? 'auto' : 'calc(100% - 120px)',
               overflowY: isSmallScreen ? 'visible' : 'auto',
               pr: 1,
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': {
+                display: 'none',
+              },
             }}
           >
             {(level.members || []).map((member) => (
@@ -59,6 +74,7 @@ export default function EscalationMatrixPage({ levels, refreshLevels }) {
                 <MemberItemHorizontal
                   levelName={level.name}
                   member={member}
+                  onEditRow={() => onEditMember(member)}
                 />
               </Box>
             ))}
@@ -81,10 +97,13 @@ EscalationMatrixPage.propTypes = {
           fullName: PropTypes.string,
           email: PropTypes.string,
           phoneNumber: PropTypes.string,
-          avatarUrl: PropTypes.object,
+          avatarUrl: PropTypes.shape({
+            fileUrl: PropTypes.string,
+          }),
         })
       ),
     })
   ),
-  refreshLevels: PropTypes.func
+  refreshLevels: PropTypes.func,
+  onEditMember: PropTypes.func
 };

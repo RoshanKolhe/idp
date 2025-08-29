@@ -31,6 +31,7 @@ import { useMemo } from 'react';
 import axiosInstance from 'src/utils/axios';
 import { reset } from 'numeral';
 import { paths } from 'src/routes/paths';
+import { useGetLevels } from 'src/api/levels';
 
 
 export default function AddLevelNewForm({ open, onClose, currentLevel, refreshLevels}) {
@@ -42,8 +43,6 @@ export default function AddLevelNewForm({ open, onClose, currentLevel, refreshLe
     name: Yup.string().required('Level is required'),
     description: Yup.string(),
   })
-
-
 
 const defaultValues = useMemo(
     () => ({
@@ -122,6 +121,8 @@ const defaultValues = useMemo(
                   minRows={3}
                 />
               </Stack>
+
+              {/* escalationName */}
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
                 <LoadingButton

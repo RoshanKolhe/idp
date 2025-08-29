@@ -14,3 +14,6 @@ export * from './member.controller';
 export * from './levels.controller';
 export * from './member-levels.controller';
 export * from './mail-server.controller';
+export * from './escalation.controller';
+export * from './levels-escalation.controller';
+export * from './escalation-levels.controller';

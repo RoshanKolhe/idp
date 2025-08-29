@@ -25,10 +25,10 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { Grid } from '@mui/material';
 
 // ----------------------------------------------------------------------
-export default function MemberItemHorizontal({ levelName, levelDescription, member }) {
+export default function MemberItemHorizontal({ onEditRow, levelName, levelDescription, member }) {
   const popover = usePopover();
 
-  const router = useRouter();
+
 
   const mdUp = useResponsive('up', 'md');
 
@@ -38,7 +38,7 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
         <Grid container alignItems="center">
           <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'center' }}>
             <Avatar
-              src={member.avatarUrl}
+             src={member.avatarUrl?.fileUrl || ""}
               alt={member.fullName}
               sx={{
                 width: 48,
@@ -47,35 +47,42 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
             />
           </Grid>
           <Grid item xs={8}>
-             <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between' }}>
             <Stack spacing={0.5} pr={1} overflow="hidden">
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <TextMaxLine variant="subtitle2" line={2}>
                   {member.fullName}
                 </TextMaxLine>
-                <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
-                  {member.email}
-                </TextMaxLine>
-                 <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
-                  {member.phoneNumber}
-                </TextMaxLine>
-              </Stack>
 
-              <IconButton
-                color={popover.open ? 'inherit' : 'default'}
-                onClick={popover.onOpen}
-              >
-                <Iconify icon="eva:more-horizontal-fill" />
-              </IconButton>
-            </Box>
+                <IconButton
+                  size="small"
+                  color={popover.open ? 'inherit' : 'default'}
+                  onClick={popover.onOpen}
+                  sx={{ ml: 1 }}
+                >
+                  <Iconify icon="eva:more-horizontal-fill" />
+                </IconButton>
+              </Box>
+
+              <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
+                {member.email}
+              </TextMaxLine>
+
+              <TextMaxLine variant="body2" sx={{ color: 'text.secondary' }}>
+                {member.phoneNumber}
+              </TextMaxLine>
+            </Stack>
           </Grid>
+
         </Grid>
       </Stack>
-
+      {/*  */}
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="bottom-center"
         sx={{ width: 80 }}
+        flexShrink="start"
+        right="top"
       >
         {/* <MenuItem
           onClick={() => {
@@ -89,6 +96,7 @@ export default function MemberItemHorizontal({ levelName, levelDescription, memb
 
         <MenuItem
           onClick={() => {
+            onEditRow();
             popover.onClose();
             // router.push(paths.dashboard.post.edit(title));
           }}
@@ -119,6 +127,9 @@ MemberItemHorizontal.propTypes = {
     fullName: PropTypes.string,
     email: PropTypes.string,
     phoneNumber: PropTypes.string,
-    avatarUrl: PropTypes.object,
+    avatarUrl: PropTypes.shape({
+      fileUrl: PropTypes.string,
+    }),
   }),
+  onEditRow: PropTypes.func
 };

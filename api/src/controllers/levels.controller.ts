@@ -66,20 +66,32 @@ export class LevelsController {
   content: {
     'application/json': {
       schema: {
-        type: 'array',
-        items: getModelSchemaRef(Levels, {includeRelations: true}),
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: getModelSchemaRef(Levels, {includeRelations: true}),
+          },
+          count: {type: 'number'},
+        },
       },
     },
   },
 })
 async find(
   @param.filter(Levels) filter?: Filter<Levels>,
-): Promise<Levels[]> {
+): Promise<{data: Levels[], count: number}> {
   const filterWithIncludes = {
     ...filter,
-    include: [{relation: 'members'}], 
+    include: [{relation: 'members'}],
   };
-  return this.levelsRepository.find(filterWithIncludes);
+  const data = await this.levelsRepository.find(filterWithIncludes);  
+  const count = await this.levelsRepository.count(filter?.where);
+
+  return {
+    data:data,
+    count: count.count,
+  };
 }
 
   @patch('/levels')

@@ -179,6 +179,8 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/notificationSetting`,
        list: `${ROOTS.DASHBOARD}/notificationSetting/list`,
        new: `${ROOTS.DASHBOARD}/notificationSetting/new`,
+     edit: (id) => `${ROOTS.DASHBOARD}/notificationSetting/${id}/edit`,
+     view:(id)=> `${ROOTS.DASHBOARD}/notificationSetting/${id}`
 
 
     },

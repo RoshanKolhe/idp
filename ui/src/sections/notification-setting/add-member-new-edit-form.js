@@ -1,6 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -8,10 +9,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+
 import Grid from '@mui/material/Unstable_Grid2';
 // routes
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/bootstrap.css';
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
+import { useParams, useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
@@ -39,14 +43,21 @@ import {
 
 // utils
 import { fData } from 'src/utils/format-number';
-import { useGetLevels } from 'src/api/levels';
+import { useGetFilteredLevels } from 'src/api/levels';
 // components
 
 
 export default function AddMemberNewEditForm({ currentMember, open, onClose, refreshLevels }) {
-
+  const params = useParams();
+  const { id } = params;
   const router = useRouter();
-  const { levels, levelsEmpty } = useGetLevels();
+  const filter = {
+    where: {
+      escalationId: Number(id)
+    }
+  };
+  const filterString = encodeURIComponent(JSON.stringify(filter));
+  const { levels, levelsEmpty } = useGetFilteredLevels(filterString);
 
   console.log("Levels data:", levels, levelsEmpty);
 
@@ -67,7 +78,7 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
     email: Yup.string().email('Invalid email').required('Email is required'),
     phoneNumber: Yup.string().required('Phone number is required'),
     levelsId: Yup.string().required('Level is required'),
-    avatarUrl: Yup.mixed().nullable().required('Avatar is required'),
+    avatarUrl: Yup.mixed().nullable(),
   });
 
   const defaultValues = useMemo(
@@ -93,7 +104,7 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
     control,
     setValue,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
   const values = watch();
@@ -105,7 +116,9 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
         fullName: formData.fullName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
-        avatarUrl: formData.avatarUrl,
+        avatarUrl: formData.avatarUrl
+          ? { fileUrl: formData.avatarUrl }
+          : null,
         levelsId: Number(formData.levelsId),
       };
 
@@ -139,18 +152,15 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
     async (acceptedFiles) => {
       const file = acceptedFiles[0];
 
-      if (!file) return;
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
         const response = await axiosInstance.post('/files', formData);
-        const uploadedFileUrl = response.data.files[0].fileUrl;
-
-        setValue('avatarUrl', { fileUrl: uploadedFileUrl }, { shouldValidate: true });
-      } catch (error) {
-        console.error('File upload failed:', error);
+        const { data } = response;
+        console.log(data);
+        setValue('avatarUrl', data?.files[0].fileUrl, {
+          shouldValidate: true,
+        });
       }
     },
     [setValue]
@@ -165,7 +175,7 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
   return (
     <Dialog fullWidth maxWidth="md" open={open} onClose={onClose}>
       <DialogTitle>
-        Add New Member
+        {currentMember ? 'Edit Member' : 'Add New Member'}
         <IconButton
           aria-label="close"
           onClick={onClose}
@@ -237,12 +247,37 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
                   {/* <RHFTextField name="search" label="Search Name" /> */}
                   <RHFTextField name="fullName" label="Full Name" />
                   <RHFTextField name="email" label="Email Address" />
-                  <RHFTextField name="phoneNumber" label="Phone Number" type="number" />
+                  <Controller
+                    name="phoneNumber"
+                    control={methods.control}
+                    render={({ field }) => (
+                      <>
+                        <PhoneInput
+                          country="in"
+                          value={field.value}
+                          onChange={(phoneNumber) => field.onChange(phoneNumber)}
+                          inputProps={{
+                            autoComplete: 'on',
+                            autoFocus: true,
+                          }}
+                          inputStyle={{
+                            width: '100%',
+                            height: '40px',
+                          }}
+                        />
+                        {errors.phoneNumber && (
+                          <Box sx={{ color: '#FF5630', fontSize: '0.75rem' }}>
+                            {errors.phoneNumber.message}
+                          </Box>
+                        )}
+                      </>
+                    )}
+                  />
                 </Box>
 
                 <Stack alignItems="flex-end" sx={{ mt: 3 }}>
                   <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                    Add Member
+                    {currentMember ? 'Save Changes' : 'Add Member'}
                   </LoadingButton>
                 </Stack>
               </Card>

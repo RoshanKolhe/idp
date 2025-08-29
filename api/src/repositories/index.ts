@@ -11,3 +11,4 @@ export * from './process-instance-secrets.repository';
 export * from './member.repository';
 export * from './levels.repository';
 export * from './mail-server.repository';
+export * from './escalation.repository';

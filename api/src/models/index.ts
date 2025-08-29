@@ -11,3 +11,4 @@ export * from './process-instance-secrets.model';
 export * from './levels.model';
 export * from './member.model';
 export * from './mail-server.model';
+export * from './escalation.model';

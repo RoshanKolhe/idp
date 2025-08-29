@@ -16,11 +16,12 @@ export function useGetLevels() {
 
   const memoizedValue = useMemo(
     () => ({
-      levels: Array.isArray(data) ? data : [],
+      levels: Array.isArray(data?.data) ? data?.data : [],
+      count: data?.count || 0,
       levelsLoading: isLoading,
       levelsError: error,
       levelsValidating: isValidating,
-      levelsEmpty: !isLoading && !(Array.isArray(data) && data.length > 0),
+      levelsEmpty: !isLoading && !(Array.isArray(data) && data?.data?.length > 0),
     }),
     [data, error, isLoading, isValidating]
   );
@@ -53,19 +54,23 @@ export function useGetFilteredLevels(filter) {
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
 
+  const refreshLevels = () => {
+    mutate(URL);
+  }
+
   const memoizedValue = useMemo(
     () => ({
-      levels: data?.levels || [],
+      levels: data?.data || [],
       count: data?.count || 0,
       levelsLoading: isLoading,
       levelsError: error,
       levelsValidating: isValidating,
-      levelsEmpty: !isLoading && (!data || data?.levels?.length === 0),
+      levelsEmpty: !isLoading && (!data || data?.data?.length === 0),
     }),
     [data, error, isLoading, isValidating]
   );
 
-  return memoizedValue;
+  return {...memoizedValue, refreshLevels};
 }
 
 // ----------------------------------------------------------------------

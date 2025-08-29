@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import {EscalationMatrixListView} from 'src/sections/notification-setting/view'
+import {NotificationSettingListView} from 'src/sections/notification-setting/view'
 
 
 
@@ -10,14 +10,14 @@ import {EscalationMatrixListView} from 'src/sections/notification-setting/view'
 
 // ----------------------------------------------------------------------
 
-export default function NotificationSettingListPage() {
+export default function EscalationNotificationSettingListPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Notification Setting List</title>
+        <title> Dashboard: Notification Setting List View</title>
       </Helmet>
        {/* <NotificationSettingListView/> */}
-       <EscalationMatrixListView/>
+       <NotificationSettingListView/>
      
     </>
   );

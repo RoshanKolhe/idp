@@ -49,7 +49,7 @@ export default function UserNewEditForm({ currentUser }) {
     city: Yup.string().required('City is required'),
     role: Yup.string().required('Role is required'),
     zipCode: Yup.string().required('Zip code is required'),
-    avatarUrl: Yup.mixed().nullable().required('Avatar is required'),
+    avatarUrl: Yup.mixed().nullable(),
     // not required
     status: Yup.string(),
     isVerified: Yup.boolean(),
