@@ -19,23 +19,27 @@ import { Box, Button } from '@mui/material';
 import axiosInstance from 'src/utils/axios';
 import { useGetBluePrint } from 'src/api/blue-print';
 import {
+    CurvedEdge,
     CustomDottedEdge,
     CustomWorkflowAddNode,
     CustomWorkflowNode,
-    OperationSelectorModal
+    getLayoutedElements,
 } from './components';
-import { WorkFlowIngestion, WorkFlowNotification } from './nodes';
-
+import { WorkflowCase, WorkflowDecision, WorkFlowIngestion, WorkFlowNotification } from './nodes';
+import CustomWorkflowNodesPanel from './components/custom-workflow-nodes-panel';
 
 const nodeTypes = {
     customNode: CustomWorkflowNode,
     customAddNode: CustomWorkflowAddNode,
     ingestion: WorkFlowIngestion,
     notification: WorkFlowNotification,
+    decision: WorkflowDecision,
+    case: WorkflowCase,
 }
 
 const edgeTypes = {
-    customDottedEdge: CustomDottedEdge
+    customDottedEdge: CustomDottedEdge,
+    curvedEdge: CurvedEdge,
 }
 
 const initialNodes = [
@@ -177,7 +181,6 @@ export default function ReactFlowBoard({ isUnlock }) {
         }
     };
 
-    console.log('present nodes', presentNodes);
     const addNewNode = (operation) => {
         // const newOpNodeId = `${lastNodeId + 1}`;
         const newOpCompNodeId = `${lastNodeId}`;
@@ -212,7 +215,8 @@ export default function ReactFlowBoard({ isUnlock }) {
                     addToLeft: addNodeToLeft,
                     addToRight: addNodeToRight,
                     deleteNode,
-                    handleBluePrintComponent
+                    handleBluePrintComponent,
+                    handleAddNewDecisionCase
                 },
                 bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
             },
@@ -279,8 +283,6 @@ export default function ReactFlowBoard({ isUnlock }) {
 
         const lastNode = nodes.find((data) => Number(data.id) === lastNodeId);
 
-        console.log(lastNode);
-
         const lastEdge = {
             id: `e${lastNodeId - 1}-${newOpCompNodeId}`,
             source: `${lastNodeId - 1}`,
@@ -295,26 +297,51 @@ export default function ReactFlowBoard({ isUnlock }) {
                 endColor: newOperationComponentNode.data.bgColor
             }
         }
+        setNodes((prevNodes) => {
+            let updatedNodes = [...prevNodes];
+            setEdges((prevEdges) => {
+                let updatedEdges = [];
 
-        setNodes((nds) =>
-            nds
-                .filter((n) => n.id !== selectedNodeId)
-                .concat(newOperationComponentNode, newAddNode)
-        );
+                if (newOperationComponentNode.type === "decision") {
+                    // Replace the selected node with the new one
+                    updatedNodes = updatedNodes
+                        .filter((n) => n.id !== selectedNodeId)
+                        .concat(newOperationComponentNode);
 
-        setEdges((eds) =>
-            eds
-                .filter((e) => e.target !== selectedNodeId)
-                .concat(lastEdge, addNewEdge)
-        );
+                    updatedEdges = edges
+                        .filter((e) => e.target !== selectedNodeId)
+                        .concat(lastEdge);
+                } else {
+                    updatedNodes = updatedNodes
+                        .filter((n) => n.id !== selectedNodeId)
+                        .concat(newOperationComponentNode, newAddNode);
 
+                    updatedEdges = edges
+                        .filter((e) => e.target !== selectedNodeId)
+                        .concat(lastEdge, addNewEdge);
+                }
+
+                // Run Dagre layout
+                const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+                    updatedNodes,
+                    updatedEdges,
+                    "TB"
+                );
+                setNodes(layoutedNodes);
+                setEdges(layoutedEdges);
+                updatedNodes = layoutedNodes;
+
+                return layoutedEdges;
+            });
+            return updatedNodes;
+        });
+
+        // Update helper states
         setPresentNodes((prev) => [...prev, newOperationComponentNode?.data?.label]);
         setLastNodeId((id) => id + 1);
         setSelectedNodeId(null);
         setShowModal(false);
     };
-
-    console.log('edges', edges);
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -521,7 +548,6 @@ export default function ReactFlowBoard({ isUnlock }) {
         setPresentNodes((prev) => [...prev, operation?.title]);
     };
 
-    console.log('nodes', nodes);
     // delete node
     const deleteNode = (id, label) => {
         const deleteId = Number(id);
@@ -633,30 +659,224 @@ export default function ReactFlowBoard({ isUnlock }) {
         }
     }
 
+    // decision cases
+    const handleAddNewDecisionCase = (nodeId) => {
+        try {
+            setLastNodeId((prevId) => {
+                const newId = `${prevId + 1}`;
+
+                setNodes((prevNodes) => {
+                    let newNodes = prevNodes;
+                    setEdges((prevEdges) => {
+                        const node = prevNodes.find((n) => n.id === nodeId);
+                        if (!node) return prevEdges;
+
+                        const newNode = {
+                            id: newId,
+                            type: "case",
+                            data: {
+                                id: newId,
+                                label: "➕ New Case",
+                                icon: "/assets/icons/document-process/add.svg",
+                                style:
+                                    borderDirection === "down"
+                                        ? {
+                                            border: "5px solid #2DCA73",
+                                            borderBottom: "5px solid white",
+                                            borderRight: "5px solid white",
+                                        }
+                                        : {
+                                            border: "5px solid #2DCA73",
+                                            borderTop: "5px solid white",
+                                            borderLeft: "5px solid white",
+                                        },
+                                functions: {
+                                    handleCaseNode
+                                }
+                            },
+                            position: { x: 0, y: 0 },
+                        };
+
+                        const newEdge = {
+                            id: `e${nodeId}-${newId}-${Date.now()}`,
+                            source: nodeId,
+                            target: newId,
+                            sourceHandle: "source-connector",
+                            targetHandle: "target-connector",
+                        };
+
+                        const updatedNodes = [...prevNodes, newNode];
+                        newNodes = [...prevNodes, newNode];
+                        const updatedEdges = [...prevEdges, newEdge];
+
+                        const { nodes: layoutedNodes, edges: layoutedEdges } =
+                            getLayoutedElements(updatedNodes, updatedEdges, "TB");
+
+                        setNodes(layoutedNodes);
+                        setEdges(layoutedEdges);
+
+                        return updatedEdges;
+                    });
+                    return newNodes;
+                });
+
+                return prevId + 1;
+            });
+
+            setSelectedNodeId(null);
+            setShowModal(false);
+        } catch (error) {
+            console.error("Error while handling decision cases", error);
+        }
+    };
+
+    const handleCaseNode = (nodeId, newOperationalNode) => {
+        try {
+            console.log(nodeId, newOperationalNode);
+            setLastNodeId((id) => {
+                setNodes((prevNodes) => {
+                    let nodes = prevNodes;
+                    setEdges((prevEdges) => {
+                        // remove old node
+                        const filteredNodes = prevNodes.filter((node) => node.id !== nodeId);
+
+                        // new operation node (replaces the existing one)
+                        const newOperationComponentNode = {
+                            id: nodeId,
+                            type: newOperationalNode.type,
+                            data: {
+                                id: nodeId,
+                                label: `${newOperationalNode.title}`,
+                                description: `${newOperationalNode.description}`,
+                                icon: newOperationalNode.icon,
+                                style:
+                                    borderDirection === "up"
+                                        ? {
+                                            border: `5px solid ${newOperationalNode.color}`,
+                                            borderBottom: "5px dashed lightgray",
+                                            borderRight: "5px dashed lightgray",
+                                        }
+                                        : {
+                                            border: `5px solid ${newOperationalNode.color}`,
+                                            borderTop: "5px dashed lightgray",
+                                            borderLeft: "5px dashed lightgray",
+                                        },
+                                borderColor: newOperationalNode.borderColor,
+                                bgColor: newOperationalNode.bgColor,
+                                functions: {
+                                    addToLeft: addNodeToLeft,
+                                    addToRight: addNodeToRight,
+                                    deleteNode,
+                                    handleBluePrintComponent,
+                                    handleAddNewDecisionCase,
+                                },
+                                bluePrint: bluePrint.find(
+                                    (item) => item.nodeName === newOperationalNode?.title
+                                )?.component,
+                            },
+                            position: { x: 0, y: 0 },
+                        };
+
+                        // new add node
+                        const newAddNodeId = `${id + 1}`;
+                        const newAddNode = {
+                            id: newAddNodeId,
+                            type: "customAddNode",
+                            data: {
+                                id: newAddNodeId,
+                                label: "➕ New Node",
+                                icon: "/assets/icons/document-process/add.svg",
+                                style:
+                                    borderDirection === "down"
+                                        ? {
+                                            border: "5px solid #2DCA73",
+                                            borderBottom: "5px solid white",
+                                            borderRight: "5px solid white",
+                                        }
+                                        : {
+                                            border: "5px solid #2DCA73",
+                                            borderTop: "5px solid white",
+                                            borderLeft: "5px solid white",
+                                        },
+                            },
+                            position: { x: 0, y: 0 },
+                        };
+
+                        // edge between addNode -> operationNode
+                        const lastEdge = {
+                            id: `e${newAddNodeId}-${nodeId}`,
+                            source: nodeId,
+                            target: newAddNodeId,
+                            sourceHandler: "source-connector",
+                            targetHandler: "target-connector",
+                            data: {
+                                startColor: prevNodes.find(
+                                    (data) => Number(data.id) === lastNodeId + 1
+                                )?.data?.bgColor,
+                                endColor: newOperationComponentNode.data.bgColor,
+                            },
+                        };
+                        const updatedNodes = [...filteredNodes];
+                        const updatedEdges = [...prevEdges];
+
+                        if (newOperationComponentNode.type === 'decision') {
+                            updatedNodes.push(newOperationComponentNode);
+                        } else {
+                            updatedNodes.push(newOperationComponentNode, newAddNode);
+                            updatedEdges.push(lastEdge);
+                        }
+
+                        // run Dagre layout once on both
+                        const { nodes: layoutedNodes, edges: layoutedEdges } =
+                            getLayoutedElements(updatedNodes, updatedEdges, "TB");
+
+                        setNodes(layoutedNodes);
+                        nodes = layoutedNodes;
+                        return layoutedEdges;
+                    });
+                    return nodes;
+                });
+
+                return id + 1;
+            });
+            setSelectedNodeId(null);
+            setShowModal(false);
+        } catch (error) {
+            console.error("Error while handling case", error);
+        }
+    };
+
+    console.log('nodes', nodes);
+    console.log('edges', edges);
     return (
         <div style={{ width: '100%', height: '100vh' }}>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
                 <Button onClick={() => handleSubmitBluePrint()} variant='contained'>Save</Button>
             </Box>
-            <ReactFlowProvider >
-                <ReactFlow
-                    nodeTypes={nodeTypes}
-                    edgeTypes={edgeTypes}
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onNodeClick={onNodeClick}
-                    onConnect={onConnect}
-                    defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
-                    nodesDraggable
-                >
-                    <MiniMap />
-                    <Controls />
-                    <Background />
-                </ReactFlow>
-            </ReactFlowProvider>
-            {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode={[]} />}
+            <Box
+                component='div'
+                sx={{ height: '100%' }}
+            >
+                <ReactFlowProvider>
+                    <ReactFlow
+                        nodeTypes={nodeTypes}
+                        edgeTypes={edgeTypes}
+                        nodes={nodes}
+                        edges={edges}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        onNodeClick={onNodeClick}
+                        onConnect={onConnect}
+                        defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
+                        nodesDraggable
+                    >
+                        <MiniMap />
+                        <Controls />
+                        <Background />
+                    </ReactFlow>
+                </ReactFlowProvider>
+                {showModal && <CustomWorkflowNodesPanel open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode={[]} />}
+            </Box>
         </div>
     );
 }

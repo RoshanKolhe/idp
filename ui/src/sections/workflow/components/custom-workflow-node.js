@@ -4,8 +4,6 @@ import { Handle, Position } from "reactflow";
 import Iconify from "src/components/iconify";
 
 export default function CustomWorkflowNode({ data }) {
-
-    console.log('data', data);
     return (
         <Box
             sx={{
@@ -69,14 +67,20 @@ export default function CustomWorkflowNode({ data }) {
                 type="target"
                 position={Position.Top}
                 style={{
-                    top: -6,            // place above node
-                    left: "50%",        // center horizontally
+                    top: -6,
+                    left: "50%",
                     transform: "translateX(-50%)",
-                    background: "#555",
+                    background: "transparent", // hide circle bg
+                    width: 0,
+                    height: 0,
+                    borderLeft: "12px solid transparent",  // increase width
+                    borderRight: "12px solid transparent", // increase width
+                    borderTop: "16px solid #555",          // arrow size & color
                 }}
                 id="source-connector"
                 isConnectable
             />
+
 
             {/* Target Handle (Bottom) */}
             <Handle

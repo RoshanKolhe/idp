@@ -25,9 +25,19 @@ const operations = [
     borderColor: '#0884CC',
     color: '#0AAFFF'
   },
-    {
+  {
     id: 2,
     title: 'Notification',
+    description: 'Notification Sender Node.',
+    icon: '/assets/icons/workflow/notification.png',
+    type: 'notification',
+    bgColor: '#00A76F',
+    borderColor: '#2e7d32',
+    color: '#00A76F'
+  },
+  {
+    id: 2,
+    title: 'Decision',
     description: 'Notification Sender Node.',
     icon: '/assets/icons/workflow/notification.png',
     type: 'notification',

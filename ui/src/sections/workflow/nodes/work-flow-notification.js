@@ -162,11 +162,6 @@ export default function WorkFlowNotification({ data }) {
                 >
                     <CustomWorkflowNode data={data} />
                 </Box>
-                <Box
-                    component='div'
-                >
-                    <Typography variant='h5'>{data.label}</Typography>
-                </Box>
                 <CustomWorkflowDialogue isOpen={open} handleCloseModal={handleClose} title="Notification" color={data.bgColor}>
                     <FormProvider methods={methods} onSubmit={onSubmit}>
                         <Grid container spacing={1} sx={{ mb: 2 }}>
