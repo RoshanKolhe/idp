@@ -138,7 +138,7 @@ export default function MailServerForm({ currentMailServer }) {
           Mail Server Configuration
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={3} sx={{mt: 2}}>
           {/* Hidden ID field for form state */}
           <RHFTextField name="id" type="hidden" sx={{ display: 'none' }} />
 
