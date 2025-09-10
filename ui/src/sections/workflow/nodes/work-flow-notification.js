@@ -57,10 +57,11 @@ const getComponent = (values = {}) => {
     }
 };
 
-const getValidationSchema = (channelType) =>
+const getValidationSchema = (source) =>
     Yup.object().shape({
-        channelType: Yup.string().required('Channel Type is required'),
-        ...(NotificationSourceSchemas[channelType] ? NotificationSourceSchemas[channelType].fields : {}),
+        notificationType: Yup.string().required('Notification Type is required'),
+        notificationSource: Yup.string().required('Notification Source is required'),
+        ...(NotificationSourceSchemas[source] ? NotificationSourceSchemas[source].fields : {}),
     });
 
 // switch case functions
@@ -101,7 +102,7 @@ export default function WorkFlowNotification({ data }) {
             notificationType: data.bluePrint?.notificationType || '',
             notificationSource: data.bluePrint?.notificationSource || '',
             to: data.bluePrint?.to || '',
-            body: data.bluePrint?.body || '',
+            body: data.bluePrint?.body || undefined,
             subject: data.bluePrint?.subject || '',
         }),
         [data]
@@ -118,15 +119,17 @@ export default function WorkFlowNotification({ data }) {
         control,
         setValue,
         handleSubmit,
-        formState: { isSubmitting },
+        formState: { isSubmitting, errors },
     } = methods;
+
+    console.log('errors', errors);
 
     const values = watch();
 
     const onSubmit = handleSubmit(async (formData) => {
         console.log(formData);
         const newFormData = formData;
-        data.functions.handleBluePrintComponent(data.label, { ...newFormData });
+        data.functions.handleBluePrintComponent(data.label, data.id, { ...newFormData });
         handleClose();
     })
 

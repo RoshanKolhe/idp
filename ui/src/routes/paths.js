@@ -119,7 +119,16 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/workflow/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/workflow/${id}/view`,
       documentProcess: `${ROOTS.DASHBOARD}/workflow/document-process`,
-      reactFlow: `${ROOTS.DASHBOARD}/workflow/blueprint`,
+      reactFlow: (id) => `${ROOTS.DASHBOARD}/workflow/${id}/blueprint`,
+    },
+    workflowInstance: {
+      root: `${ROOTS.DASHBOARD}/workflowInstance`,
+      new: `${ROOTS.DASHBOARD}/workflowInstance/new`,
+      list: `${ROOTS.DASHBOARD}/workflowInstance/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/view`,
+      reactFlow: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/blueprint`,
+      extractedDocs: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/extracted-documents`,
     },
     fileType: {
       root: `${ROOTS.DASHBOARD}/fileType`,
@@ -128,7 +137,7 @@ export const paths = {
       edit: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/edit`,
       view: (id) => `${ROOTS.DASHBOARD}/fileType/${id}/view`,
     },
-    mailServer:{
+    mailServer: {
       root: `${ROOTS.DASHBOARD}/mailServer`,
       // view: `${ROOTS.DASHBOARD}/rootServer/${id}/view`,
     },
@@ -177,10 +186,10 @@ export const paths = {
 
     notificationSetting: {
       root: `${ROOTS.DASHBOARD}/notificationSetting`,
-       list: `${ROOTS.DASHBOARD}/notificationSetting/list`,
-       new: `${ROOTS.DASHBOARD}/notificationSetting/new`,
-     edit: (id) => `${ROOTS.DASHBOARD}/notificationSetting/${id}/edit`,
-     view:(id)=> `${ROOTS.DASHBOARD}/notificationSetting/${id}`
+      list: `${ROOTS.DASHBOARD}/notificationSetting/list`,
+      new: `${ROOTS.DASHBOARD}/notificationSetting/new`,
+      edit: (id) => `${ROOTS.DASHBOARD}/notificationSetting/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/notificationSetting/${id}`
 
 
     },

@@ -61,6 +61,17 @@ export const endpoints = {
     filterList: (filter) => `/file-types?${filter}`,
     details: (id) => `/file-types/${id}`,
   },
+  workflows: {
+    list: '/workflows',
+    filterList: (filter) => `/workflows?filter=${filter}`,
+    details: (id) => `/workflows/${id}`,
+    bluePrint: (id) => `/workflow-blueprints/workflow/${id}`
+  },
+  workflowInstance: {
+    list: '/workflow-instances',
+    filterList: (filter) => `/workflow-instances?filter=${filter}`,
+    details: (id) => `/workflow-instances/${id}`,
+  },
   mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',

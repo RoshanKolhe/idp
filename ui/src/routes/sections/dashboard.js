@@ -54,8 +54,19 @@ const ProcessInstanceListPage = lazy(() => import('src/pages/dashboard/processIn
 const ProcessInstanceViewPage = lazy(() => import('src/pages/dashboard/processInstance/view'));
 const ProcessInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/processInstance/extractedDocuments'));
 const ProcessInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/processInstance/react-flow'));
-// WORKFLOW
+// WORKFLOWS
+const WorkflowListPage = lazy(() => import('src/pages/dashboard/workflow/list'));
+const WorkflowCreatePage = lazy(() => import('src/pages/dashboard/workflow/new'));
+const WorkflowEditPage = lazy(() => import('src/pages/dashboard/workflow/edit'));
+const WorkflowViewPage = lazy(() => import('src/pages/dashboard/workflow/view'));
 const WorkFlowBoardPage = lazy(() => import('src/pages/dashboard/workflow/board'));
+// PROCESSES-INSTANCES
+const WorkflowInstanceCreatePage = lazy(() => import('src/pages/dashboard/workflowInstance/new'));
+const WorkflowInstanceEditPage = lazy(() => import('src/pages/dashboard/workflowInstance/edit'));
+const WorkflowInstanceListPage = lazy(() => import('src/pages/dashboard/workflowInstance/list'));
+const WorkflowInstanceViewPage = lazy(() => import('src/pages/dashboard/workflowInstance/view'));
+const WorkflowInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/workflowInstance/extractedDocuments'));
+const WorkflowInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/workflowInstance/react-flow'));
 // FILE TYPE
 const FileTypeListPage = lazy(() => import('src/pages/dashboard/fileType/list'));
 const FileTypeCreatePage = lazy(() => import('src/pages/dashboard/fileType/new'));
@@ -74,11 +85,10 @@ const BlogPostPage = lazy(() => import('src/pages/dashboard/post/details'));
 const BlogNewPostPage = lazy(() => import('src/pages/dashboard/post/new'));
 const BlogEditPostPage = lazy(() => import('src/pages/dashboard/post/edit'));
 // NOTIFICATION SETTING
-
-const NotificationSettingListPage = lazy(()=> import('src/pages/dashboard/notification-setting/list'));
-const NewLevelCreatePage = lazy(()=> import('src/pages/dashboard/notification-setting/new'));
-const MemberEditViewPage = lazy(()=> import('src/pages/dashboard/notification-setting/edit'));
-const EscalationNotificationSettingListPage = lazy(()=> import('src/pages/dashboard/notification-setting/view'))
+const NotificationSettingListPage = lazy(() => import('src/pages/dashboard/notification-setting/list'));
+const NewLevelCreatePage = lazy(() => import('src/pages/dashboard/notification-setting/new'));
+const MemberEditViewPage = lazy(() => import('src/pages/dashboard/notification-setting/edit'));
+const EscalationNotificationSettingListPage = lazy(() => import('src/pages/dashboard/notification-setting/view'))
 // JOB
 const JobDetailsPage = lazy(() => import('src/pages/dashboard/job/details'));
 const JobListPage = lazy(() => import('src/pages/dashboard/job/list'));
@@ -173,9 +183,25 @@ export const dashboardRoutes = [
       {
         path: 'workflow',
         children: [
-          { element: <WorkFlowBoardPage />, index: true},
-          { path: 'bluePrint', element: <WorkFlowBoardPage />}
+          { element: <WorkflowListPage />, index: true },
+          { path: 'list', element: <WorkflowListPage /> },
+          { path: 'new', element: <WorkflowCreatePage /> },
+          { path: ':id/edit', element: <WorkflowEditPage /> },
+          { path: ':id/view', element: <WorkflowViewPage /> },
+          { path: ':id/blueprint', element: <WorkFlowBoardPage /> }
         ]
+      },
+      {
+        path: 'workflowInstance',
+        children: [
+          { element: <WorkflowInstanceListPage />, index: true },
+          { path: 'list', element: <WorkflowInstanceListPage /> },
+          { path: 'new', element: <WorkflowInstanceCreatePage /> },
+          { path: ':id/edit', element: <WorkflowInstanceEditPage /> },
+          { path: ':id/view', element: <ProcessInstanceViewPage /> },
+          { path: ':id/extracted-documents', element: <ProcessInstanceExtractedDocumentsPage /> },
+          { path: ':id/blueprint', element: <ProcessInstanceReactFlowPage /> },
+        ],
       },
       {
         path: 'fileType',
@@ -244,10 +270,10 @@ export const dashboardRoutes = [
           { element: <NotificationSettingListPage />, index: true },
           { path: 'list', element: <NotificationSettingListPage /> },
           { path: 'new', element: <NewLevelCreatePage /> },
-          {path: ':id/edit', element: <MemberEditViewPage />},
-          {path:':id', element:<EscalationNotificationSettingListPage/>}
+          { path: ':id/edit', element: <MemberEditViewPage /> },
+          { path: ':id', element: <EscalationNotificationSettingListPage /> }
 
-         
+
         ],
       },
       {

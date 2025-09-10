@@ -46,6 +46,26 @@ const customOperations = [
         borderColor: "#8E24AA",
         color: "#BA68C8",
     },
+    {
+        id: 4,
+        title: "Time Trigger",
+        description: "Triggers the workflow based on a scheduled time, interval, or cron expression.",
+        icon: "/assets/icons/workflow/time.svg",
+        type: "timeTrigger",
+        bgColor: "#1565C0",
+        borderColor: "#1976D2",
+        color: "#64B5F6",
+    },
+    {
+        id: 5,
+        title: "Wait / Delay",
+        description: "Pauses the workflow execution for a specific duration or until a defined condition is met.",
+        icon: "/assets/icons/workflow/wait.svg",
+        type: "waitTrigger",
+        bgColor: "#EF6C00",
+        borderColor: "#F57C00",
+        color: "#FFB74D",
+    }
 ];
 
 export default function CustomWorkflowNodesPanel({

@@ -139,7 +139,7 @@ export default function WorkFlowIngestion({ data }) {
             const hash = encryptPassword(pass);
             newFormData = { ...formData, password: hash };
         }
-        data.functions.handleBluePrintComponent(data.label, { ...newFormData });
+        data.functions.handleBluePrintComponent(data.label, data.id, { ...newFormData });
         handleClose();
     })
 

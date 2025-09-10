@@ -1,8 +1,7 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { Box, Stack } from "@mui/material";
-import { CustomWorkflowNode } from "../components";
-import CustomWorkflowNodesPanel from "../components/custom-workflow-nodes-panel";
+import { CustomWorkflowNode, CustomWorkflowNodesPanel } from "../components";
 
 export default function WorkflowCase({ data }) {
     const [showModal, setShowModal] = useState(false);

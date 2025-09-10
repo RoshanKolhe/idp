@@ -20,7 +20,10 @@ export async function migrate(args: string[]) {
       'ProcessInstanceSecrets',
       'Levels',
       'Member',
-      'Escalation'
+      'Escalation',
+      'Workflow',
+      'WorkflowBlueprint',
+      'WorkflowInstances',
     ],
   });
   // Connectors usually keep a pool of opened connections,

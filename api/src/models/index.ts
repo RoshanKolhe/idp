@@ -12,3 +12,6 @@ export * from './levels.model';
 export * from './member.model';
 export * from './mail-server.model';
 export * from './escalation.model';
+export * from './workflow.model';
+export * from './workflow-blueprint.model';
+export * from './workflow-instances.model';

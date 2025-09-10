@@ -17,16 +17,16 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import { Box, Button } from '@mui/material';
 import axiosInstance from 'src/utils/axios';
-import { useGetBluePrint } from 'src/api/blue-print';
+import { useGetWorkflowBluePrint } from 'src/api/blue-print';
 import {
     CurvedEdge,
     CustomDottedEdge,
     CustomWorkflowAddNode,
     CustomWorkflowNode,
     getLayoutedElements,
+    CustomWorkflowNodesPanel
 } from './components';
-import { WorkflowCase, WorkflowDecision, WorkFlowIngestion, WorkFlowNotification } from './nodes';
-import CustomWorkflowNodesPanel from './components/custom-workflow-nodes-panel';
+import { WorkflowCase, WorkflowDecision, WorkFlowIngestion, WorkFlowNotification, WorkFlowTimeTrigger, WorkFlowWait } from './nodes';
 
 const nodeTypes = {
     customNode: CustomWorkflowNode,
@@ -35,6 +35,8 @@ const nodeTypes = {
     notification: WorkFlowNotification,
     decision: WorkflowDecision,
     case: WorkflowCase,
+    timeTrigger: WorkFlowTimeTrigger,
+    waitTrigger: WorkFlowWait,
 }
 
 const edgeTypes = {
@@ -67,104 +69,105 @@ export default function ReactFlowBoard({ isUnlock }) {
     const { enqueueSnackbar } = useSnackbar();
     const { id } = params;
     const [data, setData] = useState(null);
-    const { bluePrints, bluePrintsLoading } = useGetBluePrint(id);
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+    const { bluePrints, bluePrintsLoading } = useGetWorkflowBluePrint(id);
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [bluePrint, setBluePrint] = useState([]);
     const [presentNodes, setPresentNodes] = useState([]);
     const [borderDirection, setBorderDirection] = useState('down');
     const [showModal, setShowModal] = useState(false);
-    const [lastNodeId, setLastNodeId] = useState(1);
+    const [lastNodeId, setLastNodeId] = useState(null);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
 
-    //   useEffect(() => {
-    //     if (bluePrints && !bluePrintsLoading) {
-    //       if (bluePrints?.success) {
-    //         setData(bluePrints?.data);
-    //       }
-    //     }
-    //   }, [bluePrints, bluePrintsLoading]);
+    useEffect(() => {
+        if (bluePrints && !bluePrintsLoading) {
+            if (bluePrints?.success) {
+                setData(bluePrints?.data);
+            }
+        }
+    }, [bluePrints, bluePrintsLoading]);
 
-    //   useEffect(() => {
-    //     if (data) {
-    //       // setting bluePrint
-    //       setBluePrint(data?.bluePrint);
+    useEffect(() => {
+        if (data) {
+            // setting bluePrint
+            setBluePrint(data?.bluePrint);
 
-    //       const newPresentNodes = data?.bluePrint.length > 0 ? data?.bluePrint.map((item) => item.nodeName) : [];
-    //       setPresentNodes(newPresentNodes);
+            const newPresentNodes = data?.bluePrint.length > 0 ? data?.bluePrint.map((item) => item.id) : [];
+            setPresentNodes(newPresentNodes);
 
-    //       // setting nodes
-    //       const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
-    //           ...node,
-    //           data : {
-    //             ...node.data,
-    //             functions: {
-    //               addToLeft: addNodeToLeft,
-    //               addToRight: addNodeToRight,
-    //               deleteNode,
-    //               handleBluePrintComponent
-    //             },
-    //             bluePrint: data?.bluePrint?.find((item) => item.nodeName === node.data.label)?.component,
-    //           }
-    //         }));
+            // setting nodes
+            const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
+                ...node,
+                data: {
+                    ...node.data,
+                    functions: {
+                        addToLeft: addNodeToLeft,
+                        addToRight: addNodeToRight,
+                        deleteNode,
+                        handleBluePrintComponent
+                    },
+                    bluePrint: data?.bluePrint?.find((item) => item.id === node.data.id)?.component,
+                }
+            }));
 
-    //       setNodes(newNodes || initialNodes);
+            setNodes(newNodes || initialNodes);
 
-    //       setLastNodeId(newNodes?.length || 2);
+            setLastNodeId(newNodes?.length || 2);
 
-    //       setEdges(data?.edges || []);
-    //     } else {
-    //       // setting up the nodes...
-    //       setNodes((prev) => [...prev, ...initialNodes.map((node) => (
-    //         {
-    //           ...node, data: {
-    //             ...node.data,
-    //             functions: {
-    //               addToLeft: addNodeToLeft,
-    //               addToRight: addNodeToRight,
-    //               deleteNode,
-    //               handleBluePrintComponent
-    //             },
-    //             bluePrint: bluePrint.find((item) => item.nodeName === node.data.label)?.component,
-    //           }
-    //         }))]);
+            setEdges(data?.edges || []);
+        } else {
+            // setting up the nodes...
+            setNodes((prev) => [...prev, ...initialNodes.map((node) => (
+                {
+                    ...node, data: {
+                        ...node.data,
+                        functions: {
+                            addToLeft: addNodeToLeft,
+                            addToRight: addNodeToRight,
+                            deleteNode,
+                            handleBluePrintComponent
+                        },
+                        bluePrint: bluePrint.find((item) => item.id === node.data.id)?.component,
+                    }
+                }))]);
 
-    //       setLastNodeId(2);
+            setLastNodeId(2);
 
-    //       // setting up the edges...
-    //       setEdges([{
-    //         id: `e1-2`,
-    //         source: `1`,
-    //         target: `2`,
-    //         animated: true,
-    //         style: { stroke: 'black' },
-    //       }])
-    //     }
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    //   }, [data])
+            // setting up the edges...
+            setEdges([{
+                id: `e1-2`,
+                source: `1`,
+                target: `2`,
+                animated: true,
+                style: { stroke: 'black' },
+            }])
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data])
 
-    //   useEffect(() => {
-    //     if (nodes && nodes.length > 0) {
-    //       const filteredNodes = nodes.filter((node) => node.type !== 'customAddNode');
+    useEffect(() => {
+        if (nodes && nodes.length > 0) {
+            const filteredNodes = nodes.filter((node) => node.type !== 'customAddNode');
 
-    //       setBluePrint((prev) => {
-    //         const existingNames = new Set(prev.map(item => item.nodeName));
+            setBluePrint((prev) => {
+                const existingIds = new Set(prev.map(item => item.id));
 
-    //         const newBlueprintEntries = filteredNodes
-    //           .filter((node) => !existingNames.has(node.data.label))
-    //           .map((node) => ({
-    //             nodeName: node.data.label,
-    //             component: null,
-    //           }));
+                const newBlueprintEntries = filteredNodes
+                    .filter((node) => !existingIds.has(node.data.id))
+                    .map((node) => ({
+                        id: node.data.id,
+                        nodeName: node.data.label,
+                        component: null,
+                    }));
 
-    //         return [...prev, ...newBlueprintEntries];
-    //       });
-    //     }
-    //   }, [nodes]);
+                return [...prev, ...newBlueprintEntries];
+            });
+        }
+    }, [nodes]);
 
-    const handleBluePrintComponent = (label, updatedComponent) => {
+    const handleBluePrintComponent = (label, id, updatedComponent) => {
         setBluePrint((prev) => prev.map((node) => {
-            if (node.nodeName === label) {
+            if (node.id === id) {
                 return {
                     ...node,
                     component: updatedComponent
@@ -181,126 +184,138 @@ export default function ReactFlowBoard({ isUnlock }) {
         }
     };
 
+    // id generation
+    const getNextNodeId = (nodes) => {
+        if (!nodes || nodes.length === 0) return "1";
+
+        const maxId = Math.max(...nodes.map((n) => Number(n.id) || 0));
+        console.log('returning', maxId)
+        return String(maxId + 1);
+    };
+
+    // new node
     const addNewNode = (operation) => {
-        // const newOpNodeId = `${lastNodeId + 1}`;
-        const newOpCompNodeId = `${lastNodeId}`;
-        const newAddNodeId = `${lastNodeId + 1}`;
-
-        const clickedNode = nodes.find((n) => n.id === selectedNodeId);
-        const baseX = clickedNode?.position?.x || 350;
-        const baseY = 20;
-
-        // Space layout
-        const gapX = 200;
-        const newOperationComponentNode = {
-            id: newOpCompNodeId,
-            type: operation.type,
-            data: {
-                id: newOpCompNodeId,
-                label: `${operation.title}`,
-                description: `${operation.description}`,
-                icon: operation.icon,
-                style: borderDirection === 'up' ? {
-                    border: `5px solid ${operation.color}`,
-                    borderBottom: '5px dashed lightgray',
-                    borderRight: '5px dashed lightgray',
-                } : {
-                    border: `5px solid ${operation.color}`,
-                    borderTop: '5px dashed lightgray',
-                    borderLeft: '5px dashed lightgray',
-                },
-                borderColor: operation.borderColor,
-                bgColor: operation.bgColor,
-                functions: {
-                    addToLeft: addNodeToLeft,
-                    addToRight: addNodeToRight,
-                    deleteNode,
-                    handleBluePrintComponent,
-                    handleAddNewDecisionCase
-                },
-                bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
-            },
-            position: { x: baseX + gapX, y: baseY },
-        };
-
-        if (borderDirection === 'up') {
-            setBorderDirection('down');
-        } else {
-            setBorderDirection('up');
-        }
-
-        const newAddNode = {
-            id: newAddNodeId,
-            type: 'customAddNode',
-            data: {
-                id: newAddNodeId,
-                label: '➕ New Node',
-                icon: '/assets/icons/document-process/add.svg',
-                style: borderDirection === 'down' ? { // reverse opration added
-                    border: '5px solid #2DCA73',
-                    borderBottom: '5px solid white',
-                    borderRight: '5px solid white',
-                } : {
-                    border: '5px solid #2DCA73',
-                    borderTop: '5px solid white',
-                    borderLeft: '5px solid white',
-                },
-            },
-            position: { x: baseX + gapX + 165 * 2, y: baseY },
-        };
-
-        const newEdge = {
-            id: `e${clickedNode?.id}-${newOpCompNodeId}`,
-            source: `${clickedNode?.id}`,
-            target: `${newOpCompNodeId}`,
-            animated: true,
-            // type: "customDottedEdge",
-            style: { stroke: 'black' },
-        };
-
-        // const newCompEdge = {
-        //   id: `e${newOpNodeId}-${newOpCompNodeId}`,
-        //   source: `${newOpNodeId}`,
-        //   target: `${newOpCompNodeId}`,
-        //   animated: true,
-        //   style: { stroke: 'black' },
-        // };
-
-        const addNewEdge = {
-            id: `e${newOpCompNodeId}-${newAddNodeId}`,
-            source: `${newOpCompNodeId}`,
-            target: `${newAddNodeId}`,
-            // animated: true,
-            // style: { stroke: 'black' },
-            sourceHandler: 'source-connector',
-            targetHandler: 'target-connector',
-            // type: "customDottedEdge",
-            data: {
-                startColor: newOperationComponentNode.data.bgColor,
-                endColor: '#e0e0e0'
-            }
-        };
-
-        const lastNode = nodes.find((data) => Number(data.id) === lastNodeId);
-
-        const lastEdge = {
-            id: `e${lastNodeId - 1}-${newOpCompNodeId}`,
-            source: `${lastNodeId - 1}`,
-            target: `${newOpCompNodeId}`,
-            // animated: true,
-            // style: { stroke: 'black' },
-            sourceHandler: 'source-connector',
-            targetHandler: 'target-connector',
-            // type: "customDottedEdge",
-            data: {
-                startColor: nodes.find((data) => Number(data.id) === lastNodeId - 1)?.data?.bgColor,
-                endColor: newOperationComponentNode.data.bgColor
-            }
-        }
         setNodes((prevNodes) => {
             let updatedNodes = [...prevNodes];
             setEdges((prevEdges) => {
                 let updatedEdges = [];
+                // const newOpNodeId = `${lastNodeId + 1}`;
+                const newOpCompNodeId = getNextNodeId(updatedNodes);
+                const newAddNodeId = getNextNodeId([...updatedNodes, { id: newOpCompNodeId }]);
+
+                const clickedNode = nodes.find((n) => n.id === selectedNodeId);
+                const baseX = clickedNode?.position?.x || 350;
+                const baseY = 20;
+
+                // Space layout
+                const gapX = 200;
+                const newOperationComponentNode = {
+                    id: newOpCompNodeId,
+                    type: operation.type,
+                    data: {
+                        id: newOpCompNodeId,
+                        label: `${operation.title}`,
+                        description: `${operation.description}`,
+                        icon: operation.icon,
+                        style: borderDirection === 'up' ? {
+                            border: `5px solid ${operation.color}`,
+                            borderBottom: '5px dashed lightgray',
+                            borderRight: '5px dashed lightgray',
+                        } : {
+                            border: `5px solid ${operation.color}`,
+                            borderTop: '5px dashed lightgray',
+                            borderLeft: '5px dashed lightgray',
+                        },
+                        borderColor: operation.borderColor,
+                        bgColor: operation.bgColor,
+                        functions: {
+                            addToLeft: addNodeToLeft,
+                            addToRight: addNodeToRight,
+                            deleteNode,
+                            handleBluePrintComponent,
+                            handleAddNewDecisionCase
+                        },
+                        bluePrint: bluePrint.find((item) => item.id === newOpCompNodeId)?.component
+                    },
+                    position: { x: baseX + gapX, y: baseY },
+                };
+
+                if (borderDirection === 'up') {
+                    setBorderDirection('down');
+                } else {
+                    setBorderDirection('up');
+                }
+
+                const newAddNode = {
+                    id: newAddNodeId,
+                    type: 'customAddNode',
+                    data: {
+                        id: newAddNodeId,
+                        label: '➕ New Node',
+                        icon: '/assets/icons/document-process/add.svg',
+                        style: borderDirection === 'down' ? { // reverse opration added
+                            border: '5px solid #2DCA73',
+                            borderBottom: '5px solid white',
+                            borderRight: '5px solid white',
+                        } : {
+                            border: '5px solid #2DCA73',
+                            borderTop: '5px solid white',
+                            borderLeft: '5px solid white',
+                        },
+                    },
+                    position: { x: baseX + gapX + 165 * 2, y: baseY },
+                };
+
+                const newEdge = {
+                    id: `e${clickedNode?.id}-${newOpCompNodeId}`,
+                    source: `${clickedNode?.id}`,
+                    target: `${newOpCompNodeId}`,
+                    animated: true,
+                    // type: "customDottedEdge",
+                    style: { stroke: 'black' },
+                };
+
+                // const newCompEdge = {
+                //   id: `e${newOpNodeId}-${newOpCompNodeId}`,
+                //   source: `${newOpNodeId}`,
+                //   target: `${newOpCompNodeId}`,
+                //   animated: true,
+                //   style: { stroke: 'black' },
+                // };
+
+                const addNewEdge = {
+                    id: `e${newOpCompNodeId}-${newAddNodeId}`,
+                    source: `${newOpCompNodeId}`,
+                    target: `${newAddNodeId}`,
+                    // animated: true,
+                    // style: { stroke: 'black' },
+                    sourceHandler: 'source-connector',
+                    targetHandler: 'target-connector',
+                    // type: "customDottedEdge",
+                    data: {
+                        startColor: newOperationComponentNode.data.bgColor,
+                        endColor: '#e0e0e0'
+                    }
+                };
+
+                const lastNode = nodes.find((data) => Number(data.id) === lastNodeId);
+
+                const sourceNodeId = prevEdges.find((edge) => edge.target === selectedNodeId)?.source || `${lastNodeId - 1}`;
+
+                const lastEdge = {
+                    id: `e${lastNodeId - 1}-${newOpCompNodeId}`,
+                    source: sourceNodeId,
+                    target: `${newOpCompNodeId}`,
+                    // animated: true,
+                    // style: { stroke: 'black' },
+                    sourceHandler: 'source-connector',
+                    targetHandler: 'target-connector',
+                    // type: "customDottedEdge",
+                    data: {
+                        startColor: nodes.find((data) => Number(data.id) === lastNodeId - 1)?.data?.bgColor,
+                        endColor: newOperationComponentNode.data.bgColor
+                    }
+                }
 
                 if (newOperationComponentNode.type === "decision") {
                     // Replace the selected node with the new one
@@ -329,6 +344,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                 );
                 setNodes(layoutedNodes);
                 setEdges(layoutedEdges);
+                setPresentNodes((prev) => [...prev, newOperationComponentNode?.data?.label]);
                 updatedNodes = layoutedNodes;
 
                 return layoutedEdges;
@@ -337,7 +353,6 @@ export default function ReactFlowBoard({ isUnlock }) {
         });
 
         // Update helper states
-        setPresentNodes((prev) => [...prev, newOperationComponentNode?.data?.label]);
         setLastNodeId((id) => id + 1);
         setSelectedNodeId(null);
         setShowModal(false);
@@ -418,7 +433,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                         deleteNode,
                         handleBluePrintComponent
                     },
-                    bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
+                    bluePrint: bluePrint.find((item) => item.id === targetId)?.component
                 },
                 position: {
                     x: currentNode.position.x,
@@ -518,7 +533,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                         deleteNode,
                         handleBluePrintComponent
                     },
-                    bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
+                    bluePrint: bluePrint.find((item) => item.id === newNodeId)?.component
                 },
                 position: {
                     x: currentNode.position.x + gapX,
@@ -621,7 +636,7 @@ export default function ReactFlowBoard({ isUnlock }) {
         });
 
         setPresentNodes((prev) => prev.filter((node) => node !== label));
-        setBluePrint((prev) => prev.filter((node) => node.nodeName !== label));
+        setBluePrint((prev) => prev.filter((node) => node.id !== id));
 
     };
 
@@ -643,11 +658,11 @@ export default function ReactFlowBoard({ isUnlock }) {
                 bluePrint,
                 nodes,
                 edges,
-                processesId: Number(id),
+                workflowId: Number(id),
                 isActive: true
             };
 
-            const response = await axiosInstance.post('/blue-prints', data);
+            const response = await axiosInstance.post('/workflow-blueprints', data);
             if (response?.data) {
                 enqueueSnackbar("Blue Print Saved", { variant: 'success' });
             }
@@ -663,10 +678,10 @@ export default function ReactFlowBoard({ isUnlock }) {
     const handleAddNewDecisionCase = (nodeId) => {
         try {
             setLastNodeId((prevId) => {
-                const newId = `${prevId + 1}`;
-
                 setNodes((prevNodes) => {
                     let newNodes = prevNodes;
+                    const newId = getNextNodeId(newNodes);
+
                     setEdges((prevEdges) => {
                         const node = prevNodes.find((n) => n.id === nodeId);
                         if (!node) return prevEdges;
@@ -730,6 +745,7 @@ export default function ReactFlowBoard({ isUnlock }) {
         }
     };
 
+    // case nodes
     const handleCaseNode = (nodeId, newOperationalNode) => {
         try {
             console.log(nodeId, newOperationalNode);
@@ -737,15 +753,16 @@ export default function ReactFlowBoard({ isUnlock }) {
                 setNodes((prevNodes) => {
                     let nodes = prevNodes;
                     setEdges((prevEdges) => {
-                        // remove old node
-                        const filteredNodes = prevNodes.filter((node) => node.id !== nodeId);
+                        // ✅ keep old case node (do not filter it out)
+                        const oldCaseNode = prevNodes.find((node) => node.id === nodeId);
 
-                        // new operation node (replaces the existing one)
+                        // new operation node (connected after case node)
+                        const newOperationNodeId = getNextNodeId(nodes);
                         const newOperationComponentNode = {
-                            id: nodeId,
+                            id: newOperationNodeId,
                             type: newOperationalNode.type,
                             data: {
-                                id: nodeId,
+                                id: newOperationNodeId,
                                 label: `${newOperationalNode.title}`,
                                 description: `${newOperationalNode.description}`,
                                 icon: newOperationalNode.icon,
@@ -771,14 +788,14 @@ export default function ReactFlowBoard({ isUnlock }) {
                                     handleAddNewDecisionCase,
                                 },
                                 bluePrint: bluePrint.find(
-                                    (item) => item.nodeName === newOperationalNode?.title
+                                    (item) => item.id === newOperationNodeId
                                 )?.component,
                             },
                             position: { x: 0, y: 0 },
                         };
 
                         // new add node
-                        const newAddNodeId = `${id + 1}`;
+                        const newAddNodeId = getNextNodeId([...nodes, newOperationComponentNode]);
                         const newAddNode = {
                             id: newAddNodeId,
                             type: "customAddNode",
@@ -802,31 +819,47 @@ export default function ReactFlowBoard({ isUnlock }) {
                             position: { x: 0, y: 0 },
                         };
 
-                        // edge between addNode -> operationNode
-                        const lastEdge = {
-                            id: `e${newAddNodeId}-${nodeId}`,
+                        // edge: caseNode -> operationNode
+                        const edgeCaseToOperation = {
+                            id: `e${nodeId}-${newOperationNodeId}`,
                             source: nodeId,
+                            target: newOperationNodeId,
+                            sourceHandler: "source-connector",
+                            targetHandler: "target-connector",
+                            data: {
+                                startColor: oldCaseNode?.data?.bgColor,
+                                endColor: newOperationComponentNode.data.bgColor,
+                            },
+                        };
+
+                        // edge: operationNode -> addNode
+                        const edgeOperationToAdd = {
+                            id: `e${newOperationNodeId}-${newAddNodeId}`,
+                            source: newOperationNodeId,
                             target: newAddNodeId,
                             sourceHandler: "source-connector",
                             targetHandler: "target-connector",
                             data: {
-                                startColor: prevNodes.find(
-                                    (data) => Number(data.id) === lastNodeId + 1
-                                )?.data?.bgColor,
-                                endColor: newOperationComponentNode.data.bgColor,
+                                startColor: newOperationComponentNode.data.bgColor,
+                                endColor: "#2DCA73",
                             },
                         };
-                        const updatedNodes = [...filteredNodes];
-                        const updatedEdges = [...prevEdges];
+                        const updatedNodes = [
+                            ...prevNodes,
+                            newOperationComponentNode,
+                        ];
 
-                        if (newOperationComponentNode.type === 'decision') {
-                            updatedNodes.push(newOperationComponentNode);
-                        } else {
-                            updatedNodes.push(newOperationComponentNode, newAddNode);
-                            updatedEdges.push(lastEdge);
+                        const updatedEdges = [
+                            ...prevEdges,
+                            edgeCaseToOperation,
+                        ];
+
+                        if (newOperationComponentNode.type !== "decision") {
+                            updatedNodes.push(newAddNode);
+                            updatedEdges.push(edgeOperationToAdd);
                         }
 
-                        // run Dagre layout once on both
+                        // run Dagre layout
                         const { nodes: layoutedNodes, edges: layoutedEdges } =
                             getLayoutedElements(updatedNodes, updatedEdges, "TB");
 
@@ -837,7 +870,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                     return nodes;
                 });
 
-                return id + 1;
+                return id + 2;
             });
             setSelectedNodeId(null);
             setShowModal(false);
@@ -846,8 +879,8 @@ export default function ReactFlowBoard({ isUnlock }) {
         }
     };
 
-    console.log('nodes', nodes);
-    console.log('edges', edges);
+    console.log('blueprint', bluePrint);
+
     return (
         <div style={{ width: '100%', height: '100vh' }}>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>

@@ -12,3 +12,6 @@ export * from './member.repository';
 export * from './levels.repository';
 export * from './mail-server.repository';
 export * from './escalation.repository';
+export * from './workflow.repository';
+export * from './workflow-blueprint.repository';
+export * from './workflow-instances.repository';
