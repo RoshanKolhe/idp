@@ -65,6 +65,26 @@ const customOperations = [
         bgColor: "#EF6C00",
         borderColor: "#F57C00",
         color: "#FFB74D",
+    },
+    {
+        id: 6,
+        title: "Approval",
+        description: "Stops workflow execution until a user manually approves or rejects the request.",
+        icon: "/assets/icons/workflow/approval.svg",
+        type: "approval",
+        bgColor: "#1565C0",
+        borderColor: "#1976D2",
+        color: "#64B5F6",
+    },
+    {
+        id: 7,
+        title: "Event Trigger",
+        description: "Waits for an external event (API callback, socket message, or webhook) before continuing the workflow.",
+        icon: "/assets/icons/workflow/event.svg",
+        type: "event",
+        bgColor: "#2E7D32",
+        borderColor: "#388E3C",
+        color: "#81C784",
     }
 ];
 

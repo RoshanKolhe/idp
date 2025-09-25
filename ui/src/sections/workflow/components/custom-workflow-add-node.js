@@ -1,7 +1,8 @@
 import { Box, Typography } from "@mui/material";
+import PropTypes from "prop-types";
 import { Handle, Position } from "reactflow";
 
-export default function CustomWorkflowAddNode() {
+export default function CustomWorkflowAddNode({ data }) {
     return (
         <Box
             sx={{
@@ -39,7 +40,7 @@ export default function CustomWorkflowAddNode() {
             >
                 <Box
                     component="img"
-                    src="/assets/icons/workflow/start.svg"
+                    src={data.icon}
                     alt="icon"
                     sx={{ width: 32, height: 32 }}
                 />
@@ -49,7 +50,7 @@ export default function CustomWorkflowAddNode() {
             <Typography
                 sx={{ fontSize: "18px", fontWeight: 600, color: "#222", mt: 1 }}
             >
-                Add Node
+                {data.label}
             </Typography>
 
             {/* Target Handle (Top) */}
@@ -82,3 +83,7 @@ export default function CustomWorkflowAddNode() {
         </Box>
     );
 }
+
+CustomWorkflowAddNode.propTypes = {
+    data: PropTypes.object,
+};

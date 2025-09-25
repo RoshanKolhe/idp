@@ -1,31 +1,35 @@
-import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
+import { BootMixin } from '@loopback/boot';
+import { ApplicationConfig } from '@loopback/core';
 import {
   RestExplorerBindings,
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
-import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
-import {ServiceMixin} from '@loopback/service-proxy';
+import { RepositoryMixin } from '@loopback/repository';
+import { RestApplication } from '@loopback/rest';
+import { ServiceMixin } from '@loopback/service-proxy';
 import path from 'path';
-import {MySequence} from './sequence';
-import {EmailManagerBindings, FILE_UPLOAD_SERVICE, STORAGE_DIRECTORY} from './keys';
+import { MySequence } from './sequence';
+import { EmailManagerBindings, FILE_UPLOAD_SERVICE, STORAGE_DIRECTORY } from './keys';
 import multer from 'multer';
 import {
   AuthenticationComponent,
   registerAuthenticationStrategy,
 } from '@loopback/authentication';
-import {JWTStrategy} from './authentication-strategy/jwt-strategy';
-import {CronComponent} from '@loopback/cron';
+import { JWTStrategy } from './authentication-strategy/jwt-strategy';
+import { CronComponent } from '@loopback/cron';
 import { BcryptHasher } from './services/hash.password.bcrypt';
 import { JWTService } from './services/jwt-service';
 import { MyUserService } from './services/user-service';
 import { EmailService } from './services/email.service';
 import { IdpDataSource } from './datasources';
 import { MailServerRepository } from './repositories';
+import { IngestionService } from './services/nodes/ingestion.service';
+import { Main } from './services/nodes/main.service';
+import { NotificationService } from './services/nodes/notification.service';
+import { CaseService } from './services/nodes/case.service';
 
 
-export {ApplicationConfig};
+export { ApplicationConfig };
 
 export class IdpApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -33,7 +37,7 @@ export class IdpApplication extends BootMixin(
   constructor(options: ApplicationConfig = {}) {
     super(options);
 
-    this.dataSource(IdpDataSource,'idp');
+    this.dataSource(IdpDataSource, 'idp');
     this.repository(MailServerRepository);
 
     // Set up the custom sequence
@@ -72,6 +76,11 @@ export class IdpApplication extends BootMixin(
     this.bind('service.jwt.service').toClass(JWTService);
     this.bind('service.user.service').toClass(MyUserService);
     this.bind(EmailManagerBindings.SEND_MAIL).toClass(EmailService);
+    // nodes services
+    this.bind('services.Main').toClass(Main);
+    this.bind('services.IngestionService').toClass(IngestionService);
+    this.bind('services.NotificationService').toClass(NotificationService);
+    this.bind('services.CaseService').toClass(CaseService);
   }
 
   protected configureFileUpload(destination?: string) {

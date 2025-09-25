@@ -1,11 +1,12 @@
-import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
-import {juggler} from '@loopback/repository';
+import { inject, lifeCycleObserver, LifeCycleObserver } from '@loopback/core';
+import { juggler } from '@loopback/repository';
 
 const config = {
   name: 'idp',
   connector: 'mysql',
   url: '',
-  host: 'localhost',
+  // host: 'host.docker.internal',  // for docker
+  host: 'localhost',  // for local
   port: 3306,
   user: 'root',
   password: '',
@@ -23,7 +24,7 @@ export class IdpDataSource extends juggler.DataSource
   static readonly defaultConfig = config;
 
   constructor(
-    @inject('datasources.config.idp', {optional: true})
+    @inject('datasources.config.idp', { optional: true })
     dsConfig: object = config,
   ) {
     super(dsConfig);

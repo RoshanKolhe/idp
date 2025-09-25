@@ -26,7 +26,7 @@ import {
     getLayoutedElements,
     CustomWorkflowNodesPanel
 } from './components';
-import { WorkflowCase, WorkflowDecision, WorkFlowIngestion, WorkFlowNotification, WorkFlowTimeTrigger, WorkFlowWait } from './nodes';
+import { WorkFlowApproval, WorkflowCase, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowNotification, WorkFlowTimeTrigger, WorkFlowWait } from './nodes';
 
 const nodeTypes = {
     customNode: CustomWorkflowNode,
@@ -37,6 +37,8 @@ const nodeTypes = {
     case: WorkflowCase,
     timeTrigger: WorkFlowTimeTrigger,
     waitTrigger: WorkFlowWait,
+    approval: WorkFlowApproval,
+    event: WorkflowEventTrigger,
 }
 
 const edgeTypes = {
@@ -50,15 +52,15 @@ const initialNodes = [
         type: 'customAddNode',
         data: {
             id: '2',
-            label: 'New Node',
-            icon: '/assets/icons/document-process/add.svg',
+            label: 'Start',
+            icon: '/assets/icons/workflow/start.svg',
             style: {
                 border: '5px solid ',
                 borderTop: '5px solid white',
                 borderLeft: '5px solid white',
             },
-            borderColor: '#999',
-            bgColor: '#e0e0e0',
+            borderColor: '#8E24AA',
+            bgColor: '#8E24AA',
         },
         position: { x: 330, y: 20 },
     },
@@ -104,7 +106,8 @@ export default function ReactFlowBoard({ isUnlock }) {
                         addToLeft: addNodeToLeft,
                         addToRight: addNodeToRight,
                         deleteNode,
-                        handleBluePrintComponent
+                        handleBluePrintComponent,
+                        handleAddNewDecisionCase,
                     },
                     bluePrint: data?.bluePrint?.find((item) => item.id === node.data.id)?.component,
                 }
@@ -147,7 +150,9 @@ export default function ReactFlowBoard({ isUnlock }) {
 
     useEffect(() => {
         if (nodes && nodes.length > 0) {
-            const filteredNodes = nodes.filter((node) => node.type !== 'customAddNode');
+            const filteredNodes = nodes.filter(
+                (node) => node.type !== 'customAddNode' && node.type !== 'decision'
+            );
 
             setBluePrint((prev) => {
                 const existingIds = new Set(prev.map(item => item.id));
@@ -178,7 +183,7 @@ export default function ReactFlowBoard({ isUnlock }) {
     };
 
     const onNodeClick = (_, node) => {
-        if (node.data.label.includes('New Node')) {
+        if (node.type === 'customAddNode') {
             setSelectedNodeId(node.id);
             setShowModal(true);
         }
@@ -251,8 +256,8 @@ export default function ReactFlowBoard({ isUnlock }) {
                     type: 'customAddNode',
                     data: {
                         id: newAddNodeId,
-                        label: '➕ New Node',
-                        icon: '/assets/icons/document-process/add.svg',
+                        label: 'New Node',
+                        icon: '/assets/icons/workflow/add.svg',
                         style: borderDirection === 'down' ? { // reverse opration added
                             border: '5px solid #2DCA73',
                             borderBottom: '5px solid white',
@@ -686,13 +691,17 @@ export default function ReactFlowBoard({ isUnlock }) {
                         const node = prevNodes.find((n) => n.id === nodeId);
                         if (!node) return prevEdges;
 
+                        const existingEdgeWithParent = prevEdges.find((edge) => edge.target === nodeId);
+
+                        const parentNode = prevNodes.find((node) => node.id === existingEdgeWithParent?.source);
+
                         const newNode = {
                             id: newId,
                             type: "case",
                             data: {
                                 id: newId,
-                                label: "➕ New Case",
-                                icon: "/assets/icons/document-process/add.svg",
+                                label: "New Case",
+                                icon: "/assets/icons/workflow/add.svg",
                                 style:
                                     borderDirection === "down"
                                         ? {
@@ -706,8 +715,17 @@ export default function ReactFlowBoard({ isUnlock }) {
                                             borderLeft: "5px solid white",
                                         },
                                 functions: {
-                                    handleCaseNode
-                                }
+                                    handleCaseNode,
+                                    handleBluePrintComponent,
+                                },
+                                parentNode: {
+                                    id: parentNode.id,
+                                    nodeName: parentNode.data.label,
+                                    type: parentNode.type
+                                },
+                                bluePrint: bluePrint.find(
+                                    (item) => item.id === newId
+                                )?.component,
                             },
                             position: { x: 0, y: 0 },
                         };
@@ -801,8 +819,8 @@ export default function ReactFlowBoard({ isUnlock }) {
                             type: "customAddNode",
                             data: {
                                 id: newAddNodeId,
-                                label: "➕ New Node",
-                                icon: "/assets/icons/document-process/add.svg",
+                                label: "New Node",
+                                icon: "/assets/icons/workflow/add.svg",
                                 style:
                                     borderDirection === "down"
                                         ? {
@@ -878,8 +896,6 @@ export default function ReactFlowBoard({ isUnlock }) {
             console.error("Error while handling case", error);
         }
     };
-
-    console.log('blueprint', bluePrint);
 
     return (
         <div style={{ width: '100%', height: '100vh' }}>

@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { CustomWorkflowNode } from "../components";
 
-export default function WorkflowDecision({ data }){
+export default function WorkflowApproval({ data }){
     console.log('data', data);
     return(
         <Box
@@ -15,18 +15,16 @@ export default function WorkflowDecision({ data }){
             >
                 <Box
                     component='div'
-                    onClick={() => {data.functions.handleAddNewDecisionCase(data.id)}}
+                    onClick={() => {console.log('approval node')}}
                     sx={{ cursor: 'pointer' }}
                 >
                     <CustomWorkflowNode data={data} />
                 </Box>
-
-                <Button onClick={() => {data.functions.handleAddNewDecisionCase(data.id)}} variant="contained">Add case</Button>
             </Stack>
         </Box>
     )
 }
 
-WorkflowDecision.propTypes = {
+WorkflowApproval.propTypes = {
     data: PropTypes.object,
 }
