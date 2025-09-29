@@ -6,6 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { Box, Grid, MenuItem, Stack, Typography } from "@mui/material"
 import FormProvider, { RHFSelect } from "src/components/hook-form";
+import { useGetFilteredEscalations } from "src/api/escalation";
 import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components"
 import { EmailComponent } from "../notification-components";
 
@@ -29,7 +30,7 @@ const notificationSource = [
 // const channelSchemas
 const NotificationSourceSchemas = {
     email: Yup.object().shape({
-        to: Yup.string().required('Recepient name is required'),
+        to: Yup.array().of(Yup.string().required('Recepient name is required')).min(1, 'Atleast one email is required'),
         subject: Yup.string().required('Subject is required'),
         body: Yup.mixed().required('Email body is required'),
     }),
@@ -61,6 +62,17 @@ const getValidationSchema = (source) =>
     Yup.object().shape({
         notificationType: Yup.string().required('Notification Type is required'),
         notificationSource: Yup.string().required('Notification Source is required'),
+        isEscalationMatrixUsers: Yup.boolean().required('Please select whether we are using escalation matrix'),
+        escalationMatrix: Yup.number().when('isEscalationMatrixUsers', {
+            is: true,
+            then: (schema) => schema.required('Please select escalation matrix'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        level: Yup.number().when('isEscalationMatrixUsers', {
+            is: true,
+            then: (schema) => schema.required('Please select level'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
         ...(NotificationSourceSchemas[source] ? NotificationSourceSchemas[source].fields : {}),
     });
 
@@ -96,12 +108,32 @@ Switch.propTypes = {
 export default function WorkFlowNotification({ data }) {
     const [open, setOpen] = useState(false);
     const [dynamicSchema, setDynamicSchema] = useState(getValidationSchema(''));
+    const filter = {
+        where: {
+            and: [
+                { isActive: true },
+                { isDeleted: false }
+            ]
+        }
+    };
+    const filterString = encodeURIComponent(JSON.stringify(filter));
+    const { escalations, escalationsEmpty } = useGetFilteredEscalations(filterString);
+    const [escalationsData, setEscalationsData] = useState([]);
+
+    useEffect(() => {
+        if(escalations && !escalationsEmpty){
+            setEscalationsData(escalations);
+        }
+    }, [escalations, escalationsEmpty])
 
     const defaultValues = useMemo(
         () => ({
             notificationType: data.bluePrint?.notificationType || '',
             notificationSource: data.bluePrint?.notificationSource || '',
-            to: data.bluePrint?.to || '',
+            isEscalationMatrixUsers: data.bluePrint?.isEscalationMatrixUsers || false,
+            escalationMatrix: data.bluePrint?.escalationMatrix || undefined,
+            level: data.bluePrint?.level || undefined,
+            to: data.bluePrint?.to || [],
             body: data.bluePrint?.body || undefined,
             subject: data.bluePrint?.subject || '',
         }),
@@ -149,6 +181,22 @@ export default function WorkFlowNotification({ data }) {
         setOpen(false);
     };
 
+    // Escalation configurations...
+    useEffect(() => {
+        if (values.escalationMatrix && values.level) {
+            if (values.notificationSource === 'email') {
+                const membersEmails = escalationsData?.find(
+                    (escalation) => escalation.id === values.escalationMatrix)?.levels?.find(
+                        (level) => level.id === values.level)?.members?.map(
+                            (member) => member.email) || [];
+                setValue('to', membersEmails);
+            } else {
+                setValue('to', []);
+            }
+        }
+    }, [values.level, values.escalationMatrix, values.notificationSource, escalationsData, setValue]);
+
+    console.log('escalation', escalations);
     return (
         <Box
             component='div'
@@ -214,6 +262,50 @@ export default function WorkFlowNotification({ data }) {
                                     }
                                 </RHFSelect>
                             </Grid>
+
+                            {/* Escalation Matrix configurations */}
+                            <Grid item xs={12} md={6}>
+                                <RHFSelect name='isEscalationMatrixUsers' label='Escalation Matrix Users'>
+                                    {([{ label: 'True', value: true }, { label: 'False', value: false }]?.length > 0)
+                                        ? [{ label: 'True', value: true }, { label: 'False', value: false }].map((source) => (
+                                            <MenuItem key={source.value} value={source.value}>
+                                                {source.label}
+                                            </MenuItem>
+                                        ))
+                                        : <MenuItem value=''>No Options</MenuItem>
+                                    }
+                                </RHFSelect>
+                            </Grid>
+
+                            {values.isEscalationMatrixUsers === true && (
+                                <Grid item xs={12} md={6}>
+                                    <RHFSelect name='escalationMatrix' label='Escalation Matrix'>
+                                        {(escalationsData?.length > 0)
+                                            ? escalationsData.map((source) => (
+                                                <MenuItem key={source.id} value={source.id}>
+                                                    {source.escalationName}
+                                                </MenuItem>
+                                            ))
+                                            : <MenuItem value=''>No Escalations found</MenuItem>
+                                        }
+                                    </RHFSelect>
+                                </Grid>
+                            )}
+
+                            {(values.isEscalationMatrixUsers === true && values.escalationMatrix) && (
+                                <Grid item xs={12} md={6}>
+                                    <RHFSelect name='level' label='Level'>
+                                        {(escalationsData?.length > 0)
+                                            ? escalationsData.find((escalation) => escalation.id === values.escalationMatrix)?.levels?.map((source) => (
+                                                <MenuItem key={source?.id} value={source?.id}>
+                                                    {source?.name}
+                                                </MenuItem>
+                                            ))
+                                            : <MenuItem value=''>No Levels found</MenuItem>
+                                        }
+                                    </RHFSelect>
+                                </Grid>
+                            )}
                         </Grid>
 
                         <Grid container spacing={1}>

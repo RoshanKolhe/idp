@@ -34,8 +34,6 @@ export class CaseService {
             const { field, condition, value } = data.component || {};
             const fieldValue = parentOutput?.output?.data?.[field];
 
-            console.log('fieldValue', fieldValue);
-
             let isConditionMet = false;
 
             if (typeof fieldValue === "string" && condition in stringConditions) {
@@ -57,6 +55,31 @@ export class CaseService {
                     fieldValue,
                     isNaN(Number(value)) ? value : Number(value)
                 );
+            } else if (typeof fieldValue === "object" && fieldValue !== null) {
+                switch (condition) {
+                    case "exists":
+                        isConditionMet = fieldValue !== null && fieldValue !== undefined;
+                        break;
+                    case "not exists":
+                        isConditionMet = fieldValue === null || fieldValue === undefined;
+                        break;
+                    case "is empty":
+                        isConditionMet = Object.keys(fieldValue).length === 0;
+                        break;
+                    case "is not empty":
+                        isConditionMet = Object.keys(fieldValue).length > 0;
+                        break;
+                    case "has key":
+                        isConditionMet = value in fieldValue;
+                        break;
+                    case "has keys":
+                        const keys = String(value).split(",").map(k => k.trim());
+                        isConditionMet = keys.every(k => k in fieldValue);
+                        break;
+                    default:
+                        console.warn(`Unsupported object condition: ${condition}`);
+                        break;
+                }
             } else {
                 console.warn(`Unsupported condition: ${condition}`);
             }

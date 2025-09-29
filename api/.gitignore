@@ -68,3 +68,6 @@ typings/
 
 #images directory
 .sandbox/
+
+#dags folder __pycache__
+__pycache__

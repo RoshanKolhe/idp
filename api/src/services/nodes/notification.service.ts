@@ -1,6 +1,6 @@
-import {inject} from "@loopback/core";
-import {EmailManagerBindings} from "../../keys";
-import {EmailManager} from "../email.service";
+import { inject } from "@loopback/core";
+import { EmailManagerBindings } from "../../keys";
+import { EmailManager } from "../email.service";
 import SITE_SETTINGS from "../../utils/config";
 
 interface EmailComponent {
@@ -14,7 +14,7 @@ export class NotificationService {
   constructor(
     @inject(EmailManagerBindings.SEND_MAIL)
     public emailManager: EmailManager,
-  ) {}
+  ) { }
 
   async notification(data: any, previousOutputs: any[], workflowInstanceData: any) {
     try {
@@ -42,16 +42,18 @@ export class NotificationService {
 
   async notificationSourceEmail(component: EmailComponent) {
     try {
-      const mailOptions = {
-        from: SITE_SETTINGS.fromMail,
-        to: component.to,
-        subject: component.subject,
-        html: this.buildEmailTemplate(component.body),
-      };
-
-      await this.emailManager.sendMail(mailOptions);
-
-      return {success: true};
+      if (component?.to?.length > 0) {
+        for (const receiverEmail of component.to) {
+          const mailOptions = {
+            from: SITE_SETTINGS.fromMail,
+            to: receiverEmail,
+            subject: component.subject,
+            html: this.buildEmailTemplate(component.body),
+          };
+          await this.emailManager.sendMail(mailOptions);
+        }
+      }
+      return { success: true };
     } catch (error: any) {
       console.error("NotificationService.notificationSourceEmail error:", error);
       throw new Error(`Email notification failed: ${error.message}`);

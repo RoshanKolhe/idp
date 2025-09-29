@@ -23,6 +23,7 @@ export default function WorkflowCase({ data }) {
         number: ['equals', 'not equals', 'greater than', 'less than', 'between'],
         boolean: ['is true', 'is false'],
         array: ['contains', 'not contains', 'length equals', 'length greater then', 'length less then'],
+        object: ['exists', 'not exists', 'has key', 'has keys', 'is empty', 'is not empty'],
     };
 
     const flattenSchema = (schema, prefix = '') => {
@@ -31,20 +32,32 @@ export default function WorkflowCase({ data }) {
         Object.entries(schema || {}).forEach(([key, value]) => {
             const path = prefix ? `${prefix}.${key}` : key;
 
-            // Add array itself as a field for conditions
             if (value.type === 'array') {
+                // Add the array itself as a field
                 result.push({ field: path, type: 'array' });
 
+                // Flatten the items if they are object or primitive
                 if (value.items) {
-                    Object.entries(value.items).forEach(([subKey, subValue]) => {
-                        result.push({ field: `${path}.${subKey}`, type: subValue.type }); // item-level conditions
-                    });
+                    if (value.items.type === 'object' && value.items.properties) {
+                        result.push(...flattenSchema(value.items.properties, path));
+                    } else {
+                        Object.entries(value.items).forEach(([subKey, subValue]) => {
+                            result.push({ field: `${path}.${subKey}`, type: subValue.type });
+                        });
+                    }
                 }
             }
-            else if (value.type === 'object' && value.properties) {
-                result.push(...flattenSchema(value.properties, path));
+            else if (value.type === 'object') {
+                // Flatten object properties recursively if present
+                if (value.properties) {
+                    result.push(...flattenSchema(value.properties, path));
+                } else {
+                    // If no properties defined, treat as generic object
+                    result.push({ field: path, type: 'object' });
+                }
             }
             else {
+                // Primitive field
                 result.push({ field: path, type: value.type });
             }
         });
@@ -95,7 +108,7 @@ export default function WorkflowCase({ data }) {
         console.log('Submitted form data:', formData);
         data.functions.handleBluePrintComponent(data.label, data.id, { ...formData });
         handleClose();
-        if(!data.bluePrint){
+        if (!data.bluePrint) {
             setShowModal(true);
         }
     });
@@ -172,20 +185,40 @@ export default function WorkflowCase({ data }) {
                                     const selectedType = parentFields.find(f => f.field === selectedField)?.type;
 
                                     if (selectedType === 'boolean') {
-                                        return <FormControlLabel
-                                            control={<Checkbox {...field} checked={field.value || false} />}
-                                            label="Value"
-                                        />;
+                                        return (
+                                            <FormControlLabel
+                                                control={<Checkbox {...field} checked={field.value || false} />}
+                                                label="Value"
+                                            />
+                                        );
                                     }
 
-                                    return <TextField
-                                        fullWidth
-                                        label="Value"
-                                        {...field}
-                                        type={selectedType === 'number' ? 'number' : 'text'}
-                                    />;
+                                    if (selectedType === 'object') {
+                                        // For object type, show input only for specific conditions
+                                        if (['has key', 'has keys'].includes(values.condition)) {
+                                            return (
+                                                <TextField
+                                                    fullWidth
+                                                    label={values.condition === 'has key' ? 'Key name' : 'Comma separated keys'}
+                                                    {...field}
+                                                />
+                                            );
+                                        }
+                                        // For conditions like exists/not exists/is empty, no value input needed
+                                        return null;
+                                    }
+
+                                    return (
+                                        <TextField
+                                            fullWidth
+                                            label="Value"
+                                            {...field}
+                                            type={selectedType === 'number' ? 'number' : 'text'}
+                                        />
+                                    );
                                 }}
                             />
+
                         </Grid>
                     </Grid>
 

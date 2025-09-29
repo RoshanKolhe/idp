@@ -20,7 +20,7 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import { ProcessInstances } from '../models';
-import { ProcessesRepository, ProcessInstanceSecretsRepository, ProcessInstancesRepository } from '../repositories';
+import { ProcessesRepository, ProcessInstanceDocumentsRepository, ProcessInstanceSecretsRepository, ProcessInstancesRepository, ProcessWorkflowOutputRepository, WorkflowInstancesRepository, WorkflowRepository } from '../repositories';
 import { authenticate } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
 import fs from 'fs';
@@ -38,6 +38,14 @@ export class ProcessInstancesController {
     public processesRepository: ProcessesRepository,
     @repository(ProcessInstanceSecretsRepository)
     public processInstanceSecretsRepository: ProcessInstanceSecretsRepository,
+    @repository(ProcessInstanceDocumentsRepository)
+    public processInstanceDocumentsRepository: ProcessInstanceDocumentsRepository,
+    @repository(ProcessWorkflowOutputRepository)
+    public processWorkflowOutputRepository: ProcessWorkflowOutputRepository,
+    @repository(WorkflowInstancesRepository)
+    public workflowInstancesRepository: WorkflowInstancesRepository,
+    @repository(WorkflowRepository)
+    public workflowRepository: WorkflowRepository,
     @inject('service.jwt.service')
     public jwtService: JWTService,
   ) { }
@@ -402,6 +410,94 @@ export class ProcessInstancesController {
       } else {
         console.warn(`Folder not found: ${folderPath}`);
       }
+    }
+  }
+
+  // delivering data to workflow...
+  // no authentication as on airflow side we dont have access token...
+  @post('/process-instances/deliver-to-workflow')
+  async deliverToWorkflow(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              processInstanceId: {
+                type: 'number',
+              },
+              workflowId: {
+                type: 'number'
+              }
+            },
+            required: ['processInstanceId', 'workflowId'],
+          }
+        }
+      }
+    })
+    requestBody: {
+      processInstanceId: number;
+      workflowId: number;
+    }
+  ): Promise<{ success: boolean, message: string }> {
+    try {
+      const { processInstanceId, workflowId } = requestBody;
+
+      const processInstance : any = await this.processInstanceDocumentsRepository.findOne({
+        where: {
+          processInstancesId: processInstanceId
+        },
+        include: [
+          { relation: 'processInstances' },
+        ]
+      });
+
+      if (!processInstance) {
+        throw new HttpErrors.BadRequest('Extracted data for process instance not found');
+      }
+
+      const workflow = await this.workflowRepository.findById(workflowId);
+
+      if (!workflow) {
+        throw new HttpErrors.BadRequest('Workflow not found');
+      }
+
+      const createdWorkflowInstance = await this.workflowInstancesRepository.create({
+        workflowInstanceName: `${processInstance.processInstances?.processInstanceName}-${workflow.name}`,
+        workflowInstanceDescription: `workflow instance created for process instance of IDP ${processInstance.processInstances?.processInstanceName}`,
+        workflowId: workflowId,
+        isActive: true,
+        isDeleted: false,
+        isInstanceRunning: false,
+      });
+
+      if (createdWorkflowInstance) {
+        const savedOutputData = await this.processWorkflowOutputRepository.create({
+          processInstanceId: processInstanceId,
+          workflowInstanceId: createdWorkflowInstance.id,
+          documentDetails: processInstance.documentDetails,
+          extractedFields: processInstance.extractedFields,
+          fileDetails: processInstance.fileDetails,
+          isActive: true,
+          isDeleted: false,
+        });
+
+        if (savedOutputData) {
+          await this.workflowInstancesRepository.updateById(savedOutputData.workflowInstanceId, { isInstanceRunning: true });
+
+          return {
+            success: true,
+            message: 'Delivered to workflow'
+          }
+        }
+      }
+
+      return {
+        success: false,
+        message: 'failed to delivered'
+      }
+    } catch (error) {
+      throw error;
     }
   }
 }

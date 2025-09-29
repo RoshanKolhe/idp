@@ -57,12 +57,12 @@ export function useGetFilteredEscalations(filter) {
 
   const memoizedValue = useMemo(
     () => ({
-      escalations: data?.escalations || [],
+      escalations: data || [],
       count: data?.count || 0,
       escalationsLoading: isLoading,
       escalationsError: error,
       escalationsValidating: isValidating,
-      escalationsEmpty: !isLoading && (!data || data?.escalations?.length === 0),
+      escalationsEmpty: !isLoading && (!data || data?.length === 0),
     }),
     [data, error, isLoading, isValidating]
   );

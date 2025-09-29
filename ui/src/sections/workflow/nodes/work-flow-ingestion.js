@@ -16,6 +16,7 @@ const channelOptions = [
     { label: 'API', value: 'api', isDisabled: false },
     { label: 'WEBHOOK', value: 'webhook', isDisabled: true },
     { label: 'UI/PORTAL', value: 'ui', isDisabled: false },
+    { label: 'Process', value: 'process', isDisabled: false },
 ]
 
 // const channelSchemas
@@ -196,7 +197,7 @@ export default function WorkFlowIngestion({ data }) {
                             <Switch opt={values.channelType} onClose={handleClose} />
                         </Grid>
                         {(data?.isProcessInstance !== true) && <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
-                            <LoadingButton sx={{backgroundColor: data.bgColor, borderColor: data.borderColor}} type="submit" variant="contained" loading={isSubmitting}>
+                            <LoadingButton sx={{ backgroundColor: data.bgColor, borderColor: data.borderColor }} type="submit" variant="contained" loading={isSubmitting}>
                                 Add
                             </LoadingButton>
                         </Stack>}

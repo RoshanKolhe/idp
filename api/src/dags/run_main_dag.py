@@ -15,3 +15,5 @@ with DAG(
         task_id="run_main_service",
         bash_command="node /opt/airflow/dist/scripts/run-main.js",
     )
+
+    run_main

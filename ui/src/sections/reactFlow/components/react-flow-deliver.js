@@ -9,7 +9,7 @@ import { Button, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FormProvider, { RHFSelect } from "src/components/hook-form";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
-import { FTPComponent, HTTPComponent } from "../deliver-components";
+import { FTPComponent, HTTPComponent, WorkflowComponent } from "../deliver-components";
 import CustomProcessDialogue from "./components-dialogue";
 import LogsProcessDialogue from "./logs-dialogue";
 
@@ -35,6 +35,10 @@ const channelSchemas = {
     http: Yup.object().shape({
         url: Yup.string().url('Invalid URL').required('URL is required'),
     }),
+    workflow: Yup.object().shape({
+        workflowId: Yup.number().required('Please select workflow'),
+        workflowName: Yup.string().required('Workflow name is required'),
+    }),
 };
 
 const getValidationSchema = (channelType) =>
@@ -56,6 +60,10 @@ function Switch({ opt }) {
             component = <HTTPComponent />;
             break;
 
+        case 'workflow':
+            component = <WorkflowComponent />;
+            break;
+
         default:
             component = <div />
     }
@@ -71,7 +79,7 @@ Switch.propTypes = {
 
 // getComponent to show
 const getComponent = (values = {}) => {
-    const { channelType, host, path, url } = values;
+    const { channelType, host, path, url, workflowName } = values;
 
     switch (channelType) {
         case 'ftp':
@@ -79,6 +87,9 @@ const getComponent = (values = {}) => {
 
         case 'http':
             return <Typography variant="body1">{url}</Typography>;
+
+        case 'workflow':
+            return <Typography variant="body1">{workflowName}</Typography>
 
         default:
             return null;
@@ -120,6 +131,8 @@ export default function ReactFlowDeliver({ data }) {
             userName: data.bluePrint?.userName || '',
             password: '',
             url: data.bluePrint?.url || '',
+            workflowId: data.bluePrint?.workflowId || undefined,
+            workflowName: data.bluePrint?.workflowName || '',
         }),
         [data]
     );
