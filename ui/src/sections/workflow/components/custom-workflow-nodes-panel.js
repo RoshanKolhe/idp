@@ -85,6 +85,26 @@ const customOperations = [
         bgColor: "#2E7D32",
         borderColor: "#388E3C",
         color: "#81C784",
+    },
+    {
+        id: 8,
+        title: "Webhook",
+        description: "Triggers or waits for an external event from another system (such as an API callback, webhook, or socket message) to continue the workflow automatically.",
+        icon: "/assets/icons/workflow/webhook.svg",
+        type: "webhook",
+        bgColor: "#1565C0",       
+        borderColor: "#1976D2",
+        color: "#90CAF9",         
+    },
+    {
+        id: 9,
+        title: "Set Variables",
+        description: "Defines or updates variables used within the workflow to store dynamic values for later steps or conditions.",
+        icon: "/assets/icons/workflow/variable.svg",
+        type: "variable",
+        bgColor: "#6A1B9A",       
+        borderColor: "#8E24AA",
+        color: "#CE93D8",     
     }
 ];
 

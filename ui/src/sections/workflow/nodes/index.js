@@ -5,4 +5,6 @@ export { default as WorkflowCase } from './work-flow-case';
 export { default as WorkFlowTimeTrigger } from './work-flow-time-trigger';
 export { default as WorkFlowWait } from './work-flow-wait';
 export { default as WorkFlowApproval } from './work-flow-approval';
-export { default as WorkflowEventTrigger } from './work-flow-event-trigger'
+export { default as WorkflowEventTrigger } from './work-flow-event-trigger';
+export { default as WorkFlowWebhookTrigger } from './work-flow-webhook';
+export { default as WorkFlowSetVariable } from './work-flow-variable';

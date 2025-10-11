@@ -16,7 +16,7 @@ import ReactFlow, {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'reactflow/dist/style.css';
 import { Box, Button } from '@mui/material';
-import axiosInstance from 'src/utils/axios';
+import{ workflowAxiosInstance } from 'src/utils/axios';
 import { useGetWorkflowBluePrint } from 'src/api/blue-print';
 import {
     CurvedEdge,
@@ -26,7 +26,7 @@ import {
     getLayoutedElements,
     CustomWorkflowNodesPanel
 } from './components';
-import { WorkFlowApproval, WorkflowCase, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowNotification, WorkFlowTimeTrigger, WorkFlowWait } from './nodes';
+import { WorkFlowApproval, WorkflowCase, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
 
 const nodeTypes = {
     customNode: CustomWorkflowNode,
@@ -39,6 +39,8 @@ const nodeTypes = {
     waitTrigger: WorkFlowWait,
     approval: WorkFlowApproval,
     event: WorkflowEventTrigger,
+    webhook: WorkFlowWebhookTrigger,
+    variable: WorkFlowSetVariable,
 }
 
 const edgeTypes = {
@@ -667,7 +669,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                 isActive: true
             };
 
-            const response = await axiosInstance.post('/workflow-blueprints', data);
+            const response = await workflowAxiosInstance.post('/workflow-blueprints', data);
             if (response?.data) {
                 enqueueSnackbar("Blue Print Saved", { variant: 'success' });
             }

@@ -2,14 +2,14 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import { endpoints, workflowFetcher } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
 export function useGetWorkflowInstances() {
   const URL = endpoints.workflowInstance.list;
 
-  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, workflowFetcher);
 
   const refreshWorkflowInstances = () => {
     // Use the `mutate` function to trigger a revalidation
@@ -30,7 +30,7 @@ export function useGetWorkflowInstances() {
 
 export function useGetWorkflowInstance(workflowInstanceId) {
   const URL = workflowInstanceId ? [endpoints.workflowInstance.details(workflowInstanceId)] : null;
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating } = useSWR(URL, workflowFetcher);
 
   const memoizedValue = useMemo(
     () => ({
@@ -55,7 +55,7 @@ export function useGetworkflowInstancesWithFilter(filter) {
     URL = endpoints.workflowInstance.list;
   }
 
-  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, workflowFetcher);
 
   const refreshFilterWorkflowInstances = () => {
     // Use the `mutate` function to trigger a revalidation

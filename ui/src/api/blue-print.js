@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import { fetcher, endpoints, workflowFetcher } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 // process blueprint...
@@ -26,7 +26,7 @@ export function useGetBluePrint(processesId) {
 // workflow blueprint...
 export function useGetWorkflowBluePrint(workflowId) {
   const URL = workflowId ? [endpoints.workflows.bluePrint(workflowId)] : null;
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating } = useSWR(URL, workflowFetcher);
 
   const memoizedValue = useMemo(
     () => ({

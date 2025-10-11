@@ -20,7 +20,7 @@ import FormProvider, {
   RHFTextField,
   RHFAutocomplete,
 } from 'src/components/hook-form';
-import axiosInstance from 'src/utils/axios';
+import { workflowAxiosInstance } from 'src/utils/axios';
 import WorkflowInstanceUploadDoc from './component/workflowInstance-upload-doc';
 import WorkflowInstanceCredentials from './component/workflowInstance-api-section';
 
@@ -32,7 +32,7 @@ function SwitchComponent({ channelType, extraDetails }) {
       return <WorkflowInstanceUploadDoc handleClose={extraDetails?.handleClose} data={extraDetails?.workflowInstanceData} />;
 
     case 'api':
-      return <WorkflowInstanceCredentials handleClose={extraDetails?.handleClose} data={extraDetails?.workflowInstanceData}/>;
+      return <WorkflowInstanceCredentials handleClose={extraDetails?.handleClose} data={extraDetails?.workflowInstanceData} />;
 
     default:
       return null;
@@ -96,9 +96,9 @@ export default function WorkflowInstanceNewEditForm({ currentWorkflowInstance })
 
       let response;
       if (!currentWorkflowInstance) {
-        response = await axiosInstance.post('/workflow-instances', inputData);
+        response = await workflowAxiosInstance.post('/workflow-instances', inputData);
       } else {
-        await axiosInstance.patch(`/workflow-instances/${currentWorkflowInstance.id}`, inputData);
+        await workflowAxiosInstance.patch(`/workflow-instances/${currentWorkflowInstance.id}`, inputData);
         reset();
         enqueueSnackbar(currentWorkflowInstance ? 'Update success!' : 'Create success!');
         router.push(paths.dashboard.workflowInstance.list);
@@ -175,7 +175,7 @@ export default function WorkflowInstanceNewEditForm({ currentWorkflowInstance })
           }
         }
         const filterString = encodeURIComponent(JSON.stringify(filter));
-        const { data } = await axiosInstance.get(`/workflows?filter=${filterString}`);
+        const { data } = await workflowAxiosInstance.get(`/workflows?filter=${filterString}`);
         setWorkflowsData(data);
       };
     } catch (error) {

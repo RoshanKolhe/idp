@@ -1,6 +1,6 @@
 import axios from 'axios';
 // config
-import { HOST_API } from 'src/config-global';
+import { HOST_API, WORKFLOW_HOST_API } from 'src/config-global';
 
 // ----------------------------------------------------------------------
 
@@ -12,6 +12,39 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
+
+// -----------------------------------------------------------------------
+
+// Workflow API instance
+const workflowAxiosInstance = axios.create({ baseURL: WORKFLOW_HOST_API });
+
+// Add request interceptor to attach access token
+workflowAxiosInstance.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor
+workflowAxiosInstance.interceptors.response.use(
+  (res) => res,
+  (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong')
+);
+
+export { workflowAxiosInstance };
+
+export const workflowFetcher = async (args) => {
+  const [url, config] = Array.isArray(args) ? args : [args];
+
+  const res = await workflowAxiosInstance.get(url, { ...config });
+
+  return res.data;
+};
 
 // ----------------------------------------------------------------------
 

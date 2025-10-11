@@ -17,7 +17,7 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import { IconButton, Typography } from '@mui/material';
 import { useGetProcessTypes } from 'src/api/processType';
-import axiosInstance from 'src/utils/axios';
+import { workflowAxiosInstance } from 'src/utils/axios';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 
@@ -61,7 +61,7 @@ export default function WorkflowCreateForm({ currentWorkflow, open, onClose }) {
       };
 
       if (!currentWorkflow) {
-        const response = await axiosInstance.post('/workflows', inputData);
+        const response = await workflowAxiosInstance.post('/workflows', inputData);
         if (response.data) {
           reset();
           router.push(paths.dashboard.workflow.reactFlow(response.data.id));
@@ -69,7 +69,7 @@ export default function WorkflowCreateForm({ currentWorkflow, open, onClose }) {
           enqueueSnackbar('Workflow created successfully!');
         }
       } else {
-        await axiosInstance.patch(`/workflows/${currentWorkflow.id}`, inputData);
+        await workflowAxiosInstance.patch(`/workflows/${currentWorkflow.id}`, inputData);
         reset();
         onClose();
         enqueueSnackbar('Workflow updated successfully!');

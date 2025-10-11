@@ -35,7 +35,7 @@ import FormProvider, {
 } from 'src/components/hook-form';
 import { IconButton, InputAdornment, MenuItem } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
-import axiosInstance from 'src/utils/axios';
+import { workflowAxiosInstance } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -86,9 +86,9 @@ export default function WorkflowNewEditForm({ currentWorkflow }) {
       };
 
       if (!currentWorkflow) {
-        await axiosInstance.post('/workflows', inputData);
+        await workflowAxiosInstance.post('/workflows', inputData);
       } else {
-        await axiosInstance.patch(`/workflows/${currentWorkflow.id}`, inputData);
+        await workflowAxiosInstance.patch(`/workflows/${currentWorkflow.id}`, inputData);
       }
       reset();
       enqueueSnackbar(currentWorkflow ? 'Update success!' : 'Create success!');

@@ -5,6 +5,7 @@ import { paths } from 'src/routes/paths';
 // ----------------------------------------------------------------------
 
 export const HOST_API = process.env.REACT_APP_HOST_API;
+export const WORKFLOW_HOST_API = process.env.REACT_APP_WORKFLOW_HOST_API;
 export const ASSETS_API = process.env.REACT_APP_ASSETS_API;
 
 export const FIREBASE_API = {
