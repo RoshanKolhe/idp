@@ -8,3 +8,5 @@ export { default as WorkFlowApproval } from './work-flow-approval';
 export { default as WorkflowEventTrigger } from './work-flow-event-trigger';
 export { default as WorkFlowWebhookTrigger } from './work-flow-webhook';
 export { default as WorkFlowSetVariable } from './work-flow-variable';
+export { default as WorkFlowAPI } from './work-flow-api';
+export { default as WorkFlowCode } from './work-flow-code';
