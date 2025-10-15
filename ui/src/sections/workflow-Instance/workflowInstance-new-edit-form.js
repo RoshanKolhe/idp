@@ -171,7 +171,7 @@ export default function WorkflowInstanceNewEditForm({ currentWorkflowInstance })
       if (searchTerm.length > 0) {
         const filter = {
           where: {
-            name: { like: `%${searchTerm || ''}%` }
+            name: { regexp: `/${searchTerm}/i` }
           }
         }
         const filterString = encodeURIComponent(JSON.stringify(filter));

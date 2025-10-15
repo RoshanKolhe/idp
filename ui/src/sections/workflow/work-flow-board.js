@@ -667,7 +667,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                 bluePrint,
                 nodes,
                 edges,
-                workflowId: Number(id),
+                workflowId: id,
                 isActive: true
             };
 

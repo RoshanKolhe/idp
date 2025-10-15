@@ -45,7 +45,7 @@ import ProcessTypeTableGrid from '../processInstance-table-grid';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'no', label: 'NO.', width: 180 },
+  { id: 'no', label: 'ID.', width: 180 },
   { id: 'instanceId', label: 'Instance Id' },
   { id: 'workflowName', label: 'Workflow Name' },
   { id: 'currentStage', label: 'Current Stage' },
@@ -254,9 +254,10 @@ export default function WorkflowInstanceListView() {
                         table.page * table.rowsPerPage,
                         table.page * table.rowsPerPage + table.rowsPerPage
                       )
-                      .map((row) => (
+                      .map((row, index) => (
                         <WorkflowInstanceTableRow
                           key={row.id}
+                          index={index+1}
                           row={row}
                           selected={table.selected.includes(row.id)}
                           onSelectRow={() => table.onSelectRow(row.id)}

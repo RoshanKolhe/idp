@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import {
     Box,
     Stack,
@@ -12,9 +12,13 @@ import {
     Divider,
     Alert,
     Chip,
+    Autocomplete,
+    TextField,
+    MenuItem,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import FormProvider, { RHFTextField } from "src/components/hook-form";
+import FormProvider, { RHFSelect, RHFTextField } from "src/components/hook-form";
+import { useGetProcesses } from "src/api/processes";
 import Iconify from "src/components/iconify";
 import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components";
 
@@ -24,11 +28,20 @@ import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components";
  */
 export default function WorkFlowSetVariable({ data }) {
     const [open, setOpen] = useState(false);
-
+    const [processesData, setProcessesData] = useState([]);
+    const { processess, processessEmpty } = useGetProcesses();
     const handleClose = () => setOpen(false);
 
     // ✅ Validation Schema
     const variableValidationSchema = Yup.object().shape({
+        isProcessesConnected: Yup.boolean().required('Please select value'),
+        processes: Yup.array()
+            .of(Yup.object().required("Process is required"))
+            .when("isProcessesConnected", {
+                is: true,
+                then: (schema) => schema.min(1, "At least one process is required when connected"),
+                otherwise: (schema) => schema.notRequired(),
+            }),
         variables: Yup.array()
             .of(
                 Yup.object().shape({
@@ -42,6 +55,8 @@ export default function WorkFlowSetVariable({ data }) {
     // ✅ Default Values
     const defaultValues = useMemo(
         () => ({
+            isProcessesConnected: data.bluePrint?.isProcessesConnected || false,
+            processess: [],
             variables: data.bluePrint?.variables || [
                 { variableName: "", variableValue: "" },
             ],
@@ -59,6 +74,7 @@ export default function WorkFlowSetVariable({ data }) {
         control,
         watch,
         handleSubmit,
+        setValue,
         formState: { isSubmitting },
     } = methods;
 
@@ -89,10 +105,40 @@ export default function WorkFlowSetVariable({ data }) {
     });
 
     useEffect(() => {
+        if (processess && !processessEmpty) {
+            setProcessesData(processess);
+        }
+    }, [processess, processessEmpty]);
+
+    useEffect(() => {
         if (data) {
             reset(defaultValues);
+
+            if (data.bluePrint?.isProcessesConnected && data.bluePrint?.processes && processesData) {
+                const oldProcesses = data.bluePrint?.processes || [];
+                const newProcesses = processesData.filter((process) => process.id === oldProcesses?.some((processId) => processId)) || [];
+                setValue('processes', newProcesses, { shouldValidate: true });
+            }
         }
-    }, [data, defaultValues, reset]);
+    }, [data, defaultValues, reset, setValue, processesData]);
+
+    useEffect(() => {
+        if (values.isProcessesConnected && values.processes?.length > 0) {
+            const sampleVariables = [
+                { variableName: "processName", variableValue: "{{processName}}" },
+                { variableName: "status", variableValue: "{{status}}" },
+                { variableName: "createdBy", variableValue: "{{createdBy}}" },
+                { variableName: "lastUpdated", variableValue: "{{lastUpdated}}" },
+            ];
+
+            // Only set sample variables if current variables are empty or default
+            const hasRealVariables = values.variables?.some(v => v.variableName);
+            if (!hasRealVariables) {
+                setValue("variables", sampleVariables, { shouldValidate: true, shouldDirty: true });
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [values.isProcessesConnected, values.processes]);
 
     return (
         <Box component="div">
@@ -110,6 +156,45 @@ export default function WorkFlowSetVariable({ data }) {
                         <FormProvider methods={methods} onSubmit={onSubmit}>
                             <Grid container spacing={2}>
                                 <Grid item xs={12}>
+                                    <Typography variant="subtitle1">Process Connection</Typography>
+                                    <Divider sx={{ my: 1 }} />
+                                </Grid>
+
+                                {/* ✅ Process Connection Select */}
+                                <Grid item xs={12} md={6}>
+                                    <RHFSelect name="isProcessesConnected" label="Connect to Processes">
+                                        <MenuItem value="">Select Option</MenuItem>
+                                        <MenuItem value="true">Yes</MenuItem>
+                                        <MenuItem value="false">No</MenuItem>
+                                    </RHFSelect>
+                                </Grid>
+
+                                {/* ✅ Processes Autocomplete */}
+                                {values.isProcessesConnected && (
+                                    <Grid item xs={12}>
+                                        <Controller
+                                            name="processes"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Autocomplete
+                                                    multiple
+                                                    options={processesData || []}
+                                                    getOptionLabel={(option) => option.name || ""}
+                                                    value={field.value || []}
+                                                    onChange={(_, newValue) => field.onChange(newValue)}
+                                                    renderInput={(params) => (
+                                                        <TextField
+                                                            {...params}
+                                                            label="Select Processes"
+                                                            placeholder="Choose processes"
+                                                        />
+                                                    )}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                )}
+                                <Grid item xs={12}>
                                     <Typography variant="subtitle1">Define Workflow Variables</Typography>
                                     <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
                                         Use curly braces <code>{"{{variableName}}"}</code> to refer to dynamic values.
@@ -125,7 +210,7 @@ export default function WorkFlowSetVariable({ data }) {
                                     const dynamicKey = isDynamicValue(value);
 
                                     return (
-                                        <Grid sx={{mt: 1}} container spacing={1.5} key={item.id} alignItems="center">
+                                        <Grid sx={{ mt: 1 }} container spacing={1.5} key={item.id} alignItems="center">
                                             <Grid item xs={5}>
                                                 <RHFTextField
                                                     name={`variables[${index}].variableName`}

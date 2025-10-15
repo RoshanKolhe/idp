@@ -24,6 +24,7 @@ import { paths } from 'src/routes/paths';
 
 export default function WorkflowInstanceTableRow({
   row,
+  index,
   selected,
   onEditRow,
   onViewRow,
@@ -172,4 +173,5 @@ WorkflowInstanceTableRow.propTypes = {
   row: PropTypes.object,
   selected: PropTypes.bool,
   onStatusChange: PropTypes.func,
+  index: PropTypes.number,
 };

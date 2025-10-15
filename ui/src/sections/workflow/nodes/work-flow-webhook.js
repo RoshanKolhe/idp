@@ -20,6 +20,12 @@ import FormProvider, {
 import Iconify from "src/components/iconify";
 import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components";
 
+function generateId() {
+  const randomPart = Math.random().toString(36).substring(2, 8);
+  const timePart = Date.now().toString(36);
+  return `wh_${timePart}_${randomPart}`;
+}
+
 export default function WorkFlowWebhookTrigger({ data }) {
   const [open, setOpen] = useState(false);
 
@@ -29,6 +35,7 @@ export default function WorkFlowWebhookTrigger({ data }) {
 
   // ✅ Validation Schema
   const webhookSchema = Yup.object().shape({
+    webhookId: Yup.string().required("webhook id required"),
     responseStatus: Yup.number().required("Success status code is required"),
     requestBody: Yup.string().required("Request body is required"),
     isAdvancedOptions: Yup.boolean().required("Advance options field is required"),
@@ -49,6 +56,7 @@ export default function WorkFlowWebhookTrigger({ data }) {
   // ✅ Default Values
   const defaultValues = useMemo(
     () => ({
+      webhookId: data?.bluePrint?.webhookId || generateId(),
       responseStatus: data.bluePrint?.responseStatus || "",
       requestBody: data.bluePrint?.requestBody || "",
       isAdvancedOptions: data.bluePrint?.isAdvancedOptions || false,

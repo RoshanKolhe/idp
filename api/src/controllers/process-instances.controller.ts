@@ -270,7 +270,12 @@ export class ProcessInstancesController {
   async find(
     @param.filter(ProcessInstances) filter?: Filter<ProcessInstances>,
   ): Promise<ProcessInstances[]> {
-    return this.processInstancesRepository.find({ ...filter, include: [{ relation: 'processes' }] });
+    try {
+      return this.processInstancesRepository.find({ ...filter, include: [{ relation: 'processes' }] });
+    } catch (error) {
+      console.log('error while process instance', error);
+      throw error;
+    }
   }
 
   @authenticate({
@@ -443,7 +448,7 @@ export class ProcessInstancesController {
     try {
       const { processInstanceId, workflowId } = requestBody;
 
-      const processInstance : any = await this.processInstanceDocumentsRepository.findOne({
+      const processInstance: any = await this.processInstanceDocumentsRepository.findOne({
         where: {
           processInstancesId: processInstanceId
         },

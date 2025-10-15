@@ -77,9 +77,11 @@ export default function WorkFlowAPI({ data }) {
 
     const apiValidationSchema = Yup.object().shape({
         url: Yup.string()
-            .url("Incorrect format, required URL")
+            .matches(
+                /^(https?:\/\/)?(localhost|[\w.-]+)(:\d+)?(\/.*)?$/,
+                "Invalid URL format"
+            )
             .required("URL is required"),
-
         method: Yup.number().required("Method is required"),
 
         headers: Yup.array()
