@@ -2,8 +2,10 @@ import PropTypes from "prop-types";
 import { Box, Typography, IconButton } from "@mui/material";
 import { Handle, Position } from "reactflow";
 import Iconify from "src/components/iconify";
+import { useWorkflowContext } from "../hooks";
 
 export default function CustomWorkflowNode({ data }) {
+    const { workflowDirection } = useWorkflowContext();
     return (
         <Box
             sx={{
@@ -62,39 +64,78 @@ export default function CustomWorkflowNode({ data }) {
                 </IconButton>
             </Box>
 
-            {/* Source Handle (Top) */}
-            <Handle
-                type="target"
-                position={Position.Top}
-                style={{
-                    top: -6,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    background: "transparent", // hide circle bg
-                    width: 0,
-                    height: 0,
-                    borderLeft: "12px solid transparent",  // increase width
-                    borderRight: "12px solid transparent", // increase width
-                    borderTop: "16px solid #555",          // arrow size & color
-                }}
-                id="source-connector"
-                isConnectable
-            />
+            {workflowDirection && workflowDirection === 'TB' ? (
+                <>
+                    {/* Source Handle (Top) */}
+                    <Handle
+                        type="target"
+                        position={Position.Top}
+                        style={{
+                            top: -6,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            background: "transparent",
+                            width: 0,
+                            height: 0,
+                            borderLeft: "12px solid transparent",
+                            borderRight: "12px solid transparent",
+                            borderTop: "16px solid #555",
+                        }}
+                        id="source-connector"
+                        isConnectable
+                    />
 
+                    {/* Target Handle (Bottom) */}
+                    <Handle
+                        type="source"
+                        position={Position.Bottom}
+                        style={{
+                            bottom: -6,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            background: "#555",
+                        }}
+                        id="target-connector"
+                        isConnectable
+                    />
+                </>
+            ) : (
+                <>
+                    {/* Source Handle (Left) */}
+                    <Handle
+                        type="target"
+                        position={Position.Left}
+                        style={{
+                            top: "50%",
+                            left: 0,
+                            transform: "translateX(-50%)",
+                            background: "transparent",
+                            width: 0,
+                            height: 0,
+                            borderTop: "12px solid transparent",
+                            borderBottom: "12px solid transparent",
+                            borderLeft: "16px solid #555",
+                        }}
+                        id="source-connector"
+                        isConnectable
+                    />
 
-            {/* Target Handle (Bottom) */}
-            <Handle
-                type="source"
-                position={Position.Bottom}
-                style={{
-                    bottom: -6,         // place below node
-                    left: "50%",        // center horizontally
-                    transform: "translateX(-50%)",
-                    background: "#555",
-                }}
-                id="target-connector"
-                isConnectable
-            />
+                    {/* Target Handle (Right) */}
+                    <Handle
+                        type="source"
+                        position={Position.Right}
+                        style={{
+                            bottom: "50%",
+                            right: -10, // fix typo: was 'Right'
+                            transform: "translateX(-50%)",
+                            background: "#555",
+                        }}
+                        id="target-connector"
+                        isConnectable
+                    />
+                </>
+            )}
+
         </Box>
     );
 }

@@ -15,8 +15,8 @@ import ReactFlow, {
 } from 'reactflow';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'reactflow/dist/style.css';
-import { Box, Button } from '@mui/material';
-import{ workflowAxiosInstance } from 'src/utils/axios';
+import { Box, Button, FormControlLabel, Switch } from '@mui/material';
+import { workflowAxiosInstance } from 'src/utils/axios';
 import { useGetWorkflowBluePrint } from 'src/api/blue-print';
 import {
     CurvedEdge,
@@ -26,7 +26,8 @@ import {
     getLayoutedElements,
     CustomWorkflowNodesPanel
 } from './components';
-import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
+import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowIterator, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
+import { useWorkflowContext } from './hooks';
 
 const nodeTypes = {
     customNode: CustomWorkflowNode,
@@ -43,6 +44,7 @@ const nodeTypes = {
     variable: WorkFlowSetVariable,
     api: WorkFlowAPI,
     code: WorkFlowCode,
+    iterator: WorkFlowIterator,
 }
 
 const edgeTypes = {
@@ -66,11 +68,23 @@ const initialNodes = [
             borderColor: '#8E24AA',
             bgColor: '#8E24AA',
         },
-        position: { x: 330, y: 20 },
+        position: { x: 0, y: 0 },
     },
 ];
 
-export default function ReactFlowBoard({ isUnlock }) {
+function VariableDetection(nodesArray = [], bluePrint = []) {
+    if (!Array.isArray(nodesArray) || !Array.isArray(bluePrint)) return [];
+
+    return nodesArray
+        .filter(node => node.type === 'variable')
+        .flatMap(node => {
+            const component = bluePrint.find(comp => comp.id === node.id)?.component;
+            return component?.variables || [];
+        });
+}
+
+export default function ReactFlowBoard() {
+    const { workflowDirection, setWorkflowDirection } = useWorkflowContext();
     const params = useParams();
     const { enqueueSnackbar } = useSnackbar();
     const { id } = params;
@@ -85,94 +99,11 @@ export default function ReactFlowBoard({ isUnlock }) {
     const [lastNodeId, setLastNodeId] = useState(null);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
 
-    useEffect(() => {
-        if (bluePrints && !bluePrintsLoading) {
-            if (bluePrints?.success) {
-                setData(bluePrints?.data);
-            }
-        }
-    }, [bluePrints, bluePrintsLoading]);
-
-    useEffect(() => {
-        if (data) {
-            // setting bluePrint
-            setBluePrint(data?.bluePrint);
-
-            const newPresentNodes = data?.bluePrint.length > 0 ? data?.bluePrint.map((item) => item.id) : [];
-            setPresentNodes(newPresentNodes);
-
-            // setting nodes
-            const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
-                ...node,
-                data: {
-                    ...node.data,
-                    functions: {
-                        addToLeft: addNodeToLeft,
-                        addToRight: addNodeToRight,
-                        deleteNode,
-                        handleBluePrintComponent,
-                        handleAddNewDecisionCase,
-                    },
-                    bluePrint: data?.bluePrint?.find((item) => item.id === node.data.id)?.component,
-                }
-            }));
-
-            setNodes(newNodes || initialNodes);
-
-            setLastNodeId(newNodes?.length || 2);
-
-            setEdges(data?.edges || []);
-        } else {
-            // setting up the nodes...
-            setNodes((prev) => [...prev, ...initialNodes.map((node) => (
-                {
-                    ...node, data: {
-                        ...node.data,
-                        functions: {
-                            addToLeft: addNodeToLeft,
-                            addToRight: addNodeToRight,
-                            deleteNode,
-                            handleBluePrintComponent
-                        },
-                        bluePrint: bluePrint.find((item) => item.id === node.data.id)?.component,
-                    }
-                }))]);
-
-            setLastNodeId(2);
-
-            // setting up the edges...
-            setEdges([{
-                id: `e1-2`,
-                source: `1`,
-                target: `2`,
-                animated: true,
-                style: { stroke: 'black' },
-            }])
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data])
-
-    useEffect(() => {
-        if (nodes && nodes.length > 0) {
-            const filteredNodes = nodes.filter(
-                (node) => node.type !== 'customAddNode' && node.type !== 'decision'
-            );
-
-            setBluePrint((prev) => {
-                const existingIds = new Set(prev.map(item => item.id));
-
-                const newBlueprintEntries = filteredNodes
-                    .filter((node) => !existingIds.has(node.data.id))
-                    .map((node) => ({
-                        id: node.data.id,
-                        nodeName: node.data.label,
-                        component: null,
-                    }));
-
-                return [...prev, ...newBlueprintEntries];
-            });
-        }
-    }, [nodes]);
+    const applyLayout = useCallback(() => {
+        const { nodes: layouted, edges: layoutedE } = getLayoutedElements(nodes, edges, workflowDirection);
+        setNodes(layouted);
+        setEdges(layoutedE);
+    }, [workflowDirection, setNodes, setEdges, nodes, edges]);
 
     const handleBluePrintComponent = (label, id, updatedComponent) => {
         setBluePrint((prev) => prev.map((node) => {
@@ -244,9 +175,10 @@ export default function ReactFlowBoard({ isUnlock }) {
                             handleBluePrintComponent,
                             handleAddNewDecisionCase
                         },
-                        bluePrint: bluePrint.find((item) => item.id === newOpCompNodeId)?.component
+                        bluePrint: bluePrint.find((item) => item.id === newOpCompNodeId)?.component,
+                        variables: VariableDetection(prevNodes, bluePrint),
                     },
-                    position: { x: baseX + gapX, y: baseY },
+                    position: { x: 0, y: 0 },
                 };
 
                 if (borderDirection === 'up') {
@@ -272,7 +204,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                             borderLeft: '5px solid white',
                         },
                     },
-                    position: { x: baseX + gapX + 165 * 2, y: baseY },
+                    position: { x: 0, y: 0 },
                 };
 
                 const newEdge = {
@@ -349,7 +281,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                 const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
                     updatedNodes,
                     updatedEdges,
-                    "TB"
+                    workflowDirection
                 );
                 setNodes(layoutedNodes);
                 setEdges(layoutedEdges);
@@ -442,7 +374,8 @@ export default function ReactFlowBoard({ isUnlock }) {
                         deleteNode,
                         handleBluePrintComponent
                     },
-                    bluePrint: bluePrint.find((item) => item.id === targetId)?.component
+                    bluePrint: bluePrint.find((item) => item.id === targetId)?.component,
+                    variables: VariableDetection(currentNodes, bluePrint),
                 },
                 position: {
                     x: currentNode.position.x,
@@ -542,7 +475,8 @@ export default function ReactFlowBoard({ isUnlock }) {
                         deleteNode,
                         handleBluePrintComponent
                     },
-                    bluePrint: bluePrint.find((item) => item.id === newNodeId)?.component
+                    bluePrint: bluePrint.find((item) => item.id === newNodeId)?.component,
+                    variables: VariableDetection(currentNodes, bluePrint),
                 },
                 position: {
                     x: currentNode.position.x + gapX,
@@ -667,6 +601,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                 bluePrint,
                 nodes,
                 edges,
+                direction: workflowDirection,
                 workflowId: id,
                 isActive: true
             };
@@ -730,6 +665,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                                 bluePrint: bluePrint.find(
                                     (item) => item.id === newId
                                 )?.component,
+                                variables: VariableDetection(prevNodes, bluePrint),
                             },
                             position: { x: 0, y: 0 },
                         };
@@ -747,7 +683,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                         const updatedEdges = [...prevEdges, newEdge];
 
                         const { nodes: layoutedNodes, edges: layoutedEdges } =
-                            getLayoutedElements(updatedNodes, updatedEdges, "TB");
+                            getLayoutedElements(updatedNodes, updatedEdges, workflowDirection);
 
                         setNodes(layoutedNodes);
                         setEdges(layoutedEdges);
@@ -812,6 +748,7 @@ export default function ReactFlowBoard({ isUnlock }) {
                                 bluePrint: bluePrint.find(
                                     (item) => item.id === newOperationNodeId
                                 )?.component,
+                                variables: VariableDetection(prevNodes, bluePrint),
                             },
                             position: { x: 0, y: 0 },
                         };
@@ -883,7 +820,7 @@ export default function ReactFlowBoard({ isUnlock }) {
 
                         // run Dagre layout
                         const { nodes: layoutedNodes, edges: layoutedEdges } =
-                            getLayoutedElements(updatedNodes, updatedEdges, "TB");
+                            getLayoutedElements(updatedNodes, updatedEdges, workflowDirection);
 
                         setNodes(layoutedNodes);
                         nodes = layoutedNodes;
@@ -901,9 +838,122 @@ export default function ReactFlowBoard({ isUnlock }) {
         }
     };
 
+    useEffect(() => {
+        applyLayout();
+    }, [applyLayout]);
+
+    useEffect(() => {
+        if (bluePrints && !bluePrintsLoading) {
+            if (bluePrints?.success) {
+                setData(bluePrints?.data);
+            }
+        }
+    }, [bluePrints, bluePrintsLoading]);
+
+    useEffect(() => {
+        if (data) {
+            // setting bluePrint
+            setBluePrint(data?.bluePrint);
+
+            // setting direction of bluePrint
+            setWorkflowDirection(data?.direction ? data?.direction : 'TB');
+
+            const newPresentNodes = data?.bluePrint.length > 0 ? data?.bluePrint.map((item) => item.id) : [];
+            setPresentNodes(newPresentNodes);
+
+            // setting nodes
+            const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
+                ...node,
+                data: {
+                    ...node.data,
+                    functions: {
+                        addToLeft: addNodeToLeft,
+                        addToRight: addNodeToRight,
+                        deleteNode,
+                        handleBluePrintComponent,
+                        handleAddNewDecisionCase,
+                    },
+                    bluePrint: data?.bluePrint?.find((item) => item.id === node.data.id)?.component,
+                }
+            }));
+
+            setNodes(newNodes || initialNodes);
+
+            setLastNodeId(newNodes?.length || 2);
+
+            setEdges(data?.edges || []);
+        } else {
+            // setting up the nodes...
+            setNodes((prev) => [...prev, ...initialNodes.map((node) => (
+                {
+                    ...node, data: {
+                        ...node.data,
+                        functions: {
+                            addToLeft: addNodeToLeft,
+                            addToRight: addNodeToRight,
+                            deleteNode,
+                            handleBluePrintComponent
+                        },
+                        bluePrint: bluePrint.find((item) => item.id === node.data.id)?.component,
+                    }
+                }))]);
+
+            setLastNodeId(2);
+
+            // setting up the edges...
+            setEdges([{
+                id: `e1-2`,
+                source: `1`,
+                target: `2`,
+                animated: true,
+                style: { stroke: 'black' },
+            }])
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data])
+
+    useEffect(() => {
+        if (nodes && nodes.length > 0) {
+            const filteredNodes = nodes.filter(
+                (node) => node.type !== 'customAddNode' && node.type !== 'decision'
+            );
+
+            setBluePrint((prev) => {
+                const existingIds = new Set(prev.map(item => item.id));
+
+                const newBlueprintEntries = filteredNodes
+                    .filter((node) => !existingIds.has(node.data.id))
+                    .map((node) => ({
+                        id: node.data.id,
+                        nodeName: node.data.label,
+                        component: null,
+                    }));
+
+                return [...prev, ...newBlueprintEntries];
+            });
+        }
+    }, [nodes]);
+
     return (
         <div style={{ width: '100%', height: '100vh' }}>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={workflowDirection === "LR"}
+                            onChange={() =>
+                                setWorkflowDirection((prev) =>
+                                    prev === "TB" ? "LR" : "TB"
+                                )
+                            }
+                        />
+                    }
+                    label={
+                        workflowDirection === "LR"
+                            ? "Horizontal Layout"
+                            : "Vertical Layout"
+                    }
+                />
                 <Button onClick={() => handleSubmitBluePrint()} variant='contained'>Save</Button>
             </Box>
             <Box
@@ -932,8 +982,4 @@ export default function ReactFlowBoard({ isUnlock }) {
             </Box>
         </div>
     );
-}
-
-ReactFlowBoard.propTypes = {
-    isUnlock: PropTypes.bool
 }

@@ -8,6 +8,7 @@ const nodeWidth = 500;
 const nodeHeight = 200;
 
 export const getLayoutedElements = (nodes, edges, direction = "TB") => {
+  console.log('direction', direction);
   const isHorizontal = direction === "LR";
   dagreGraph.setGraph({ rankdir: direction });
 

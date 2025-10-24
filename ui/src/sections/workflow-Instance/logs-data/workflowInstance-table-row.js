@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
@@ -33,7 +34,7 @@ export default function WorkflowInstanceTableRow({
   onStatusChange
 }) {
   const navigate = useNavigate();
-  const { id, workflowInstanceName, workflow, currentStage, isInstanceRunning } = row;
+  const { id, workflowInstances, createdAt, status } = row;
 
   const confirm = useBoolean();
 
@@ -48,63 +49,43 @@ export default function WorkflowInstanceTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{workflowInstanceName}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{workflowInstances.workflowInstanceName}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{workflow?.name}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{currentStage || 'NA'}</TableCell>
-
+        <TableCell>
+          <ListItemText
+            primary={format(new Date(createdAt), 'dd MMM yyyy')}
+            secondary={format(new Date(createdAt), 'p')}
+            primaryTypographyProps={{ typography: 'body2', noWrap: true }}
+            secondaryTypographyProps={{
+              mt: 0.5,
+              component: 'span',
+              typography: 'caption',
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <Label
+            variant="soft"
+            color={
+              status === 0
+                ? 'warning' // Running
+                : status === 1
+                  ? 'success' // Completed
+                  : status === 2
+                    ? 'error'   // Failed
+                    : 'default'
+            }
+          >
+            {status === 0
+              ? 'Running'
+              : status === 1
+                ? 'Completed'
+                : status === 2
+                  ? 'Failed'
+                  : 'Unknown'}
+          </Label>
+        </TableCell>
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
-          <Tooltip title={isInstanceRunning ? 'Pause' : 'Start'} placement="top" arrow>
-            <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB',
-              }}
-              onClick={() => {
-                onStatusChange();
-              }}
-            >
-              <Iconify
-                icon={isInstanceRunning ? 'ic:round-pause-circle' : 'ic:round-play-circle'}
-                width={20}
-                height={20}
-              />
-            </IconButton>
-          </Tooltip>
-          {/* <Tooltip title="Documents" placement="top" arrow>
-            <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB', // icon color
-              }}
-              onClick={() => console.log('documents clicked')}
-            >
-              <Iconify icon="ic:baseline-insert-drive-file" width={20} height={20} />
-            </IconButton>
-          </Tooltip> */}
-
-          <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB', // icon color
-              }}
-              onClick={() => onEditRow()}
-            >
-              <Iconify icon="solar:pen-bold" width={20} height={20} />
-            </IconButton>
-          </Tooltip>
-
           <Tooltip title="View logs" placement="top" arrow>
             <IconButton
               sx={{
@@ -114,7 +95,7 @@ export default function WorkflowInstanceTableRow({
                 borderRadius: '12px',
                 color: '#4182EB',
               }}
-              onClick={() => navigate(paths.dashboard.workflowInstance.logsList(row.id))}
+              onClick={() => navigate(paths.dashboard.workflowInstance.reactFlow(row.id))}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>

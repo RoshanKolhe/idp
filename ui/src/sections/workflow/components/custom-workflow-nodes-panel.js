@@ -156,6 +156,17 @@ const customOperations = [
         borderColor: "#37474F",
         color: "#80CBC4",
       },
+      {
+        id: 12,
+        title: "Iterator",
+        description:
+          "The Iterator node loops through a list of items and executes the connected actions for each one. It’s ideal for repeating tasks, processing arrays, or applying logic to multiple inputs dynamically.",
+        icon: "/assets/icons/workflow/iterator.svg",
+        type: "iterator",
+        bgColor: "#1E3A8A",       // Deep indigo – stable and logical
+        borderColor: "#3B82F6",   // Bright blue accent for visibility
+        color: "#BFDBFE",         // Soft sky-blue text for readability
+      }
     ],
   },
 ];
@@ -188,7 +199,7 @@ export default function CustomWorkflowNodesPanel({
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { width: {xs: '100%', md: '400px'}, padding: 2 },
+        sx: { width: { xs: '100%', md: '400px' }, padding: 2 },
       }}
     >
       {/* Header */}

@@ -145,161 +145,160 @@ export default function WorkFlowSetVariable({ data }) {
             <Stack spacing={1} direction="column" alignItems="center">
                 <Box component="div" onClick={() => setOpen(true)} sx={{ cursor: "pointer" }}>
                     <CustomWorkflowNode data={data} />
-
-                    {/* 🧩 Dialogue */}
-                    <CustomWorkflowDialogue
-                        isOpen={open}
-                        handleCloseModal={handleClose}
-                        title="Set Variables"
-                        color={data.bgColor}
-                    >
-                        <FormProvider methods={methods} onSubmit={onSubmit}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <Typography variant="subtitle1">Process Connection</Typography>
-                                    <Divider sx={{ my: 1 }} />
-                                </Grid>
-
-                                {/* ✅ Process Connection Select */}
-                                <Grid item xs={12} md={6}>
-                                    <RHFSelect name="isProcessesConnected" label="Connect to Processes">
-                                        <MenuItem value="">Select Option</MenuItem>
-                                        <MenuItem value="true">Yes</MenuItem>
-                                        <MenuItem value="false">No</MenuItem>
-                                    </RHFSelect>
-                                </Grid>
-
-                                {/* ✅ Processes Autocomplete */}
-                                {values.isProcessesConnected && (
-                                    <Grid item xs={12}>
-                                        <Controller
-                                            name="processes"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <Autocomplete
-                                                    multiple
-                                                    options={processesData || []}
-                                                    getOptionLabel={(option) => option.name || ""}
-                                                    value={field.value || []}
-                                                    onChange={(_, newValue) => field.onChange(newValue)}
-                                                    renderInput={(params) => (
-                                                        <TextField
-                                                            {...params}
-                                                            label="Select Processes"
-                                                            placeholder="Choose processes"
-                                                        />
-                                                    )}
-                                                />
-                                            )}
-                                        />
-                                    </Grid>
-                                )}
-                                <Grid item xs={12}>
-                                    <Typography variant="subtitle1">Define Workflow Variables</Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                        Use curly braces <code>{"{{variableName}}"}</code> to refer to dynamic values.
-                                        Example: <code>{"{{userId}}"}</code>, <code>{"{{email}}"}</code>
-                                    </Typography>
-
-                                    <Divider sx={{ my: 1.5 }} />
-                                </Grid>
-
-                                {/* 🧾 Variable Key-Value Inputs */}
-                                {fields.map((item, index) => {
-                                    const value = values.variables?.[index]?.variableValue || "";
-                                    const dynamicKey = isDynamicValue(value);
-
-                                    return (
-                                        <Grid sx={{ mt: 1 }} container spacing={1.5} key={item.id} alignItems="center">
-                                            <Grid item xs={5}>
-                                                <RHFTextField
-                                                    name={`variables[${index}].variableName`}
-                                                    label="Variable Name"
-                                                    placeholder="e.g. userId"
-                                                />
-                                            </Grid>
-
-                                            <Grid item xs={5}>
-                                                {dynamicKey ? (
-                                                    // ✅ If value is dynamic, show chip
-                                                    <Box
-                                                        display="flex"
-                                                        alignItems="center"
-                                                        justifyContent="space-between"
-                                                        sx={{
-                                                            border: "1px solid #ccc",
-                                                            borderRadius: 1,
-                                                            p: 1,
-                                                        }}
-                                                    >
-                                                        <Chip
-                                                            color="info"
-                                                            label={`Dynamic: ${dynamicKey}`}
-                                                            size="small"
-                                                        />
-                                                        <Typography
-                                                            variant="caption"
-                                                            color="text.secondary"
-                                                            sx={{ ml: 1 }}
-                                                        >
-                                                            Detected Dynamic
-                                                        </Typography>
-                                                    </Box>
-                                                ) : (
-                                                    <RHFTextField name={`variables[${index}].variableValue`} label='Variable Value' placeholder='e.g. 12345 or {{userId}}' />
-                                                )}
-                                            </Grid>
-
-                                            <Grid item xs={2}>
-                                                <IconButton color="error" onClick={() => remove(index)}>
-                                                    <Iconify icon="mdi:minus-circle-outline" width={22} />
-                                                </IconButton>
-                                            </Grid>
-                                        </Grid>
-                                    );
-                                })}
-
-                                {/* ➕ Add Variable Button */}
-                                <Grid item xs={12}>
-                                    <Box display="flex" justifyContent="flex-end">
-                                        <IconButton
-                                            color="primary"
-                                            onClick={() =>
-                                                append({ variableName: "", variableValue: "" })
-                                            }
-                                        >
-                                            <Iconify icon="mdi:plus-circle-outline" width={24} />
-                                        </IconButton>
-                                    </Box>
-                                </Grid>
-
-                                <Grid item xs={12}>
-                                    <Alert severity="info" sx={{ mt: 1 }}>
-                                        💡 Tip: Dynamic values are auto-detected when wrapped in
-                                        <code> {`{{variable}}`}</code>. They will appear as chips.
-                                    </Alert>
-                                </Grid>
+                </Box>
+                {/* 🧩 Dialogue */}
+                <CustomWorkflowDialogue
+                    isOpen={open}
+                    handleCloseModal={handleClose}
+                    title="Set Variables"
+                    color={data.bgColor}
+                >
+                    <FormProvider methods={methods} onSubmit={onSubmit}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Typography variant="subtitle1">Process Connection</Typography>
+                                <Divider sx={{ my: 1 }} />
                             </Grid>
 
-                            {/* ✅ Save Button */}
-                            {!data?.isProcessInstance && (
-                                <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                                    <LoadingButton
-                                        type="submit"
-                                        variant="contained"
-                                        loading={isSubmitting}
-                                        sx={{
-                                            backgroundColor: data.bgColor,
-                                            borderColor: data.borderColor,
-                                        }}
-                                    >
-                                        Save
-                                    </LoadingButton>
-                                </Stack>
+                            {/* ✅ Process Connection Select */}
+                            <Grid item xs={12} md={6}>
+                                <RHFSelect name="isProcessesConnected" label="Connect to Processes">
+                                    <MenuItem value="">Select Option</MenuItem>
+                                    <MenuItem value="true">Yes</MenuItem>
+                                    <MenuItem value="false">No</MenuItem>
+                                </RHFSelect>
+                            </Grid>
+
+                            {/* ✅ Processes Autocomplete */}
+                            {values.isProcessesConnected && (
+                                <Grid item xs={12}>
+                                    <Controller
+                                        name="processes"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Autocomplete
+                                                multiple
+                                                options={processesData || []}
+                                                getOptionLabel={(option) => option.name || ""}
+                                                value={field.value || []}
+                                                onChange={(_, newValue) => field.onChange(newValue)}
+                                                renderInput={(params) => (
+                                                    <TextField
+                                                        {...params}
+                                                        label="Select Processes"
+                                                        placeholder="Choose processes"
+                                                    />
+                                                )}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
                             )}
-                        </FormProvider>
-                    </CustomWorkflowDialogue>
-                </Box>
+                            <Grid item xs={12}>
+                                <Typography variant="subtitle1">Define Workflow Variables</Typography>
+                                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                    Use curly braces <code>{"{{variableName}}"}</code> to refer to dynamic values.
+                                    Example: <code>{"{{userId}}"}</code>, <code>{"{{email}}"}</code>
+                                </Typography>
+
+                                <Divider sx={{ my: 1.5 }} />
+                            </Grid>
+
+                            {/* 🧾 Variable Key-Value Inputs */}
+                            {fields.map((item, index) => {
+                                const value = values.variables?.[index]?.variableValue || "";
+                                const dynamicKey = isDynamicValue(value);
+
+                                return (
+                                    <Grid sx={{ mt: 1 }} container spacing={1.5} key={item.id} alignItems="center">
+                                        <Grid item xs={5}>
+                                            <RHFTextField
+                                                name={`variables[${index}].variableName`}
+                                                label="Variable Name"
+                                                placeholder="e.g. userId"
+                                            />
+                                        </Grid>
+
+                                        <Grid item xs={5}>
+                                            {dynamicKey ? (
+                                                // ✅ If value is dynamic, show chip
+                                                <Box
+                                                    display="flex"
+                                                    alignItems="center"
+                                                    justifyContent="space-between"
+                                                    sx={{
+                                                        border: "1px solid #ccc",
+                                                        borderRadius: 1,
+                                                        p: 1,
+                                                    }}
+                                                >
+                                                    <Chip
+                                                        color="info"
+                                                        label={`Dynamic: ${dynamicKey}`}
+                                                        size="small"
+                                                    />
+                                                    <Typography
+                                                        variant="caption"
+                                                        color="text.secondary"
+                                                        sx={{ ml: 1 }}
+                                                    >
+                                                        Detected Dynamic
+                                                    </Typography>
+                                                </Box>
+                                            ) : (
+                                                <RHFTextField name={`variables[${index}].variableValue`} label='Variable Value' placeholder='e.g. 12345 or {{userId}}' />
+                                            )}
+                                        </Grid>
+
+                                        <Grid item xs={2}>
+                                            <IconButton color="error" onClick={() => remove(index)}>
+                                                <Iconify icon="mdi:minus-circle-outline" width={22} />
+                                            </IconButton>
+                                        </Grid>
+                                    </Grid>
+                                );
+                            })}
+
+                            {/* ➕ Add Variable Button */}
+                            <Grid item xs={12}>
+                                <Box display="flex" justifyContent="flex-end">
+                                    <IconButton
+                                        color="primary"
+                                        onClick={() =>
+                                            append({ variableName: "", variableValue: "" })
+                                        }
+                                    >
+                                        <Iconify icon="mdi:plus-circle-outline" width={24} />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+
+                            <Grid item xs={12}>
+                                <Alert severity="info" sx={{ mt: 1 }}>
+                                    💡 Tip: Dynamic values are auto-detected when wrapped in
+                                    <code> {`{{variable}}`}</code>. They will appear as chips.
+                                </Alert>
+                            </Grid>
+                        </Grid>
+
+                        {/* ✅ Save Button */}
+                        {!data?.isProcessInstance && (
+                            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                                <LoadingButton
+                                    type="submit"
+                                    variant="contained"
+                                    loading={isSubmitting}
+                                    sx={{
+                                        backgroundColor: data.bgColor,
+                                        borderColor: data.borderColor,
+                                    }}
+                                >
+                                    Save
+                                </LoadingButton>
+                            </Stack>
+                        )}
+                    </FormProvider>
+                </CustomWorkflowDialogue>
             </Stack>
         </Box>
     );

@@ -2,7 +2,7 @@ import { Box, Grid, IconButton, InputAdornment, MenuItem, Stack, Tooltip, Typogr
 import { LoadingButton } from "@mui/lab";
 import PropTypes from "prop-types"
 import { useEffect, useMemo, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import FormProvider, { RHFSelect, RHFTextField } from "src/components/hook-form";
@@ -221,13 +221,6 @@ export default function WorkFlowAPI({ data }) {
         control,
     } = methods;
 
-    console.log('errors', errors);
-
-    const { fields, append, remove } = useFieldArray({
-        name: 'headers',
-        control
-    })
-
     const values = watch();
 
     const onSubmit = handleSubmit(async (formData) => {
@@ -261,106 +254,106 @@ export default function WorkFlowAPI({ data }) {
                     sx={{ cursor: 'pointer' }}
                 >
                     <CustomWorkflowNode data={data} />
-                    <CustomWorkflowDialogue
-                        isOpen={open}
-                        handleCloseModal={handleClose}
-                        title="API"
-                        color={data.bgColor}
-                    >
-                        <FormProvider methods={methods} onSubmit={onSubmit}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} md={12}>
-                                    <RHFTextField name="url" label="URL" />
-                                </Grid>
-
-                                <Grid item xs={12} md={12}>
-                                    <RHFSelect
-                                        name="method"
-                                        label="Select Method"
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment sx={{ mr: 3 }} position="end">
-                                                    <Tooltip title={methodOptions.find((value) => value.value === values.method)?.description || "Select the method"}>
-                                                        <IconButton edge="end">
-                                                            <Iconify icon="mdi:information-outline" fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    >
-                                        {methodOptions.map((method) => (
-                                            <MenuItem key={method.value} value={method.value}>{method.label}</MenuItem>
-                                        ))}
-                                    </RHFSelect>
-                                </Grid>
-
-                                {/* headers component */}
-                                <Grid item xs={12} md={12}>
-                                    <Typography variant='body1'>Headers</Typography>
-                                    <FieldsArrayKeyValueComponent fieldName="headers" />
-                                </Grid>
-
-                                {/* query strings component */}
-                                <Grid item xs={12} md={12}>
-                                    <Typography variant='body1'>Query strings</Typography>
-                                    <FieldsArrayKeyValueComponent fieldName="queryStrings" />
-                                </Grid>
-
-                                {/* params component */}
-                                <Grid item xs={12} md={12}>
-                                    <Typography variant='body1'>Params Value</Typography>
-                                    <FieldsArrayKeyValueComponent fieldName="paramsValue" />
-                                </Grid>
-
-                                {/* body Type */}
-                                <Grid item xs={12} md={12}>
-                                    <RHFSelect
-                                        name="bodyType"
-                                        label="Body Type"
-                                        InputProps={{
-                                            endAdornment: (
-                                                <InputAdornment sx={{ mr: 3 }} position="end">
-                                                    <Tooltip title={bodyTypeOptions.find((value) => value.value === values.bodyType)?.description || "Select the body type"}>
-                                                        <IconButton edge="end">
-                                                            <Iconify icon="mdi:information-outline" fontSize="small" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                    >
-                                        {bodyTypeOptions.map((method) => (
-                                            <MenuItem key={method.value} value={method.value}>{method.label}</MenuItem>
-                                        ))}
-                                    </RHFSelect>
-                                </Grid>
-
-                                {/* based on body type switch case is implemented */}
-                                <Switch opt={values.bodyType} />
-                            </Grid>
-                            {/* ✅ Save Button */}
-                            {!data?.isProcessInstance && (
-                                <Stack
-                                    alignItems="flex-end"
-                                    sx={{ mt: 3, display: "flex", gap: "10px" }}
-                                >
-                                    <LoadingButton
-                                        sx={{
-                                            backgroundColor: data.bgColor,
-                                            borderColor: data.borderColor,
-                                        }}
-                                        type="submit"
-                                        variant="contained"
-                                        loading={isSubmitting}
-                                    >
-                                        Save
-                                    </LoadingButton>
-                                </Stack>
-                            )}
-                        </FormProvider>
-                    </CustomWorkflowDialogue>
                 </Box>
+                <CustomWorkflowDialogue
+                    isOpen={open}
+                    handleCloseModal={handleClose}
+                    title="API"
+                    color={data.bgColor}
+                >
+                    <FormProvider methods={methods} onSubmit={onSubmit}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} md={12}>
+                                <RHFTextField name="url" label="URL" />
+                            </Grid>
+
+                            <Grid item xs={12} md={12}>
+                                <RHFSelect
+                                    name="method"
+                                    label="Select Method"
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment sx={{ mr: 3 }} position="end">
+                                                <Tooltip title={methodOptions.find((value) => value.value === values.method)?.description || "Select the method"}>
+                                                    <IconButton edge="end">
+                                                        <Iconify icon="mdi:information-outline" fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                >
+                                    {methodOptions.map((method) => (
+                                        <MenuItem key={method.value} value={method.value}>{method.label}</MenuItem>
+                                    ))}
+                                </RHFSelect>
+                            </Grid>
+
+                            {/* headers component */}
+                            <Grid item xs={12} md={12}>
+                                <Typography variant='body1'>Headers</Typography>
+                                <FieldsArrayKeyValueComponent fieldName="headers" />
+                            </Grid>
+
+                            {/* query strings component */}
+                            <Grid item xs={12} md={12}>
+                                <Typography variant='body1'>Query strings</Typography>
+                                <FieldsArrayKeyValueComponent fieldName="queryStrings" />
+                            </Grid>
+
+                            {/* params component */}
+                            <Grid item xs={12} md={12}>
+                                <Typography variant='body1'>Params Value</Typography>
+                                <FieldsArrayKeyValueComponent fieldName="paramsValue" />
+                            </Grid>
+
+                            {/* body Type */}
+                            <Grid item xs={12} md={12}>
+                                <RHFSelect
+                                    name="bodyType"
+                                    label="Body Type"
+                                    InputProps={{
+                                        endAdornment: (
+                                            <InputAdornment sx={{ mr: 3 }} position="end">
+                                                <Tooltip title={bodyTypeOptions.find((value) => value.value === values.bodyType)?.description || "Select the body type"}>
+                                                    <IconButton edge="end">
+                                                        <Iconify icon="mdi:information-outline" fontSize="small" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                >
+                                    {bodyTypeOptions.map((method) => (
+                                        <MenuItem key={method.value} value={method.value}>{method.label}</MenuItem>
+                                    ))}
+                                </RHFSelect>
+                            </Grid>
+
+                            {/* based on body type switch case is implemented */}
+                            <Switch opt={values.bodyType} />
+                        </Grid>
+                        {/* ✅ Save Button */}
+                        {!data?.isProcessInstance && (
+                            <Stack
+                                alignItems="flex-end"
+                                sx={{ mt: 3, display: "flex", gap: "10px" }}
+                            >
+                                <LoadingButton
+                                    sx={{
+                                        backgroundColor: data.bgColor,
+                                        borderColor: data.borderColor,
+                                    }}
+                                    type="submit"
+                                    variant="contained"
+                                    loading={isSubmitting}
+                                >
+                                    Save
+                                </LoadingButton>
+                            </Stack>
+                        )}
+                    </FormProvider>
+                </CustomWorkflowDialogue>
             </Stack>
         </Box>
     )

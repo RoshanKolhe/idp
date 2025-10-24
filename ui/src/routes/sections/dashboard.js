@@ -64,6 +64,7 @@ const WorkFlowBoardPage = lazy(() => import('src/pages/dashboard/workflow/board'
 const WorkflowInstanceCreatePage = lazy(() => import('src/pages/dashboard/workflowInstance/new'));
 const WorkflowInstanceEditPage = lazy(() => import('src/pages/dashboard/workflowInstance/edit'));
 const WorkflowInstanceListPage = lazy(() => import('src/pages/dashboard/workflowInstance/list'));
+const WorkflowInstanceLogsListPage = lazy(() => import('src/pages/dashboard/workflowInstance/logs'));
 const WorkflowInstanceViewPage = lazy(() => import('src/pages/dashboard/workflowInstance/view'));
 const WorkflowInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/workflowInstance/extractedDocuments'));
 const WorkflowInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/workflowInstance/react-flow'));
@@ -198,9 +199,7 @@ export const dashboardRoutes = [
           { path: 'list', element: <WorkflowInstanceListPage /> },
           { path: 'new', element: <WorkflowInstanceCreatePage /> },
           { path: ':id/edit', element: <WorkflowInstanceEditPage /> },
-          { path: ':id/view', element: <ProcessInstanceViewPage /> },
-          { path: ':id/extracted-documents', element: <ProcessInstanceExtractedDocumentsPage /> },
-          { path: ':id/blueprint', element: <ProcessInstanceReactFlowPage /> },
+          { path: ':id/logs', element: <WorkflowInstanceLogsListPage /> },
         ],
       },
       {

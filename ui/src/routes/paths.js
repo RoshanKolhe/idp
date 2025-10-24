@@ -129,6 +129,7 @@ export const paths = {
       view: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/view`,
       reactFlow: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/blueprint`,
       extractedDocs: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/extracted-documents`,
+      logsList: (id) =>  `${ROOTS.DASHBOARD}/workflowInstance/${id}/logs`
     },
     fileType: {
       root: `${ROOTS.DASHBOARD}/fileType`,

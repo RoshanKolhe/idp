@@ -111,142 +111,142 @@ export default function WorkFlowWebhookTrigger({ data }) {
           sx={{ cursor: "pointer" }}
         >
           <CustomWorkflowNode data={data} />
-          <CustomWorkflowDialogue
-            isOpen={open}
-            handleCloseModal={handleClose}
-            title="Webhook"
-            color={data.bgColor}
-          >
-            <FormProvider methods={methods} onSubmit={onSubmit}>
-              <Grid container spacing={2}>
-                {/* ✅ Response Status */}
-                <Grid item xs={12}>
-                  <RHFTextField
-                    name="responseStatus"
-                    label="Response Status Code"
-                    placeholder="e.g. 200"
-                  />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Enter the HTTP status code that indicates a successful webhook response
-                    (e.g., <strong>200</strong> for OK, <strong>201</strong> for Created,
-                    <strong>202</strong> for Accepted).
-                  </Typography>
-                </Grid>
+        </Box>
+        <CustomWorkflowDialogue
+          isOpen={open}
+          handleCloseModal={handleClose}
+          title="Webhook"
+          color={data.bgColor}
+        >
+          <FormProvider methods={methods} onSubmit={onSubmit}>
+            <Grid container spacing={2}>
+              {/* ✅ Response Status */}
+              <Grid item xs={12}>
+                <RHFTextField
+                  name="responseStatus"
+                  label="Response Status Code"
+                  placeholder="e.g. 200"
+                />
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  Enter the HTTP status code that indicates a successful webhook response
+                  (e.g., <strong>200</strong> for OK, <strong>201</strong> for Created,
+                  <strong>202</strong> for Accepted).
+                </Typography>
+              </Grid>
 
-                {/* ✅ Request Body */}
-                <Grid item xs={12}>
-                  <RHFTextField
-                    name="requestBody"
-                    label="Request Body"
-                    multiline
-                    minRows={3}
-                    placeholder={`{
+              {/* ✅ Request Body */}
+              <Grid item xs={12}>
+                <RHFTextField
+                  name="requestBody"
+                  label="Request Body"
+                  multiline
+                  minRows={3}
+                  placeholder={`{
   "userId": "12345",
   "action": "create",
   "timestamp": "2025-10-10T12:00:00Z"
 }`}
-                  />
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Provide the JSON structure that your webhook should send. Use valid JSON
-                    format. You can include dynamic values using placeholders like
-                    <code> {"{userId}"} </code> or <code> {"{timestamp}"} </code>.
-                  </Typography>
-                </Grid>
-
-                {/* 🔘 Advanced Options */}
-                <Grid item xs={12}>
-                  <Divider sx={{ my: 1 }} />
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    justifyContent="space-between"
-                  >
-                    <Typography variant="subtitle1">Advanced Options</Typography>
-                    <RHFSwitch name="isAdvancedOptions" />
-                  </Stack>
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    Enable this option to include custom headers (e.g., Authorization tokens or
-                    Content-Type) in your webhook requests.
-                  </Typography>
-                </Grid>
-
-                {/* 🧩 Custom Headers Section */}
-                {values.isAdvancedOptions && (
-                  <Grid item xs={12}>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                      Custom Headers
-                    </Typography>
-                    <Alert severity="info" sx={{ mb: 2 }}>
-                      Headers are additional key-value pairs sent with the request.
-                      Example: <strong>Key:</strong> Authorization, <strong>Value:</strong> Bearer abc123
-                    </Alert>
-
-                    <Stack spacing={2}>
-                      {fields.map((item, index) => (
-                        <Grid
-                          container
-                          spacing={1}
-                          key={item.id}
-                          alignItems="center"
-                        >
-                          <Grid item xs={5}>
-                            <RHFTextField
-                              name={`customHeaders[${index}].key`}
-                              label="Key"
-                              placeholder="e.g. Authorization"
-                            />
-                          </Grid>
-                          <Grid item xs={5}>
-                            <RHFTextField
-                              name={`customHeaders[${index}].value`}
-                              label="Value"
-                              placeholder="e.g. Bearer token123"
-                            />
-                          </Grid>
-                          <Grid item xs={2}>
-                            <IconButton color="error" onClick={() => remove(index)}>
-                              <Iconify icon="mdi:minus-circle-outline" width={22} />
-                            </IconButton>
-                          </Grid>
-                        </Grid>
-                      ))}
-
-                      <Box display="flex" justifyContent="flex-end">
-                        <IconButton
-                          color="primary"
-                          onClick={() => append({ key: "", value: "" })}
-                        >
-                          <Iconify icon="mdi:plus-circle-outline" width={24} />
-                        </IconButton>
-                      </Box>
-                    </Stack>
-                  </Grid>
-                )}
+                />
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  Provide the JSON structure that your webhook should send. Use valid JSON
+                  format. You can include dynamic values using placeholders like
+                  <code> {"{userId}"} </code> or <code> {"{timestamp}"} </code>.
+                </Typography>
               </Grid>
 
-              {/* ✅ Save Button */}
-              {!data?.isProcessInstance && (
+              {/* 🔘 Advanced Options */}
+              <Grid item xs={12}>
+                <Divider sx={{ my: 1 }} />
                 <Stack
-                  alignItems="flex-end"
-                  sx={{ mt: 3, display: "flex", gap: "10px" }}
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
                 >
-                  <LoadingButton
-                    sx={{
-                      backgroundColor: data.bgColor,
-                      borderColor: data.borderColor,
-                    }}
-                    type="submit"
-                    variant="contained"
-                    loading={isSubmitting}
-                  >
-                    Save
-                  </LoadingButton>
+                  <Typography variant="subtitle1">Advanced Options</Typography>
+                  <RHFSwitch name="isAdvancedOptions" />
                 </Stack>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  Enable this option to include custom headers (e.g., Authorization tokens or
+                  Content-Type) in your webhook requests.
+                </Typography>
+              </Grid>
+
+              {/* 🧩 Custom Headers Section */}
+              {values.isAdvancedOptions && (
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                    Custom Headers
+                  </Typography>
+                  <Alert severity="info" sx={{ mb: 2 }}>
+                    Headers are additional key-value pairs sent with the request.
+                    Example: <strong>Key:</strong> Authorization, <strong>Value:</strong> Bearer abc123
+                  </Alert>
+
+                  <Stack spacing={2}>
+                    {fields.map((item, index) => (
+                      <Grid
+                        container
+                        spacing={1}
+                        key={item.id}
+                        alignItems="center"
+                      >
+                        <Grid item xs={5}>
+                          <RHFTextField
+                            name={`customHeaders[${index}].key`}
+                            label="Key"
+                            placeholder="e.g. Authorization"
+                          />
+                        </Grid>
+                        <Grid item xs={5}>
+                          <RHFTextField
+                            name={`customHeaders[${index}].value`}
+                            label="Value"
+                            placeholder="e.g. Bearer token123"
+                          />
+                        </Grid>
+                        <Grid item xs={2}>
+                          <IconButton color="error" onClick={() => remove(index)}>
+                            <Iconify icon="mdi:minus-circle-outline" width={22} />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
+
+                    <Box display="flex" justifyContent="flex-end">
+                      <IconButton
+                        color="primary"
+                        onClick={() => append({ key: "", value: "" })}
+                      >
+                        <Iconify icon="mdi:plus-circle-outline" width={24} />
+                      </IconButton>
+                    </Box>
+                  </Stack>
+                </Grid>
               )}
-            </FormProvider>
-          </CustomWorkflowDialogue>
-        </Box>
+            </Grid>
+
+            {/* ✅ Save Button */}
+            {!data?.isProcessInstance && (
+              <Stack
+                alignItems="flex-end"
+                sx={{ mt: 3, display: "flex", gap: "10px" }}
+              >
+                <LoadingButton
+                  sx={{
+                    backgroundColor: data.bgColor,
+                    borderColor: data.borderColor,
+                  }}
+                  type="submit"
+                  variant="contained"
+                  loading={isSubmitting}
+                >
+                  Save
+                </LoadingButton>
+              </Stack>
+            )}
+          </FormProvider>
+        </CustomWorkflowDialogue>
       </Stack>
     </Box>
   );

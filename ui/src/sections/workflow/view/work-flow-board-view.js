@@ -3,6 +3,7 @@ import { settings } from "nprogress";
 import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import Iconify from "src/components/iconify";
 import WorkFlowBoard from "../work-flow-board";
+import { WorkflowProvider } from "../context";
 
 export default function WorkFlowBoardView() {
     return (
@@ -19,7 +20,9 @@ export default function WorkFlowBoardView() {
                     <Typography sx={{ fontWeight: 'normal' }} variant="h5">Define Work Flow</Typography>
                 </Box>
             </Box>
-            <WorkFlowBoard />
+            <WorkflowProvider>
+                <WorkFlowBoard />
+            </WorkflowProvider>
         </Container>
     )
 }

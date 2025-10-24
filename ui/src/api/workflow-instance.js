@@ -71,3 +71,29 @@ export function useGetworkflowInstancesWithFilter(filter) {
     refreshFilterWorkflowInstances, // Include the refresh function separately
   };
 }
+
+// ----------------------------------------------------------------------
+
+export function useGetWorkflowInstanceLogs(workflowInstanceId) {
+  const URL = workflowInstanceId ? [endpoints.workflowInstance.logs(workflowInstanceId)] : null;
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, workflowFetcher);
+
+    const refreshWorkflowInstanceLogs = () => {
+    // Use the `mutate` function to trigger a revalidation
+    mutate();
+  };
+
+  const memoizedValue = useMemo(
+    () => ({
+      workflowInstanceLogs: data || [],
+      workflowInstanceLogsLoading: isLoading,
+      workflowInstanceLogsError: error,
+      workflowInstanceLogsValidating: isValidating,
+      workflowInstanceLogsEmpty: !isLoading && !data?.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return {...memoizedValue, refreshWorkflowInstanceLogs};
+}
+
