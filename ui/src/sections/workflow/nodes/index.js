@@ -11,3 +11,4 @@ export { default as WorkFlowSetVariable } from './work-flow-variable';
 export { default as WorkFlowAPI } from './work-flow-api';
 export { default as WorkFlowCode } from './work-flow-code';
 export { default as WorkFlowIterator} from './work-flow-iterator';
+export { default as WorkflowIteratorEnd } from './work-flow-iterator-end';

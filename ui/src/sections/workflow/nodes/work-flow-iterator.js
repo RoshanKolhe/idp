@@ -42,6 +42,7 @@ export default function WorkFlowIterator({ data }) {
         Yup.object().shape({
           variableName: Yup.string().required("Variable name is required"),
           variableValue: Yup.string().required("Variable value is required"),
+          nodeId: Yup.string().required('Node id is required'),
         }),
       otherwise: () => Yup.mixed().notRequired(),
     }),
@@ -163,7 +164,7 @@ export default function WorkFlowIterator({ data }) {
                     options={variablesData || []}
                     getOptionLabel={(option) => option?.variableName || ""}
                     isOptionEqualToValue={(option, value) =>
-                      option.variableValue === value.variableValue
+                      option.variableValue === value.variableValue && option.nodeId === value.nodeId
                     }
                     InputProps={{
                       endAdornment: (

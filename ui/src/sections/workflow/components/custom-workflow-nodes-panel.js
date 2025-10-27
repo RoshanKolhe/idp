@@ -34,17 +34,17 @@ const customOperations = [
         borderColor: "#1976D2",
         color: "#64B5F6",
       },
-      {
-        id: 7,
-        title: "Event Trigger",
-        description:
-          "Waits for an external event (API callback, socket message, or webhook) before continuing the workflow.",
-        icon: "/assets/icons/workflow/event.svg",
-        type: "event",
-        bgColor: "#2E7D32",
-        borderColor: "#388E3C",
-        color: "#81C784",
-      },
+      // {
+      //   id: 7,
+      //   title: "Event Trigger",
+      //   description:
+      //     "Waits for an external event (API callback, socket message, or webhook) before continuing the workflow.",
+      //   icon: "/assets/icons/workflow/event.svg",
+      //   type: "event",
+      //   bgColor: "#2E7D32",
+      //   borderColor: "#388E3C",
+      //   color: "#81C784",
+      // },
       {
         id: 8,
         title: "Webhook",
@@ -83,17 +83,17 @@ const customOperations = [
         borderColor: "#2e7d32",
         color: "#00A76F",
       },
-      {
-        id: 6,
-        title: "Approval",
-        description:
-          "Stops workflow execution until a user manually approves or rejects the request.",
-        icon: "/assets/icons/workflow/approval.svg",
-        type: "approval",
-        bgColor: "#1565C0",
-        borderColor: "#1976D2",
-        color: "#64B5F6",
-      },
+      // {
+      //   id: 6,
+      //   title: "Approval",
+      //   description:
+      //     "Stops workflow execution until a user manually approves or rejects the request.",
+      //   icon: "/assets/icons/workflow/approval.svg",
+      //   type: "approval",
+      //   bgColor: "#1565C0",
+      //   borderColor: "#1976D2",
+      //   color: "#64B5F6",
+      // },
       {
         id: 10,
         title: "API",
@@ -166,6 +166,17 @@ const customOperations = [
         bgColor: "#1E3A8A",       // Deep indigo – stable and logical
         borderColor: "#3B82F6",   // Bright blue accent for visibility
         color: "#BFDBFE",         // Soft sky-blue text for readability
+      },
+      {
+        id: 13,
+        title: "Iterator End",
+        description:
+          "Executes actions for each item in a list or array. Ideal for repeating tasks, processing multiple inputs, or applying logic dynamically. Use this node to mark the completion of iterations and optionally continue the workflow from a single point.",
+        icon: "/assets/icons/workflow/iterator.svg",
+        type: "iteratorEnd",
+        bgColor: "#1E3A8A",       // Deep indigo – stable and logical
+        borderColor: "#2563EB",   // Vivid blue accent for focus and clarity
+        color: "#E0F2FE",         // Soft light-blue text for readability
       }
     ],
   },

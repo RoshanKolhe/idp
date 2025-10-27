@@ -6,3 +6,4 @@ export { default as CustomWorkflowNode } from './custom-workflow-node';
 export { default as OperationSelectorModal } from './work-flow-operation-model';
 export { default as CustomWorkflowDialogue } from './custom-workflow-dialogue';
 export { default as CustomWorkflowNodesPanel } from './custom-workflow-nodes-panel';
+export { default as CustomWorkflowVariablePopover } from './custom-workflow-variable-popover';

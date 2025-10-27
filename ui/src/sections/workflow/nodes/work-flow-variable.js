@@ -22,7 +22,7 @@ import { useGetProcesses } from "src/api/processes";
 import Iconify from "src/components/iconify";
 import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components";
 
-/**
+/*
  * 🧩 Variable Node with Dynamic Chip Display
  * Allows defining static or dynamic workflow variables.
  */
@@ -47,6 +47,7 @@ export default function WorkFlowSetVariable({ data }) {
                 Yup.object().shape({
                     variableName: Yup.string().required("Variable name is required"),
                     variableValue: Yup.string().required("Variable value is required"),
+                    nodeId: Yup.string().required("Node id is required"),
                 })
             )
             .min(1, "At least one variable must be defined"),
@@ -58,7 +59,7 @@ export default function WorkFlowSetVariable({ data }) {
             isProcessesConnected: data.bluePrint?.isProcessesConnected || false,
             processess: [],
             variables: data.bluePrint?.variables || [
-                { variableName: "", variableValue: "" },
+                { variableName: "", variableValue: "", nodeId: data.id },
             ],
         }),
         [data]
@@ -265,7 +266,7 @@ export default function WorkFlowSetVariable({ data }) {
                                     <IconButton
                                         color="primary"
                                         onClick={() =>
-                                            append({ variableName: "", variableValue: "" })
+                                            append({ variableName: "", variableValue: "", nodeId: data.id })
                                         }
                                     >
                                         <Iconify icon="mdi:plus-circle-outline" width={24} />

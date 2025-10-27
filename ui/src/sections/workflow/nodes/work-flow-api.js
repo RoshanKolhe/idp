@@ -7,20 +7,20 @@ import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import FormProvider, { RHFSelect, RHFTextField } from "src/components/hook-form";
 import Iconify from "src/components/iconify";
-import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components";
+import { CustomWorkflowDialogue, CustomWorkflowNode, CustomWorkflowVariablePopover } from "../components";
 import { APIBodyTypeFormData, APIBodyTypeRaw, APIBodyTypeUrlEncoded, FieldsArrayKeyValueComponent } from "../api-components";
 
 // switch case functions
-function Switch({ opt }) {
+function Switch({ opt, variables }) {
     let component;
 
     switch (opt) {
         case 1:
-            component = <APIBodyTypeRaw />;
+            component = <APIBodyTypeRaw variables={variables} />;
             break;
 
         case 2:
-            component = <APIBodyTypeUrlEncoded />;
+            component = <APIBodyTypeUrlEncoded variables={variables} />;
             break;
 
         case 3:
@@ -37,10 +37,16 @@ function Switch({ opt }) {
 }
 Switch.propTypes = {
     opt: PropTypes.string,
+    variables: PropTypes.array
 }
 
 export default function WorkFlowAPI({ data }) {
     const [open, setOpen] = useState(false);
+    const [popoverOpen, setPopoverOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [currentField, setCurrentField] = useState({ name: null, ref: null });
+    const [variables, setVariables] = useState([]);
+
     const methodOptions = [
         { label: "GET", value: 1, description: "Retrieve data from the server (no body required)." },
         { label: "POST", value: 2, description: "Send data to the server to create a new resource." },
@@ -70,18 +76,28 @@ export default function WorkFlowAPI({ data }) {
         },
     ];
 
-
     const handleClose = () => {
         setOpen(false);
     };
 
     const apiValidationSchema = Yup.object().shape({
         url: Yup.string()
-            .matches(
-                /^(https?:\/\/)?(localhost|[\w.-]+)(:\d+)?(\/.*)?$/,
-                "Invalid URL format"
-            )
-            .required("URL is required"),
+            .required("URL is required")
+            .test(
+                "valid-url-or-variable",
+                "Invalid URL or variable format",
+                (value) => {
+                    if (!value) return false;
+
+                    // Allow pure variable like {{apiUrl}}
+                    if (/^\s*\{\{[^{}]+\}\}\s*$/.test(value)) return true;
+
+                    // Allow URL containing variables like https://example.com/{{userId}}
+                    const variableAllowedUrlRegex =
+                        /^(https?:\/\/)?([a-zA-Z0-9.-]+|\{\{[^{}]+\}\})(:\d+)?(\/[^\s]*)?$/;
+                    return variableAllowedUrlRegex.test(value);
+                }
+            ),
         method: Yup.number().required("Method is required"),
 
         headers: Yup.array()
@@ -127,19 +143,24 @@ export default function WorkFlowAPI({ data }) {
             then: (schema) =>
                 schema
                     .required("Raw body content is required")
-                    .test(
-                        "is-json-valid",
-                        "Invalid JSON format",
-                        (value) => {
-                            if (!value) return true;
-                            try {
-                                JSON.parse(value);
-                                return true;
-                            } catch {
-                                return false;
-                            }
+                    .test("is-json-or-variable", "Invalid JSON or variable format", (value) => {
+                        if (!value) return false;
+
+                        // ✅ Allow pure variable
+                        if (/^\s*\{\{[^{}]+\}\}\s*$/.test(value)) return true;
+
+                        // ✅ Allow variable enclosed in quotes
+                        if (/^"\s*\{\{[^{}]+\}\}\s*"$/.test(value.trim())) return true;
+
+                        // ✅ Try parsing JSON that may contain variables
+                        try {
+                            const replaced = value.replace(/\{\{[^{}]+\}\}/g, '"tempVar"');
+                            JSON.parse(replaced);
+                            return true;
+                        } catch {
+                            return false;
                         }
-                    ),
+                    }),
             otherwise: (schema) => schema.notRequired(),
         }),
 
@@ -218,6 +239,8 @@ export default function WorkFlowAPI({ data }) {
         watch,
         formState: { isSubmitting, errors },
         handleSubmit,
+        setValue,
+        getValues,
         control,
     } = methods;
 
@@ -233,11 +256,57 @@ export default function WorkFlowAPI({ data }) {
         }
     });
 
+    const handleFocus = (e, fieldName) => {
+        setCurrentField({ name: fieldName, ref: e.target });
+        setAnchorEl(e.target);
+        setPopoverOpen(true);
+    };
+
+    const handleSelectVariable = (variable) => {
+        if (!variable || !currentField.name) {
+            setPopoverOpen(false);
+            return;
+        }
+
+        const fieldName = currentField.name;
+
+        if (fieldName === "body") {
+            const currentVal = getValues("body") || "";
+            setValue("body", `${currentVal}{{${variable}}}`, { shouldValidate: true, shouldDirty: true });
+        } else if (fieldName === "to") {
+            const currentArr = getValues("to") || [];
+            setValue("to", [...currentArr, `{{${variable}}}`], { shouldValidate: true, shouldDirty: true });
+        } else {
+            // Normal TextField
+            const input = currentField.ref;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            const newValue = `${before}{{${variable}}}${after}`;
+            input.value = newValue;
+            // eslint-disable-next-line no-multi-assign
+            input.selectionStart = input.selectionEnd = start + variable.length + 4; // 4 for {{}}
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            setValue(fieldName, newValue, { shouldValidate: true, shouldDirty: true });
+        }
+
+        setPopoverOpen(false);
+    };
+
     useEffect(() => {
         if (data) {
             reset(defaultValues);
         }
     }, [data, reset, defaultValues]);
+
+    // variables
+    useEffect(() => {
+        if (data && data.variables) {
+            setVariables(data.variables);
+        }
+    }, [data]);
 
     return (
         <Box
@@ -264,7 +333,7 @@ export default function WorkFlowAPI({ data }) {
                     <FormProvider methods={methods} onSubmit={onSubmit}>
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={12}>
-                                <RHFTextField name="url" label="URL" />
+                                <RHFTextField onFocus={(e) => handleFocus(e, "url")} name="url" label="URL" />
                             </Grid>
 
                             <Grid item xs={12} md={12}>
@@ -292,19 +361,19 @@ export default function WorkFlowAPI({ data }) {
                             {/* headers component */}
                             <Grid item xs={12} md={12}>
                                 <Typography variant='body1'>Headers</Typography>
-                                <FieldsArrayKeyValueComponent fieldName="headers" />
+                                <FieldsArrayKeyValueComponent fieldName="headers" variables={variables} />
                             </Grid>
 
                             {/* query strings component */}
                             <Grid item xs={12} md={12}>
                                 <Typography variant='body1'>Query strings</Typography>
-                                <FieldsArrayKeyValueComponent fieldName="queryStrings" />
+                                <FieldsArrayKeyValueComponent fieldName="queryStrings" variables={variables} />
                             </Grid>
 
                             {/* params component */}
                             <Grid item xs={12} md={12}>
                                 <Typography variant='body1'>Params Value</Typography>
-                                <FieldsArrayKeyValueComponent fieldName="paramsValue" />
+                                <FieldsArrayKeyValueComponent fieldName="paramsValue" variables={variables} />
                             </Grid>
 
                             {/* body Type */}
@@ -331,7 +400,7 @@ export default function WorkFlowAPI({ data }) {
                             </Grid>
 
                             {/* based on body type switch case is implemented */}
-                            <Switch opt={values.bodyType} />
+                            <Switch opt={values.bodyType} variables={variables} />
                         </Grid>
                         {/* ✅ Save Button */}
                         {!data?.isProcessInstance && (
@@ -353,6 +422,12 @@ export default function WorkFlowAPI({ data }) {
                             </Stack>
                         )}
                     </FormProvider>
+                    <CustomWorkflowVariablePopover
+                        open={popoverOpen}
+                        handleClose={handleSelectVariable}
+                        anchorEl={anchorEl}
+                        variables={variables}
+                    />
                 </CustomWorkflowDialogue>
             </Stack>
         </Box>

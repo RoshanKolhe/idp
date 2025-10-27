@@ -16,7 +16,7 @@ const notificationTypes = [
     { label: 'Error', value: 'error', isDisabled: false, color: '#F44336' },         // Red
     { label: 'Warning', value: 'warning', isDisabled: false, color: '#FF9800' },     // Orange
     { label: 'Info', value: 'info', isDisabled: false, color: '#2196F3' },           // Blue
-    { label: 'Reminder', value: 'reminder', isDisabled: false, color: '#9C27B0' },   // Purple
+    // { label: 'Reminder', value: 'reminder', isDisabled: false, color: '#9C27B0' },   // Purple
 ];
 
 // notification source options
@@ -77,7 +77,7 @@ const getValidationSchema = (source) =>
     });
 
 // switch case functions
-function Switch({ opt }) {
+function Switch({ opt, variables }) {
     let component;
 
     switch (opt) {
@@ -86,7 +86,7 @@ function Switch({ opt }) {
             break;
 
         case 'email':
-            component = <EmailComponent />;
+            component = <EmailComponent variables={variables}/>;
             break;
 
         case 'whatsapp':
@@ -103,6 +103,7 @@ function Switch({ opt }) {
 }
 Switch.propTypes = {
     opt: PropTypes.string,
+    variables: PropTypes.array
 }
 
 export default function WorkFlowNotification({ data }) {
@@ -119,6 +120,7 @@ export default function WorkFlowNotification({ data }) {
     const filterString = encodeURIComponent(JSON.stringify(filter));
     const { escalations, escalationsEmpty } = useGetFilteredEscalations(filterString);
     const [escalationsData, setEscalationsData] = useState([]);
+    const [variables, setVariables] = useState([]);
 
     useEffect(() => {
         if(escalations && !escalationsEmpty){
@@ -196,7 +198,13 @@ export default function WorkFlowNotification({ data }) {
         }
     }, [values.level, values.escalationMatrix, values.notificationSource, escalationsData, setValue]);
 
-    console.log('escalation', escalations);
+    // variables
+    useEffect(() => {
+        if(data && data.variables){
+            setVariables(data.variables);
+        }
+    }, [data]);
+
     return (
         <Box
             component='div'
@@ -309,7 +317,7 @@ export default function WorkFlowNotification({ data }) {
                         </Grid>
 
                         <Grid container spacing={1}>
-                            <Switch opt={values.notificationSource} onClose={handleClose} />
+                            <Switch opt={values.notificationSource} variables={variables} onClose={handleClose} />
                         </Grid>
                         {(data?.isProcessInstance !== true) && <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
                             <LoadingButton sx={{ backgroundColor: data.bgColor, borderColor: data.borderColor }} type="submit" variant="contained" loading={isSubmitting}>

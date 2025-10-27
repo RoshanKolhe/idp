@@ -26,7 +26,7 @@ import {
     getLayoutedElements,
     CustomWorkflowNodesPanel
 } from './components';
-import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowIterator, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
+import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowIterator, WorkflowIteratorEnd, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
 import { useWorkflowContext } from './hooks';
 
 const nodeTypes = {
@@ -45,6 +45,7 @@ const nodeTypes = {
     api: WorkFlowAPI,
     code: WorkFlowCode,
     iterator: WorkFlowIterator,
+    iteratorEnd: WorkflowIteratorEnd,
 }
 
 const edgeTypes = {
@@ -103,7 +104,8 @@ export default function ReactFlowBoard() {
         const { nodes: layouted, edges: layoutedE } = getLayoutedElements(nodes, edges, workflowDirection);
         setNodes(layouted);
         setEdges(layoutedE);
-    }, [workflowDirection, setNodes, setEdges, nodes, edges]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [workflowDirection]);
 
     const handleBluePrintComponent = (label, id, updatedComponent) => {
         setBluePrint((prev) => prev.map((node) => {
@@ -915,7 +917,7 @@ export default function ReactFlowBoard() {
     useEffect(() => {
         if (nodes && nodes.length > 0) {
             const filteredNodes = nodes.filter(
-                (node) => node.type !== 'customAddNode' && node.type !== 'decision'
+                (node) => node.type !== 'customAddNode' && node.type !== 'decision' && node.type !== 'iteratorEnd'
             );
 
             setBluePrint((prev) => {
@@ -933,6 +935,8 @@ export default function ReactFlowBoard() {
             });
         }
     }, [nodes]);
+
+    console.log('bluePrint', bluePrint);
 
     return (
         <div style={{ width: '100%', height: '100vh' }}>
