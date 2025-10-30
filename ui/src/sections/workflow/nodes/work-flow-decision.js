@@ -3,7 +3,6 @@ import { Box, Button, Stack } from "@mui/material";
 import { CustomWorkflowNode } from "../components";
 
 export default function WorkflowDecision({ data }){
-    console.log('data', data);
     return(
         <Box
             component='div'

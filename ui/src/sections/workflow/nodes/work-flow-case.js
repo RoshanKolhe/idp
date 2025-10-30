@@ -139,23 +139,23 @@ export default function WorkflowCase({ data }) {
     }, [fieldOptions]);
 
     // carefully update fieldType for conditions only when it actually differs to avoid loops
-    useEffect(() => {
-        if (!Array.isArray(watchedConditions)) return;
-        let changed = false;
-        const updated = watchedConditions.map((cond) => {
-            const detected = getFieldType(cond.field) || 'string';
-            if (cond.fieldType !== detected) {
-                changed = true;
-                return { ...cond, fieldType: detected };
-            }
-            return cond;
-        });
-        if (changed) {
-            // replace only when type changed (preserves user-entered condition/value)
-            replace(updated);
-        }
-        // track field names only for triggering
-    }, [JSON.stringify((watchedConditions || []).map(c => c.field)), getFieldType, replace]);
+    // useEffect(() => {
+    //     if (!Array.isArray(watchedConditions)) return;
+    //     let changed = false;
+    //     const updated = watchedConditions.map((cond) => {
+    //         const detected = getFieldType(cond.field) || 'string';
+    //         if (cond.fieldType !== detected) {
+    //             changed = true;
+    //             return { ...cond, fieldType: detected };
+    //         }
+    //         return cond;
+    //     });
+    //     if (changed) {
+    //         // replace only when type changed (preserves user-entered condition/value)
+    //         replace(updated);
+    //     }
+    //     // track field names only for triggering
+    // }, [JSON.stringify((watchedConditions || []).map(c => c.field)), getFieldType, replace]);
 
     // submit handler
     const onSubmit = (formData) => {
