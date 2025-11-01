@@ -432,7 +432,7 @@ export class ProcessInstancesController {
                 type: 'number',
               },
               workflowId: {
-                type: 'number'
+                type: 'string'
               }
             },
             required: ['processInstanceId', 'workflowId'],
