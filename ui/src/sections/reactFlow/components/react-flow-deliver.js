@@ -36,7 +36,7 @@ const channelSchemas = {
         url: Yup.string().url('Invalid URL').required('URL is required'),
     }),
     workflow: Yup.object().shape({
-        workflowId: Yup.number().required('Please select workflow'),
+        workflowId: Yup.string().required('Please select workflow'),
         workflowName: Yup.string().required('Workflow name is required'),
     }),
 };
