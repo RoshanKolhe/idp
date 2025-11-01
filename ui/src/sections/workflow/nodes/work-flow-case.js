@@ -16,14 +16,17 @@ import FormProvider, { RHFSelect } from "src/components/hook-form";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { CustomWorkflowDialogue, CustomWorkflowNode, CustomWorkflowNodesPanel, outputRegistry } from "../components";
+import { CustomWorkflowDialogue, CustomWorkflowNode, CustomWorkflowNodesPanel, CustomWorkflowVariablePopover, outputRegistry } from "../components";
 
 export default function WorkflowCase({ data }) {
-    console.log('data for case node', data);
     const [open, setOpen] = useState(false);
     const [showPanel, setShowPanel] = useState(false);
     const [parentFields, setParentFields] = useState([]);
     const [fieldOptions, setFieldOptions] = useState([]);
+    const [variables, setVariables] = useState([]);
+    const [popoverOpen, setPopoverOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [currentField, setCurrentField] = useState({ name: null, ref: null });
 
     // condition options
     const baseConditionOptions = useMemo(() => ({
@@ -122,7 +125,7 @@ export default function WorkflowCase({ data }) {
         defaultValues,
     });
 
-    const { control, handleSubmit, reset, watch } = methods;
+    const { control, handleSubmit, reset, watch, setValue, getValues } = methods;
     const { fields, append, remove, replace } = useFieldArray({ control, name: 'conditions' });
     const watchedConditions = watch('conditions') || [];
 
@@ -185,6 +188,9 @@ export default function WorkflowCase({ data }) {
         const isNumber = type === 'number';
         const isBoolean = type === 'boolean';
 
+        // Helper to detect variable syntax like {{4.firstname}}
+        const isVariable = (val) => typeof val === 'string' && /^\s*\{\{.*\}\}\s*$/.test(val);
+
         if (isBoolean) {
             return (
                 <Controller
@@ -192,7 +198,13 @@ export default function WorkflowCase({ data }) {
                     control={control}
                     render={({ field }) => (
                         <FormControlLabel
-                            control={<Checkbox {...field} checked={!!field.value} onChange={e => field.onChange(e.target.checked)} />}
+                            control={
+                                <Checkbox
+                                    {...field}
+                                    checked={!!field.value}
+                                    onChange={(e) => field.onChange(e.target.checked)}
+                                />
+                            }
                             label="Value"
                         />
                     )}
@@ -200,100 +212,184 @@ export default function WorkflowCase({ data }) {
             );
         }
 
+        // --- DATE TYPE ---
         if (isDate) {
+            const renderSmartDateInput = (label, field, fieldName) => (
+                <TextField
+                    onFocus={(e) => handleFocus(e, fieldName)}
+                    {...field}
+                    fullWidth
+                    label={label}
+                    placeholder="Enter date (MM/DD/YYYY) or {{variable}}"
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(e.target.value)}
+                />
+            );
+
             if (isBetween) {
                 return (
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <Stack direction="row" spacing={1}>
-                            <Controller
-                                name={`conditions.${idx}.value`}
-                                control={control}
-                                render={({ field }) => (
-                                    <DatePicker
-                                        label="From"
-                                        value={field.value ?? null}
-                                        onChange={(val) => field.onChange(val)}
-                                        renderInput={(params) => <TextField {...params} fullWidth />}
-                                    />
-                                )}
-                            />
-                            <Controller
-                                name={`conditions.${idx}.valueTo`}
-                                control={control}
-                                render={({ field }) => (
-                                    <DatePicker
-                                        label="To"
-                                        value={
-                                            field.valueTo && !Number.isNaN(new Date(field.valueTo))
-                                                ? new Date(field.valueTo)
-                                                : null
-                                        } onChange={(val) => field.onChange(val)}
-                                        renderInput={(params) => <TextField {...params} fullWidth />}
-                                    />
-                                )}
-                            />
-                        </Stack>
-                    </LocalizationProvider>
+                    <Stack direction="row" spacing={1}>
+                        <Controller
+                            name={`conditions.${idx}.value`}
+                            control={control}
+                            render={({ field }) => renderSmartDateInput('From', field, `conditions.${idx}.value`)}
+                        />
+                        <Controller
+                            name={`conditions.${idx}.valueTo`}
+                            control={control}
+                            render={({ field }) => renderSmartDateInput('To', field, `conditions.${idx}.valueTo`)}
+                        />
+                    </Stack>
                 );
             }
+
             return (
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <Controller
+                    name={`conditions.${idx}.value`}
+                    control={control}
+                    render={({ field }) => renderSmartDateInput('Date', field, `conditions.${idx}.value`)}
+                />
+            );
+        }
+
+        // --- NUMBER TYPE ---
+        if (isNumber) {
+            const renderNumberField = (label, field, fieldName) => (
+                <TextField
+                    onFocus={(e) => handleFocus(e, fieldName)}
+                    {...field}
+                    fullWidth
+                    label={label}
+                    placeholder="Enter value or {{variable}}"
+                />
+            );
+
+            if (isBetween) {
+                return (
+                    <Stack direction="row" spacing={1}>
+                        <Controller
+                            name={`conditions.${idx}.value`}
+                            control={control}
+                            render={({ field }) => renderNumberField('From', field, `conditions.${idx}.value`)}
+                        />
+                        <Controller
+                            name={`conditions.${idx}.valueTo`}
+                            control={control}
+                            render={({ field }) => renderNumberField('To', field, `conditions.${idx}.valueTo`)}
+                        />
+                    </Stack>
+                );
+            }
+
+            return (
+                <Controller
+                    name={`conditions.${idx}.value`}
+                    control={control}
+                    render={({ field }) => renderNumberField('Value', field, `conditions.${idx}.value`)}
+                />
+            );
+        }
+
+        // --- STRING or OTHER ---
+        if (isBetween) {
+            return (
+                <Stack direction="row" spacing={1}>
                     <Controller
                         name={`conditions.${idx}.value`}
                         control={control}
                         render={({ field }) => (
-                            <DatePicker
-                                label="Date"
-                                value={
-                                    field.value && !Number.isNaN(new Date(field.value))
-                                        ? new Date(field.value)
-                                        : null
-                                }
-                                onChange={(val) => field.onChange(val ? val.toISOString() : '')}
-                                renderInput={(params) => <TextField {...params} fullWidth />}
+                            <TextField
+                                onFocus={(e) => handleFocus(e, `conditions.${idx}.value`)}
+                                {...field}
+                                fullWidth
+                                label="From"
+                                placeholder="Enter value or {{variable}}"
                             />
                         )}
                     />
-                </LocalizationProvider>
-
-            );
-        }
-
-        if (isNumber) {
-            if (isBetween) {
-                return (
-                    <Stack direction="row" spacing={1}>
-                        <Controller name={`conditions.${idx}.value`} control={control} render={({ field }) => (
-                            <TextField {...field} fullWidth type="number" label="From" />
-                        )} />
-                        <Controller name={`conditions.${idx}.valueTo`} control={control} render={({ field }) => (
-                            <TextField {...field} fullWidth type="number" label="To" />
-                        )} />
-                    </Stack>
-                );
-            }
-            return <Controller name={`conditions.${idx}.value`} control={control} render={({ field }) => (
-                <TextField {...field} fullWidth type="number" label="Value" />
-            )} />;
-        }
-
-        // default string / object / array handling
-        if (isBetween) {
-            return (
-                <Stack direction="row" spacing={1}>
-                    <Controller name={`conditions.${idx}.value`} control={control} render={({ field }) => <TextField {...field} fullWidth label="From" />} />
-                    <Controller name={`conditions.${idx}.valueTo`} control={control} render={({ field }) => <TextField {...field} fullWidth label="To" />} />
+                    <Controller
+                        name={`conditions.${idx}.valueTo`}
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                onFocus={(e) => handleFocus(e, `conditions.${idx}.valueTo`)}
+                                {...field}
+                                fullWidth
+                                label="To"
+                                placeholder="Enter value or {{variable}}"
+                            />
+                        )}
+                    />
                 </Stack>
             );
         }
 
-        return <Controller name={`conditions.${idx}.value`} control={control} render={({ field }) => <TextField {...field} fullWidth label="Value" />} />;
+        return (
+            <Controller
+                name={`conditions.${idx}.value`}
+                control={control}
+                render={({ field }) => (
+                    <TextField
+                        onFocus={(e) => handleFocus(e, `conditions.${idx}.value`)}
+                        {...field}
+                        fullWidth
+                        label="Value"
+                        placeholder="Enter value or {{variable}}"
+                    />
+                )}
+            />
+        );
     };
 
     // used only for debugging while developing
     useEffect(() => {
         // console.debug("watchedConditions", watchedConditions);
     }, [watchedConditions]);
+
+    const handleFocus = (e, fieldName) => {
+        setCurrentField({ name: fieldName, ref: e.target });
+        setAnchorEl(e.target);
+        setPopoverOpen(true);
+    };
+
+    const handleSelectVariable = (variable) => {
+        if (!variable || !currentField.name) {
+            setPopoverOpen(false);
+            return;
+        }
+
+        const fieldName = currentField.name;
+
+        if (fieldName === "body") {
+            const currentVal = getValues("body") || "";
+            setValue("body", `${currentVal}{{${variable}}}`, { shouldValidate: true, shouldDirty: true });
+        } else if (fieldName === "to") {
+            const currentArr = getValues("to") || [];
+            setValue("to", [...currentArr, `{{${variable}}}`], { shouldValidate: true, shouldDirty: true });
+        } else {
+            // Normal TextField
+            const input = currentField.ref;
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            const newValue = `${before}{{${variable}}}${after}`;
+            input.value = newValue;
+            // eslint-disable-next-line no-multi-assign
+            input.selectionStart = input.selectionEnd = start + variable.length + 4; // 4 for {{}}
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            setValue(fieldName, newValue, { shouldValidate: true, shouldDirty: true });
+        }
+
+        setPopoverOpen(false);
+    };
+
+    useEffect(() => {
+        if (data.variables && data.variables.length > 0) {
+            setVariables(data.variables);
+        }
+    }, [data]);
 
     return (
         <Box>
@@ -379,6 +475,12 @@ export default function WorkflowCase({ data }) {
                                         <Iconify icon="mdi:delete-outline" width={20} height={20} />
                                     </IconButton>
                                 </Stack>
+                                <CustomWorkflowVariablePopover
+                                    open={popoverOpen}
+                                    handleClose={handleSelectVariable}
+                                    anchorEl={anchorEl}
+                                    variables={variables}
+                                />
                             </Grid>
 
                         ))}

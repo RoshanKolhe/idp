@@ -1,135 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Registration Form</title>
-        <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>11th Std Admission Enquiry</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
 
-    .container {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      width: 500px;
-    }
+      .container {
+        background: white;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        width: 500px;
+      }
 
-    h2 {
-      text-align: center;
-      color: #333;
-    }
+      h2 {
+        text-align: center;
+        color: #333;
+      }
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
 
-    button {
-      width: 100px;
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+      button {
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
 
-    button:hover {
-      background-color: #45a049;
-    }
+      button:hover {
+        background-color: #0056b3;
+      }
 
-    .success {
-      display: none;
-      text-align: center;
-      color: green;
-      font-weight: bold;
-      margin-top: 15px;
-    }
-  </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>Registration Form</h2>
-            <form id="registrationForm">
-                <input type="text" id="firstName" placeholder="First Name"
-                    required />
-                <input type="text" id="lastName" placeholder="Last Name"
-                    required />
-                <input type="email" id="email" placeholder="Email" required />
-                <input type="number" id="phone" placeholder="Phone Number"
-                    required />
-                <input type="password" id="password" placeholder="Password"
-                    required />
-                <button type="submit">Register</button>
-            </form>
-            <div class="success" id="successMsg">✅ Registration
-                Successful!</div>
-        </div>
+      .success {
+        display: none;
+        text-align: center;
+        font-weight: bold;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
 
-        <script>
-  const form = document.getElementById("registrationForm");
-  const successMsg = document.getElementById("successMsg");
+  <body>
+    <div class="container">
+      <h2>11th Std Admission Enquiry</h2>
+      <form id="enquiryForm">
+        <input type="text" id="firstName" placeholder="First Name" required />
+        <input type="text" id="lastName" placeholder="Last Name" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="number" id="phone" placeholder="Phone Number" required />
+        <input type="text" id="seatNumber" placeholder="10th Seat Number" required />
+        <input type="number" id="scienceMarks" placeholder="Science Marks" required />
+        <input type="number" id="mathMarks" placeholder="Mathematics Marks" required />
+        <input type="number" id="englishMarks" placeholder="English Marks" required />
+        <input type="number" id="totalMarks" placeholder="Total Marks Obtained" required />
+        <input type="number" id="outOfMarks" placeholder="Out Of Marks" required />
+        <input type="number" step="0.01" id="percentage" placeholder="Total Percentage" required />
 
-  form.addEventListener("submit", async function (event) {
-    event.preventDefault();
+        <select id="preferredStream" required>
+          <option value="" disabled selected>Select Preferred Stream</option>
+          <option value="Science">Science</option>
+          <option value="Commerce">Commerce</option>
+          <option value="Arts">Arts</option>
+        </select>
 
-    // Collect user input
-    const userData = {
-      firstName: document.getElementById("firstName").value,
-      lastName: document.getElementById("lastName").value,
-      email: document.getElementById("email").value,
-      phoneNumber: document.getElementById("phone").value,
-      isRegistered: Math.random() < 0.5
-    };
+        <button type="submit">Submit Enquiry</button>
+      </form>
+      <div class="success" id="successMsg">✅ Enquiry submitted successfully!</div>
+    </div>
 
-    console.log("Sending Data:", JSON.stringify(userData));
+    <script>
+      const form = document.getElementById("enquiryForm");
+      const successMsg = document.getElementById("successMsg");
 
-    try {
-      const response = await fetch("http://localhost:3058/workflow/webhook/69006e0281baa73d4459f8d7/wh_mha81jh8_g8es8r", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(userData)
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const enquiryData = {
+          firstName: document.getElementById("firstName").value.trim(),
+          lastName: document.getElementById("lastName").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          phoneNumber: document.getElementById("phone").value.trim(),
+          seatNumber: document.getElementById("seatNumber").value.trim(),
+          scienceMarks: Number(document.getElementById("scienceMarks").value),
+          mathematicsMarks: Number(document.getElementById("mathMarks").value),
+          englishMarks: Number(document.getElementById("englishMarks").value),
+          totalMarks: Number(document.getElementById("totalMarks").value),
+          outOfMarks: Number(document.getElementById("outOfMarks").value),
+          percentage: Number(document.getElementById("percentage").value),
+          preferredStream: document.getElementById("preferredStream").value,
+          createdAt: new Date().toISOString()
+        };
+
+        console.log("Sending:", enquiryData);
+
+        try {
+          const res = await fetch("http://31.97.224.212:5000/studentEnquiries", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(enquiryData)
+          });
+
+          if (!res.ok) throw new Error("Failed to send enquiry");
+
+          successMsg.style.display = "block";
+          successMsg.style.color = "green";
+          successMsg.textContent = "✅ Enquiry submitted successfully!";
+          form.reset();
+        } catch (err) {
+          console.error(err);
+          successMsg.style.display = "block";
+          successMsg.style.color = "red";
+          successMsg.textContent = "❌ Failed to submit enquiry. Please try again.";
+        }
       });
-
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if(userData.isRegistered){
-        successMsg.style.display = "block";
-        successMsg.style.color = "green";
-        successMsg.textContent = "✅ Registration sent successfully!";
-        form.reset();
-      }else{
-        successMsg.style.display = "block";
-        successMsg.style.color = "red";
-        successMsg.textContent = "❌ Failed to send registration. Please try again.";
-      }
-
-    } catch (error) {
-      console.error("Error:", error);
-
-      successMsg.style.display = "block";
-      successMsg.style.color = "red";
-      successMsg.textContent = "❌ Failed to send registration. Please try again.";
-    }
-  });
-</script>
-
-    </body>
+    </script>
+  </body>
 </html>

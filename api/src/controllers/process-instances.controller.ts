@@ -461,46 +461,33 @@ export class ProcessInstancesController {
         throw new HttpErrors.BadRequest('Extracted data for process instance not found');
       }
 
-      const workflow = await this.workflowRepository.findById(workflowId);
+      const processInstanceOutput : any = await this.processInstanceDocumentsRepository.findOne({ where: { processInstancesId: processInstanceId } });
 
-      if (!workflow) {
-        throw new HttpErrors.BadRequest('Workflow not found');
+      if (!processInstanceOutput || !processInstanceOutput?.extractedFields) {
+        throw new HttpErrors.NotFound('No extracted fields found');
       }
 
-      const createdWorkflowInstance = await this.workflowInstancesRepository.create({
-        workflowInstanceName: `${processInstance.processInstances?.processInstanceName}-${workflow.name}`,
-        workflowInstanceDescription: `workflow instance created for process instance of IDP ${processInstance.processInstances?.processInstanceName}`,
+      const response: any = await axios.post(`${process.env.REACT_APP_WORKFLOW_HOST_API}/workflow/process`, {
         workflowId: workflowId,
-        isActive: true,
-        isDeleted: false,
-        isInstanceRunning: false,
+        processInstanceName: processInstance?.processInstanceName
       });
 
-      if (createdWorkflowInstance) {
-        const savedOutputData = await this.processWorkflowOutputRepository.create({
-          processInstanceId: processInstanceId,
-          workflowInstanceId: createdWorkflowInstance.id,
-          documentDetails: processInstance.documentDetails,
-          extractedFields: processInstance.extractedFields,
-          fileDetails: processInstance.fileDetails,
-          isActive: true,
-          isDeleted: false,
+      const workflowBody = Object.fromEntries(
+        (processInstanceOutput.extractedFields || []).map((f:any) => [f.fieldName, f.fieldValue])
+      );
+
+      if (response && response?.data?.success) {
+        const triggerWebhook = await axios.post(`${process.env.REACT_APP_WORKFLOW_HOST_API}/workflow/webhook/${response?.data?.data?.workflowInstanceId}/${response?.data?.data?.webhookId}`, {
+          ...workflowBody
         });
 
-        if (savedOutputData) {
-          await this.workflowInstancesRepository.updateById(savedOutputData.workflowInstanceId, { isInstanceRunning: true });
-
-          return {
-            success: true,
-            message: 'Delivered to workflow'
-          }
+        return {
+          success: true,
+          message: 'Delivered to workflow'
         }
       }
 
-      return {
-        success: false,
-        message: 'failed to delivered'
-      }
+      throw HttpErrors.BadRequest('Something went wrong');
     } catch (error) {
       throw error;
     }
