@@ -442,7 +442,7 @@ export class ProcessInstancesController {
     })
     requestBody: {
       processInstanceId: number;
-      workflowId: number;
+      workflowId: string;
     }
   ): Promise<{ success: boolean, message: string }> {
     try {
