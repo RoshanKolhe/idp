@@ -29,6 +29,7 @@ import { promisify } from 'util';
 import { randomBytes } from 'crypto';
 import { inject } from '@loopback/core';
 import { JWTService } from '../services/jwt-service';
+import axios from 'axios';
 
 export class ProcessInstancesController {
   constructor(
