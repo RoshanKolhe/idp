@@ -68,16 +68,23 @@
         <input type="text" id="lastName" placeholder="Last Name" required />
         <input type="email" id="email" placeholder="Email" required />
         <input type="number" id="phone" placeholder="Phone Number" required />
-        <input type="text" id="seatNumber" placeholder="10th Seat Number" required />
-        <input type="number" id="scienceMarks" placeholder="Science Marks" required />
-        <input type="number" id="mathMarks" placeholder="Mathematics Marks" required />
-        <input type="number" id="englishMarks" placeholder="English Marks" required />
-        <input type="number" id="totalMarks" placeholder="Total Marks Obtained" required />
-        <input type="number" id="outOfMarks" placeholder="Out Of Marks" required />
-        <input type="number" step="0.01" id="percentage" placeholder="Total Percentage" required />
+        <input type="text" id="seatNumber" placeholder="10th Seat Number"
+          required />
+        <input type="number" id="scienceMarks" placeholder="Science Marks"
+          required />
+        <input type="number" id="mathMarks" placeholder="Mathematics Marks"
+          required />
+        <input type="number" id="englishMarks" placeholder="English Marks"
+          required />
+        <input type="number" id="totalMarks" placeholder="Total Marks Obtained"
+          required />
+        <input type="number" id="outOfMarks" placeholder="Out Of Marks"
+          required />
+        <input type="number" step="0.01" id="percentage"
+          placeholder="Total Percentage" required />
 
         <select id="preferredStream" required>
-          <option value="" disabled selected>Select Preferred Stream</option>
+          <option value disabled selected>Select Preferred Stream</option>
           <option value="Science">Science</option>
           <option value="Commerce">Commerce</option>
           <option value="Arts">Arts</option>
@@ -85,7 +92,8 @@
 
         <button type="submit">Submit Enquiry</button>
       </form>
-      <div class="success" id="successMsg">✅ Enquiry submitted successfully!</div>
+      <div class="success" id="successMsg">✅ Enquiry submitted
+        successfully!</div>
     </div>
 
     <script>
@@ -114,24 +122,46 @@
         console.log("Sending:", enquiryData);
 
         try {
-          const res = await fetch("http://31.97.224.212:5000/studentEnquiries", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(enquiryData)
-          });
+  // 1️⃣ First API – send enquiry
+  const res = await fetch("http://31.97.224.212:5000/studentEnquiries", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(enquiryData)
+  });
 
-          if (!res.ok) throw new Error("Failed to send enquiry");
+  if (!res.ok) throw new Error("Failed to send enquiry");
 
-          successMsg.style.display = "block";
-          successMsg.style.color = "green";
-          successMsg.textContent = "✅ Enquiry submitted successfully!";
-          form.reset();
-        } catch (err) {
-          console.error(err);
-          successMsg.style.display = "block";
-          successMsg.style.color = "red";
-          successMsg.textContent = "❌ Failed to submit enquiry. Please try again.";
-        }
+  // 2️⃣ Parse the JSON response
+  const responseData = await res.json();
+
+  console.log("✅ Enquiry API Response:", responseData);
+
+  // 3️⃣ Send response to Workflow Webhook
+  const workflowRes = await fetch(
+    "http://31.97.224.212:3058/workflow/webhook/69047ca1d717236cf6d1ee8b/wh_mhefsxmw_c0hbu8",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(responseData) // Pass full response
+    }
+  );
+
+  if (!workflowRes.ok) throw new Error("Failed to send data to workflow webhook");
+
+  console.log("✅ Sent to workflow successfully");
+
+  // 4️⃣ Show success message
+  successMsg.style.display = "block";
+  successMsg.style.color = "green";
+  successMsg.textContent = "✅ Enquiry submitted and workflow triggered successfully!";
+  form.reset();
+} catch (err) {
+  console.error("❌ Error:", err);
+  successMsg.style.display = "block";
+  successMsg.style.color = "red";
+  successMsg.textContent = "❌ Failed to submit enquiry or trigger workflow. Please try again.";
+}
+
       });
     </script>
   </body>

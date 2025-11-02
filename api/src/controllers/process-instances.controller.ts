@@ -470,7 +470,7 @@ export class ProcessInstancesController {
 
       const response: any = await axios.post(`${process.env.REACT_APP_WORKFLOW_HOST_API}/workflow/process`, {
         workflowId: workflowId,
-        processInstanceName: processInstance?.processInstanceName
+        processInstanceName: processInstance?.processInstances?.processInstanceName
       });
 
       const workflowBody = Object.fromEntries(

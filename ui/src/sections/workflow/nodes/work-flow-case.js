@@ -220,7 +220,7 @@ export default function WorkflowCase({ data }) {
                     {...field}
                     fullWidth
                     label={label}
-                    placeholder="Enter date (MM/DD/YYYY) or {{variable}}"
+                    placeholder='Enter date (MM/DD/YYYY) or {{variable}} or "current" for current date'
                     value={field.value ?? ''}
                     onChange={(e) => field.onChange(e.target.value)}
                 />
