@@ -19,6 +19,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { CustomWorkflowDialogue, CustomWorkflowNode, CustomWorkflowNodesPanel, CustomWorkflowVariablePopover, outputRegistry } from "../components";
 
 export default function WorkflowCase({ data }) {
+    console.log('data', data);
     const [open, setOpen] = useState(false);
     const [showPanel, setShowPanel] = useState(false);
     const [parentFields, setParentFields] = useState([]);

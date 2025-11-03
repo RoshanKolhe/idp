@@ -95,7 +95,7 @@ export default function WorkflowInstanceTableRow({
                 borderRadius: '12px',
                 color: '#4182EB',
               }}
-              onClick={() => navigate(paths.dashboard.workflowInstance.reactFlow(row.id))}
+              onClick={() => navigate(paths.dashboard.workflowInstance.executionFlow(row.workflowInstances.workflowId,row.id))}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>

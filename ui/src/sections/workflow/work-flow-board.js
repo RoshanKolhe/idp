@@ -74,6 +74,10 @@ const initialNodes = [
 ];
 
 function VariableDetection(nodesArray = [], bluePrint = []) {
+    console.group('debugging');
+    console.log('nodesArray', nodesArray);
+    console.log('bluePrint', bluePrint);
+    console.groupEnd();
     if (!Array.isArray(nodesArray) || !Array.isArray(bluePrint)) return [];
 
     return nodesArray

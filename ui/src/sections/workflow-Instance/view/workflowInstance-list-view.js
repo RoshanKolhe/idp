@@ -48,7 +48,7 @@ const TABLE_HEAD = [
   { id: 'no', label: 'ID.', width: 180 },
   { id: 'instanceId', label: 'Instance Id' },
   { id: 'workflowName', label: 'Workflow Name' },
-  { id: 'currentStage', label: 'Current Stage' },
+  // { id: 'currentStage', label: 'Current Stage' },
   { id: '', label: 'Actions', width: 120},
 ];
 

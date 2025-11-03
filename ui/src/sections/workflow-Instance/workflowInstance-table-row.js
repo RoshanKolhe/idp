@@ -33,7 +33,7 @@ export default function WorkflowInstanceTableRow({
   onStatusChange
 }) {
   const navigate = useNavigate();
-  const { id, workflowInstanceName, workflow, currentStage, isInstanceRunning } = row;
+  const { id, workflowInstanceName, workflow, isInstanceRunning } = row;
 
   const confirm = useBoolean();
 
@@ -52,7 +52,7 @@ export default function WorkflowInstanceTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{workflow?.name}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{currentStage || 'NA'}</TableCell>
+        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{currentStage || 'NA'}</TableCell> */}
 
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
           <Tooltip title={isInstanceRunning ? 'Pause' : 'Start'} placement="top" arrow>

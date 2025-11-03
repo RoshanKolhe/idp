@@ -97,3 +97,25 @@ export function useGetWorkflowInstanceLogs(workflowInstanceId) {
   return {...memoizedValue, refreshWorkflowInstanceLogs};
 }
 
+export function useGetWorkflowInstanceExecutionLogs(outputId) {
+  const URL = outputId ? [endpoints.workflowInstance.executionLogs(outputId)] : null;
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, workflowFetcher);
+
+    const refreshWorkflowInstanceExecutionLogs = () => {
+    // Use the `mutate` function to trigger a revalidation
+    mutate();
+  };
+
+  const memoizedValue = useMemo(
+    () => ({
+      executionLogs: data || [],
+      executionLogsLoading: isLoading,
+      executionLogsError: error,
+      executionLogsValidating: isValidating,
+      executionLogsEmpty: !isLoading && !data?.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return {...memoizedValue, refreshWorkflowInstanceExecutionLogs};
+}
