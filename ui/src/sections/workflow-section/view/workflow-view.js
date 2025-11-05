@@ -33,10 +33,10 @@ export default function WorkflowView() {
           },
           {
             name: 'Workflow',
-            href: paths.dashboard.processes.root,
+            href: paths.dashboard.workflow.root,
           },
           {
-            name: currentWorkflow?.processes,
+            name: currentWorkflow?.name,
           },
         ]}
         sx={{

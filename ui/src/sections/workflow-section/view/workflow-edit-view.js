@@ -22,7 +22,7 @@ export default function WorkflowEditView() {
 
   const { id } = params;
 
-  const { workflow: currentWorkflow } = useGetWorkflow(id);
+  const { workflow: currentWorkflow , refreshWorkFlow} = useGetWorkflow(id);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -34,11 +34,11 @@ export default function WorkflowEditView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'Process Type',
+            name: 'WorkFlow',
             href: paths.dashboard.workflow.root,
           },
           {
-            name: currentWorkflow?.workflow,
+            name: currentWorkflow?.name,
           },
         ]}
         sx={{
@@ -46,7 +46,7 @@ export default function WorkflowEditView() {
         }}
       />
 
-      <WorkflowNewEditForm currentWorkflow={currentWorkflow} />
+      <WorkflowNewEditForm currentWorkflow={currentWorkflow} refreshWorkFlow={refreshWorkFlow} />
     </Container>
   );
 }

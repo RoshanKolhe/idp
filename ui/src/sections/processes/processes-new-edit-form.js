@@ -36,23 +36,25 @@ import FormProvider, {
 import { IconButton, InputAdornment, MenuItem } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
+import { useGetProcess } from 'src/api/processes';
 
 // ----------------------------------------------------------------------
 
-export default function ProcessesNewEditForm({ currentProcesses }) {
+export default function ProcessesNewEditForm({ currentProcesses, refreshProcesses }) {
   const router = useRouter();
+
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProcessesSchema = Yup.object().shape({
-    processes: Yup.string().required('Process Type is required'),
+    name: Yup.string().required('Process Type is required'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      processes: currentProcesses?.processes || '',
+      name: currentProcesses?.name || '',
       description: currentProcesses?.description || '',
       isActive: currentProcesses ? (currentProcesses?.isActive ? '1' : '0') : '1',
     }),
@@ -80,19 +82,20 @@ export default function ProcessesNewEditForm({ currentProcesses }) {
       console.info('DATA', formData);
 
       const inputData = {
-        processes: formData.processes,
+        name: formData.name,
         description: formData.description,
         isActive: currentProcesses ? formData.isActive : true,
       };
 
       if (!currentProcesses) {
-        await axiosInstance.post('/process-types', inputData);
+        await axiosInstance.post('/processes', inputData);
       } else {
-        await axiosInstance.patch(`/process-types/${currentProcesses.id}`, inputData);
+        await axiosInstance.patch(`/processes/${currentProcesses.id}`, inputData);
       }
+      refreshProcesses();
       reset();
       enqueueSnackbar(currentProcesses ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.processes.reactFlow);
+      router.push(paths.dashboard.processes.list);
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
@@ -129,7 +132,7 @@ export default function ProcessesNewEditForm({ currentProcesses }) {
               )}
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="processes" label="Process Type" />
+                <RHFTextField name="name" label="Process Type" />
               </Grid>
 
               <Grid item xs={12} sm={6}>
@@ -151,4 +154,5 @@ export default function ProcessesNewEditForm({ currentProcesses }) {
 
 ProcessesNewEditForm.propTypes = {
   currentProcesses: PropTypes.object,
+  refreshProcesses: PropTypes.func,
 };

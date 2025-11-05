@@ -18,8 +18,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 // utils
 import { fData } from 'src/utils/format-number';
 // routes
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
+
 // assets
 import { countries } from 'src/assets/data';
 // components
@@ -36,10 +35,12 @@ import FormProvider, {
 import { IconButton, InputAdornment, MenuItem } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import { workflowAxiosInstance } from 'src/utils/axios';
+import { useRouter } from 'src/routes/hook';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
-export default function WorkflowNewEditForm({ currentWorkflow }) {
+export default function WorkflowNewEditForm({ currentWorkflow , refreshWorkFlow}) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
@@ -90,9 +91,10 @@ export default function WorkflowNewEditForm({ currentWorkflow }) {
       } else {
         await workflowAxiosInstance.patch(`/workflows/${currentWorkflow.id}`, inputData);
       }
+      refreshWorkFlow();
       reset();
       enqueueSnackbar(currentWorkflow ? 'Update success!' : 'Create success!');
-      router.push(paths.dashboard.processes.reactFlow);
+      router.push(paths.dashboard.workflow.list);
     } catch (error) {
       console.error(error);
       enqueueSnackbar(typeof error === 'string' ? error : error.error.message, {
@@ -151,4 +153,5 @@ export default function WorkflowNewEditForm({ currentWorkflow }) {
 
 WorkflowNewEditForm.propTypes = {
   currentWorkflow: PropTypes.object,
+  refreshWorkFlow: PropTypes.func,
 };

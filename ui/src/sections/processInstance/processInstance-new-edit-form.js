@@ -171,7 +171,10 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
       if (searchTerm.length > 0) {
         const filter = {
           where: {
-            name: { like: `%${searchTerm || ''}%` }
+            and:[
+             { name: { like: `%${searchTerm || ''}%` } },
+            {isActive:true} 
+            ]
           }
         }
         const filterString = encodeURIComponent(JSON.stringify(filter));

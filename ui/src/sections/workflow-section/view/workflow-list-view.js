@@ -131,14 +131,14 @@ export default function WorkflowListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.processes.edit(id));
+      router.push(paths.dashboard.workflow.edit(id));
     },
     [router]
   );
 
   const handleViewRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.processes.view(id));
+      router.push(paths.dashboard.workflow.view(id));
     },
     [router]
   );
@@ -343,7 +343,7 @@ export default function WorkflowListView() {
                   <WorkflowTableGrid
                     row={row}
                     onDeleteRow={() => handleDeleteRow(row.id)}
-                    onEditRow={() => handleEditRow(row.id)}
+                    onEdit={() => handleEditRow(row.id)}
                     onViewRow={() => handleViewRow(row.id)}
                   />
                 </Grid>

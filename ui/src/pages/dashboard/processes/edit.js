@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 // sections
-import ProcessesEditView from 'src/sections/processType/view/processType-edit-view';
+import { ProcessesEditView } from 'src/sections/processes/view';
 
 // ----------------------------------------------------------------------
 

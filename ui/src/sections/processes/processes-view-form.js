@@ -25,14 +25,14 @@ import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 
 export default function ProcessesViewForm({ currentProcesses }) {
   const NewProcessesSchema = Yup.object().shape({
-    processes: Yup.string().required('Process Type is required'),
+    name: Yup.string().required('Process Type is required'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      processes: currentProcesses?.processes || '',
+      name: currentProcesses?.name || '',
       description: currentProcesses?.description || '',
       isActive: currentProcesses?.isActive ? '1' : '0' || '1',
     }),
@@ -81,7 +81,7 @@ export default function ProcessesViewForm({ currentProcesses }) {
               )}
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="processes" label="Process Type" disabled />
+                <RHFTextField name="name" label="Process" disabled />
               </Grid>
 
               <Grid item xs={12} sm={6}>

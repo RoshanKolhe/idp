@@ -171,7 +171,10 @@ export default function WorkflowInstanceNewEditForm({ currentWorkflowInstance })
       if (searchTerm.length > 0) {
         const filter = {
           where: {
-            name: { regexp: `/${searchTerm}/i` }
+            and:[
+           { name: { regexp: `/${searchTerm}/i` }},
+           {isActive: true}
+            ]
           }
         }
         const filterString = encodeURIComponent(JSON.stringify(filter));

@@ -343,7 +343,7 @@ export default function ProcessesListView() {
                   <ProcessesTableGrid
                     row={row}
                     onDeleteRow={() => handleDeleteRow(row.id)}
-                    onEditRow={() => handleEditRow(row.id)}
+                    onEdit={() => handleEditRow(row.id)}
                     onViewRow={() => handleViewRow(row.id)}
                   />
                 </Grid>

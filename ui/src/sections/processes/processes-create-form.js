@@ -86,11 +86,15 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
     }
   });
 
-  useEffect(() => {
-    if (processTypes) {
-      setProcessTypeOptions(processTypes);
-    }
-  }, [processTypes]);
+useEffect(() => {
+  if (processTypes ) {
+    const activeProcessTypes = processTypes.filter(
+      (item) => item.isActive === true
+    );
+    setProcessTypeOptions(activeProcessTypes);
+  }
+}, [processTypes]);
+
 
   return (
     <Dialog

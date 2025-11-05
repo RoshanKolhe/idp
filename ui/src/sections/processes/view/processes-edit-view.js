@@ -7,7 +7,7 @@ import { useParams } from 'src/routes/hook';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
-import { useGetProcesses } from 'src/api/processes';
+import { useGetProcess } from 'src/api/processes';
 import Iconify from 'src/components/iconify';
 import { Tab, Tabs } from '@mui/material';
 import { useCallback, useState } from 'react';
@@ -22,7 +22,9 @@ export default function ProcessesEditView() {
 
   const { id } = params;
 
-  const { processes: currentProcesses } = useGetProcesses(id);
+  const { processes: currentProcesses ,refreshProcess} = useGetProcess(id);
+
+  console.log({currentProcesses})
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -34,11 +36,11 @@ export default function ProcessesEditView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'Process Type',
+            name: 'Process',
             href: paths.dashboard.processes.root,
           },
           {
-            name: currentProcesses?.processes,
+            name: currentProcesses?.name,
           },
         ]}
         sx={{
@@ -46,7 +48,7 @@ export default function ProcessesEditView() {
         }}
       />
 
-      <ProcessesNewEditForm currentProcesses={currentProcesses} />
+      <ProcessesNewEditForm currentProcesses={currentProcesses} refreshProcesses={refreshProcess} />
     </Container>
   );
 }

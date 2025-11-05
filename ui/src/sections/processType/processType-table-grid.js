@@ -4,7 +4,7 @@ import Iconify from 'src/components/iconify';
 import { format } from 'date-fns';
 
 export default function ProcessTypeTableGrid({ row, onViewRow, onQueryRow }) {
-  const { processType, description, createdAt, documents } = row;
+  const { processType, description, createdAt, documents, isActive } = row;
 
   const hasDocuments = documents && documents.length > 0;
 
@@ -52,15 +52,17 @@ export default function ProcessTypeTableGrid({ row, onViewRow, onQueryRow }) {
             py: 1,
             borderRadius: 1,
             border: '1px solid #ccc',
-            bgcolor: '#f9f9f9',
+           
             fontSize: 14,
-            color: 'text.secondary',
-            minWidth: 100,
+            color: isActive ? '#2E7D32' : '#C62828',   
+            minWidth: 60,
             textAlign: 'center',
+            fontWeight: 600,
           }}
         >
-          {hasDocuments ? `${documents.length} Documents` : 'No Documents'}
+          {isActive ? 'Active' : 'In-active'}
         </Box>
+
       </Stack>
 
       {/* Divider */}
@@ -119,7 +121,7 @@ export default function ProcessTypeTableGrid({ row, onViewRow, onQueryRow }) {
 
       {/* Bottom Buttons */}
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 3 }}>
-        <Button
+        {/* <Button
           fullWidth
           variant="contained"
           sx={{
@@ -147,7 +149,7 @@ export default function ProcessTypeTableGrid({ row, onViewRow, onQueryRow }) {
           onClick={onQueryRow}
         >
           Query Documents
-        </Button>
+        </Button> */}
       </Stack>
     </Card>
   );
@@ -161,5 +163,6 @@ ProcessTypeTableGrid.propTypes = {
     description: PropTypes.string,
     createdAt: PropTypes.string,
     documents: PropTypes.array,
+    isActive: PropTypes.bool,
   }),
 };

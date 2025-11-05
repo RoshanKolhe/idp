@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import useSWR from 'swr';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 // utils
 import { fetcher, endpoints } from 'src/utils/axios';
 
@@ -28,9 +28,14 @@ export function useGetProcesses() {
 
 // ----------------------------------------------------------------------
 
-export function useGetProcessType(processesId) {
+export function useGetProcess(processesId) {
   const URL = processesId ? [endpoints.processes.details(processesId)] : null;
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher);
+  const { data, isLoading, error, isValidating , mutate} = useSWR(URL, fetcher);
+
+
+   const refreshProcess = useCallback(() => {
+    mutate();
+  }, [mutate]);
 
   const memoizedValue = useMemo(
     () => ({
@@ -38,8 +43,9 @@ export function useGetProcessType(processesId) {
       processesLoading: isLoading,
       processesError: error,
       processesValidating: isValidating,
+      refreshProcess,
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating, refreshProcess]
   );
 
   return memoizedValue;
@@ -55,7 +61,9 @@ export function useGetProcessesWithFilter(filter) {
     URL = endpoints.processes.list;
   }
 
+
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+  
 
   const refreshFilterProcesses = () => {
     // Use the `mutate` function to trigger a revalidation

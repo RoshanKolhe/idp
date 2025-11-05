@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import useSWR from 'swr';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 // utils
 import { endpoints, workflowFetcher } from 'src/utils/axios';
 
@@ -30,7 +30,11 @@ export function useGetWorkflows() {
 
 export function useGetWorkflow(workflowId) {
   const URL = workflowId ? [endpoints.workflows.details(workflowId)] : null;
-  const { data, isLoading, error, isValidating } = useSWR(URL, workflowFetcher);
+  const { data, isLoading, error, isValidating, mutate} = useSWR(URL, workflowFetcher);
+
+     const refreshWorkFlow= useCallback(() => {
+      mutate();
+    }, [mutate]);
 
   const memoizedValue = useMemo(
     () => ({
@@ -38,8 +42,9 @@ export function useGetWorkflow(workflowId) {
       workflowLoading: isLoading,
       workflowError: error,
       workflowValidating: isValidating,
+      refreshWorkFlow,
     }),
-    [data, error, isLoading, isValidating]
+    [data, error, isLoading, isValidating, refreshWorkFlow]
   );
 
   return memoizedValue;

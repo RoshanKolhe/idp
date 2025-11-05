@@ -1,9 +1,13 @@
 import PropTypes from 'prop-types';
-import { Card, Box, Typography, Stack, Button, IconButton } from '@mui/material';
+import { Card, Box, Typography, Stack, Button, IconButton, Tooltip } from '@mui/material';
 import Iconify from 'src/components/iconify';
+import { paths } from 'src/routes/paths';
+import { useNavigate } from 'react-router';
 
 export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, onDelete }) {
   const { name, description } = row;
+
+  const navigate =useNavigate();
 
   return (
     <Card
@@ -48,9 +52,18 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
           <IconButton size="small" sx={{ backgroundColor: '#f0f8ff' }} onClick={onEdit}>
             <Iconify icon="mdi:pencil-outline" width={18} color="#2e5aac" />
           </IconButton>
-          <IconButton size="small" sx={{ backgroundColor: '#ffe5e5' }} onClick={onDelete}>
+          <Tooltip title="blueprint" placement="top" arrow>
+                      <IconButton
+                        onClick={() => {
+                          navigate(paths.dashboard.workflow.reactFlow(row.id));
+                        }}
+                      >
+                        <Iconify icon="carbon:flow-modeler" />
+                      </IconButton>
+                    </Tooltip>
+          {/* <IconButton size="small" sx={{ backgroundColor: '#ffe5e5' }} onClick={onDelete}>
             <Iconify icon="mdi:delete-outline" width={18} color="#d32f2f" />
-          </IconButton>
+          </IconButton> */}
         </Stack>
       </Stack>
 
@@ -81,7 +94,7 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
 
       {/* Action Buttons */}
       <Stack direction="row" spacing={2} mt={4} justifyContent="center">
-        <Button
+        {/* <Button
           fullWidth
           variant="contained"
           sx={{
@@ -109,7 +122,7 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
           onClick={onQueryRow}
         >
           Interact With Documents
-        </Button>
+        </Button> */}
       </Stack>
     </Card>
   );
