@@ -117,7 +117,7 @@ export default function WorkFlowTimeTrigger({ data }) {
 
     const defaultValues = useMemo(
         () => ({
-            triggerType: data.bluePrint?.channelType || 'seconds',
+            triggerType: data.bluePrint?.triggerType || 'seconds',
             seconds: data.bluePrint?.seconds || 30,
             minutes: data.bluePrint?.minutes || 10,
             hoursBetween: data.bluePrint?.hoursBetween || 1,
