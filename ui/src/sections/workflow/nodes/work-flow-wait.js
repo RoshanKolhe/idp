@@ -7,7 +7,6 @@ import { Box, Grid, MenuItem, Stack } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FormProvider, { RHFSelect } from "src/components/hook-form";
 import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components";
-import { MinutesComponent, SecondsComponent } from "../time-trigger-components";
 import { IntervalComponent, TimeComponent } from "../wait-components";
 
 // channel options

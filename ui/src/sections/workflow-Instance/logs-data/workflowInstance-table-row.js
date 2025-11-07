@@ -73,7 +73,9 @@ export default function WorkflowInstanceTableRow({
                   ? 'success' // Completed
                   : status === 2
                     ? 'error'   // Failed
-                    : 'default'
+                    : status === 3  // waiting
+                      ? 'info'
+                      : 'default'
             }
           >
             {status === 0
@@ -82,7 +84,9 @@ export default function WorkflowInstanceTableRow({
                 ? 'Completed'
                 : status === 2
                   ? 'Failed'
-                  : 'Unknown'}
+                  : status === 3  // waiting
+                    ? 'Waiting'
+                    : 'unknown'}
           </Label>
         </TableCell>
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
@@ -95,7 +99,7 @@ export default function WorkflowInstanceTableRow({
                 borderRadius: '12px',
                 color: '#4182EB',
               }}
-              onClick={() => navigate(paths.dashboard.workflowInstance.executionFlow(row.workflowInstances.workflowId,row.id))}
+              onClick={() => navigate(paths.dashboard.workflowInstance.executionFlow(row.workflowInstances.workflowId, row.id))}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>
