@@ -23,3 +23,6 @@ export * from './workflow.controller';
 export * from './workflow-blueprint.controller';
 export * from './workflow-instances-workflow.controller';
 export * from './workflow-instances.controller';
+export * from './processes-user.controller';
+export * from './process-instances-user.controller';
+export * from './escalation-user.controller';

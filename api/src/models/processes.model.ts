@@ -1,6 +1,7 @@
 import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {ProcessType} from './process-type.model';
 import {BluePrint} from './blue-print.model';
+import {User} from './user.model';
 
 @model()
 export class Processes extends Entity {
@@ -59,6 +60,9 @@ export class Processes extends Entity {
 
   @belongsTo(() => BluePrint)
   bluePrintId: number;
+
+  @belongsTo(() => User)
+  userId: number;
 
   constructor(data?: Partial<Processes>) {
     super(data);

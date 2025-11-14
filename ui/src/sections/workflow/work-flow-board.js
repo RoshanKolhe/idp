@@ -26,7 +26,7 @@ import {
     getLayoutedElements,
     CustomWorkflowNodesPanel
 } from './components';
-import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowIterator, WorkflowIteratorEnd, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
+import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkFlowCRM, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowIterator, WorkflowIteratorEnd, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
 import { useWorkflowContext } from './hooks';
 
 const nodeTypes = {
@@ -46,6 +46,7 @@ const nodeTypes = {
     code: WorkFlowCode,
     iterator: WorkFlowIterator,
     iteratorEnd: WorkflowIteratorEnd,
+    crm: WorkFlowCRM,
 }
 
 const edgeTypes = {

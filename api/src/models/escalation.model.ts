@@ -1,5 +1,6 @@
-import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Entity, model, property, hasMany, belongsTo} from '@loopback/repository';
 import {Levels} from './levels.model';
+import {User} from './user.model';
 
 @model()
 export class Escalation extends Entity {
@@ -11,18 +12,18 @@ export class Escalation extends Entity {
   id?: number;
 
   @property({
-    type:'string',
-    required:true,
+    type: 'string',
+    required: true,
   })
-  escalationName:string;
-  
+  escalationName: string;
+
   @property({
-    type:'string',
+    type: 'string',
 
   })
-  description:string;
+  description: string;
 
-    @property({
+  @property({
     type: 'date',
   })
   createdAt?: Date;
@@ -45,6 +46,9 @@ export class Escalation extends Entity {
 
   @hasMany(() => Levels)
   levels: Levels[];
+
+  @belongsTo(() => User)
+  userId: number;
 
   constructor(data?: Partial<Escalation>) {
     super(data);

@@ -9,17 +9,22 @@ import { useMockedUser } from 'src/hooks/use-mocked-user';
 import { ForbiddenIllustration } from 'src/assets/illustrations';
 // components
 import { MotionContainer, varBounce } from 'src/components/animate';
+import { useAuthContext } from '../hooks';
 
 // ----------------------------------------------------------------------
 
-export default function RoleBasedGuard({ hasContent, roles, children, sx }) {
+export default function RoleBasedGuard({ hasContent = true, roles, children, sx }) {
   // Logic here to get current user role
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
-  // const currentRole = 'user';
-  const currentRole = user?.role; // admin;
+  // ✅ Ensure both are arrays
+  const currentRoles = Array.isArray(user?.permissions) ? user.permissions : [];
 
-  if (typeof roles !== 'undefined' && !roles.includes(currentRole)) {
+  // ✅ Check if at least one allowed role matches the user's roles
+  const hasAccess = roles.length === 0 || roles.some((role) => currentRoles.includes(role));
+
+  console.log('has access annd roles', hasAccess, roles, currentRoles);
+  if (!hasAccess) {
     return hasContent ? (
       <Container component={MotionContainer} sx={{ textAlign: 'center', ...sx }}>
         <m.div variants={varBounce().in}>

@@ -105,6 +105,17 @@ const customOperations = [
         borderColor: "#1976D2",
         color: "#BBDEFB",
       },
+      {
+        id: 14,
+        title: "CRM",
+        description:
+          "Manages customer data and interactions by connecting your workflow with CRM systems like HubSpot, Salesforce, or Zoho. You can create, update, or fetch contacts, leads, and deals dynamically from your workflow.",
+        icon: "/assets/icons/workflow/crm.svg",
+        type: "crm",
+        bgColor: "#4A148C",
+        borderColor: "#7B1FA2",
+        color: "#E1BEE7",
+      }
     ],
   },
 

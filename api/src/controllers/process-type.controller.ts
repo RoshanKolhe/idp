@@ -55,12 +55,12 @@ export class ProcessTypeController {
     return this.processTypeRepository.create(processType);
   }
 
-  @authenticate({
-    strategy: 'jwt',
-    options: {
-      required: [PermissionKeys.SUPER_ADMIN],
-    },
-  })
+  // @authenticate({
+  //   strategy: 'jwt',
+  //   options: {
+  //     required: [PermissionKeys.SUPER_ADMIN],
+  //   },
+  // })
   @get('/process-types')
   @response(200, {
     description: 'Array of ProcessType model instances',

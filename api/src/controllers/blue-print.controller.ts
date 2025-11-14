@@ -16,23 +16,28 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import { BluePrint } from '../models';
-import { BluePrintRepository, ProcessesRepository } from '../repositories';
-import { authenticate } from '@loopback/authentication';
+import { BluePrintRepository, ProcessesRepository, UserRepository } from '../repositories';
+import { authenticate, AuthenticationBindings } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
+import { inject } from '@loopback/core';
+import { UserProfile } from '@loopback/security';
 
 export class BluePrintController {
   constructor(
     @repository(BluePrintRepository)
     public bluePrintRepository: BluePrintRepository,
     @repository(ProcessesRepository)
-    public processesRepository: ProcessesRepository
+    public processesRepository: ProcessesRepository,
+    @repository(UserRepository)
+    public userRepository: UserRepository,
   ) { }
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @post('/blue-prints')
   @response(200, {
@@ -82,7 +87,7 @@ export class BluePrintController {
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @get('/blue-prints')
   @response(200, {
@@ -147,7 +152,7 @@ export class BluePrintController {
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @patch('/blue-prints/{id}')
   @response(204, {
@@ -197,14 +202,16 @@ export class BluePrintController {
   // Get blue print by process id
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @get('/blue-prints/processes/{id}')
   async getBluePrintById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @param.path.number('id') id: number,
   ): Promise<{ success: boolean; message: string; data: {} | null }> {
     try {
-      const bluePrint = await this.bluePrintRepository.findOne({
+      const user = await this.userRepository.findById(currentUser.id);
+      const bluePrint: any = await this.bluePrintRepository.findOne({
         where: {
           processesId: id,
         },
@@ -213,7 +220,15 @@ export class BluePrintController {
         ]
       });
 
-      if (bluePrint) {
+      if (!bluePrint) {
+        return {
+          success: false,
+          message: `No blue print found for process id ${id}`,
+          data: null
+        }
+      }
+
+      if (bluePrint && (bluePrint.processes.userId === user.id || user.permissions.includes('super_admin'))) {
         return {
           success: true,
           message: `Blue print for process id ${id}`,
@@ -221,11 +236,7 @@ export class BluePrintController {
         }
       }
 
-      return {
-        success: false,
-        message: `No blue print found for process id ${id}`,
-        data: null
-      }
+      throw new HttpErrors.Unauthorized('Unauthorized access');
     } catch (error) {
       throw error;
     }

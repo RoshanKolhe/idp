@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 // auth
-import { AuthGuard } from 'src/auth/guard';
+import { AuthGuard, RoleBasedGuard } from 'src/auth/guard';
 // layouts
 import DashboardLayout from 'src/layouts/dashboard';
 // components
@@ -140,6 +140,11 @@ export const dashboardRoutes = [
       { path: 'file', element: <OverviewFilePage /> },
       {
         path: 'processType',
+        element: (
+          <RoleBasedGuard roles={['super_admin']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <ProcessTypeListPage />, index: true },
           { path: 'list', element: <ProcessTypeListPage /> },
@@ -150,6 +155,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'documentType',
+        element: (
+          <RoleBasedGuard roles={['super_admin']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <DocumentTypeListPage />, index: true },
           { path: 'list', element: <DocumentTypeListPage /> },
@@ -160,6 +170,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'processes',
+        element: (
+          <RoleBasedGuard roles={['super_admin', 'admin', 'company']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <ProcessesListPage />, index: true },
           { path: 'list', element: <ProcessesListPage /> },
@@ -172,6 +187,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'processesInstance',
+        element: (
+          <RoleBasedGuard roles={['super_admin', 'admin', 'company']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <ProcessInstanceListPage />, index: true },
           { path: 'list', element: <ProcessInstanceListPage /> },
@@ -184,6 +204,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'workflow',
+        element: (
+          <RoleBasedGuard roles={['super_admin', 'admin', 'company']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <WorkflowListPage />, index: true },
           { path: 'list', element: <WorkflowListPage /> },
@@ -195,6 +220,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'workflowInstance',
+        element: (
+          <RoleBasedGuard roles={['super_admin', 'admin', 'company']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <WorkflowInstanceListPage />, index: true },
           { path: 'list', element: <WorkflowInstanceListPage /> },
@@ -206,6 +236,11 @@ export const dashboardRoutes = [
       },
       {
         path: 'fileType',
+        element: (
+          <RoleBasedGuard roles={['super_admin']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <FileTypeListPage />, index: true },
           { path: 'list', element: <FileTypeListPage /> },
@@ -215,7 +250,27 @@ export const dashboardRoutes = [
         ],
       },
       {
+        path: 'notificationSetting',
+        element: (
+          <RoleBasedGuard roles={['super_admin', 'admin', 'company']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
+        children: [
+          { element: <NotificationSettingListPage />, index: true },
+          { path: 'list', element: <NotificationSettingListPage /> },
+          { path: 'new', element: <NewLevelCreatePage /> },
+          { path: ':id/edit', element: <MemberEditViewPage /> },
+          { path: ':id', element: <EscalationNotificationSettingListPage /> }
+        ],
+      },
+      {
         path: 'user',
+        element: (
+          <RoleBasedGuard roles={['super_admin']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
         children: [
           { element: <UserProfilePage />, index: true },
           { path: 'profile', element: <UserProfilePage /> },
@@ -264,19 +319,6 @@ export const dashboardRoutes = [
           { path: 'new', element: <BlogNewPostPage /> },
         ],
       },
-
-      {
-        path: 'notificationSetting',
-        children: [
-          { element: <NotificationSettingListPage />, index: true },
-          { path: 'list', element: <NotificationSettingListPage /> },
-          { path: 'new', element: <NewLevelCreatePage /> },
-          { path: ':id/edit', element: <MemberEditViewPage /> },
-          { path: ':id', element: <EscalationNotificationSettingListPage /> }
-
-
-        ],
-      },
       {
         path: 'job',
         children: [
@@ -306,7 +348,11 @@ export const dashboardRoutes = [
       { path: 'blank', element: <BlankPage /> },
       {
         path: 'mailServer',
-        element: <MailServerViewPage />
+        element: (
+          <RoleBasedGuard roles={['super_admin']}>
+            <MailServerViewPage />
+          </RoleBasedGuard>
+        ),
       },
     ],
   },

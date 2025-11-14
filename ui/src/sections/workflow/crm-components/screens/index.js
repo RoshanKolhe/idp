@@ -1,0 +1,1 @@
+export {default as HubSpotScreen} from './hubspotScreen';

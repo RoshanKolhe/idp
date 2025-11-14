@@ -44,6 +44,7 @@ const nodeTypes = {
     code: CustomWorkflowNode,
     iterator: CustomWorkflowNode,
     iteratorEnd: CustomWorkflowNode,
+    crm: CustomWorkflowNode,
 }
 
 const edgeTypes = {

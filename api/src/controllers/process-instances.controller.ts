@@ -19,15 +19,16 @@ import {
   response,
   HttpErrors,
 } from '@loopback/rest';
-import { ProcessInstances } from '../models';
-import { ProcessesRepository, ProcessInstanceDocumentsRepository, ProcessInstanceSecretsRepository, ProcessInstancesRepository, ProcessWorkflowOutputRepository, WorkflowInstancesRepository, WorkflowRepository } from '../repositories';
-import { authenticate } from '@loopback/authentication';
+import { ProcessInstances, User } from '../models';
+import { ProcessesRepository, ProcessInstanceDocumentsRepository, ProcessInstanceSecretsRepository, ProcessInstancesRepository, ProcessWorkflowOutputRepository, UserRepository, WorkflowInstancesRepository, WorkflowRepository } from '../repositories';
+import { authenticate, AuthenticationBindings } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { randomBytes } from 'crypto';
 import { inject } from '@loopback/core';
+import { UserProfile } from '@loopback/security';
 import { JWTService } from '../services/jwt-service';
 import axios from 'axios';
 
@@ -47,6 +48,8 @@ export class ProcessInstancesController {
     public workflowInstancesRepository: WorkflowInstancesRepository,
     @repository(WorkflowRepository)
     public workflowRepository: WorkflowRepository,
+    @repository(UserRepository)
+    public userRepository: UserRepository,
     @inject('service.jwt.service')
     public jwtService: JWTService,
   ) { }
@@ -116,7 +119,7 @@ export class ProcessInstancesController {
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @get('/regenrate-token/{processInstanceId}')
   async regenrateToken(
@@ -152,7 +155,7 @@ export class ProcessInstancesController {
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @post('/process-instances')
   @response(200, {
@@ -160,6 +163,7 @@ export class ProcessInstancesController {
     content: { 'application/json': { schema: getModelSchemaRef(ProcessInstances) } },
   })
   async create(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @requestBody({
       content: {
         'application/json': {
@@ -201,6 +205,7 @@ export class ProcessInstancesController {
 
     const newProcessInstanceData: any = {
       ...processInstances,
+      userId: currentUser.id
     };
 
     if (
@@ -254,7 +259,7 @@ export class ProcessInstancesController {
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @get('/process-instances')
   @response(200, {
@@ -269,42 +274,71 @@ export class ProcessInstancesController {
     },
   })
   async find(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @param.filter(ProcessInstances) filter?: Filter<ProcessInstances>,
   ): Promise<ProcessInstances[]> {
     try {
-      return this.processInstancesRepository.find({ ...filter, include: [{ relation: 'processes' }] });
+      const user = await this.userRepository.findById(currentUser.id);
+      if (user && user.permissions.includes('super_admin')) {
+        return this.processInstancesRepository.find(
+          {
+            ...filter,
+            where: {
+              ...filter?.where,
+              isDeleted: false
+            },
+            include: [
+              { relation: 'processes' }
+            ]
+          }
+        );
+      }
+      return this.processInstancesRepository.find(
+        {
+          ...filter,
+          where: {
+            ...filter?.where,
+            and: [
+              { userId: user.id },
+              { isDeleted: false }
+            ]
+          },
+          include: [{ relation: 'processes' }]
+        }
+      );
+
     } catch (error) {
       console.log('error while process instance', error);
       throw error;
     }
   }
 
-  @authenticate({
-    strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
-  })
-  @patch('/process-instances')
-  @response(200, {
-    description: 'ProcessInstances PATCH success count',
-    content: { 'application/json': { schema: CountSchema } },
-  })
-  async updateAll(
-    @requestBody({
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(ProcessInstances, { partial: true }),
-        },
-      },
-    })
-    processInstances: ProcessInstances,
-    @param.where(ProcessInstances) where?: Where<ProcessInstances>,
-  ): Promise<Count> {
-    return this.processInstancesRepository.updateAll(processInstances, where);
-  }
+  // @authenticate({
+  //   strategy: 'jwt',
+  //   options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+  // })
+  // @patch('/process-instances')
+  // @response(200, {
+  //   description: 'ProcessInstances PATCH success count',
+  //   content: { 'application/json': { schema: CountSchema } },
+  // })
+  // async updateAll(
+  //   @requestBody({
+  //     content: {
+  //       'application/json': {
+  //         schema: getModelSchemaRef(ProcessInstances, { partial: true }),
+  //       },
+  //     },
+  //   })
+  //   processInstances: ProcessInstances,
+  //   @param.where(ProcessInstances) where?: Where<ProcessInstances>,
+  // ): Promise<Count> {
+  //   return this.processInstancesRepository.updateAll(processInstances, where);
+  // }
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @get('/process-instances/{id}')
   @response(200, {
@@ -316,9 +350,11 @@ export class ProcessInstancesController {
     },
   })
   async findById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @param.path.number('id') id: number,
     @param.filter(ProcessInstances, { exclude: 'where' }) filter?: FilterExcludingWhere<ProcessInstances>
   ): Promise<ProcessInstances> {
+    const user = await this.userRepository.findById(currentUser.id);
     const processInstance: any = await this.processInstancesRepository.findById(
       id, {
       ...filter,
@@ -334,6 +370,10 @@ export class ProcessInstancesController {
       ]
     }
     );
+
+    if (!user || (user && (!user.permissions.includes('super_admin') && user.id !== processInstance.userId))) {
+      throw new HttpErrors.Unauthorized('Unauthorized success');
+    }
 
     if (processInstance) {
       const processes = processInstance?.processes;
@@ -358,13 +398,14 @@ export class ProcessInstancesController {
 
   @authenticate({
     strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN, PermissionKeys.COMPANY] }
   })
   @patch('/process-instances/{id}')
   @response(204, {
     description: 'ProcessInstances PATCH success',
   })
   async updateById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
     @param.path.number('id') id: number,
     @requestBody({
       content: {
@@ -375,23 +416,31 @@ export class ProcessInstancesController {
     })
     processInstances: ProcessInstances,
   ): Promise<void> {
-    await this.processInstancesRepository.updateById(id, processInstances);
+    const user = await this.userRepository.findById(currentUser.id);
+    const processInstance = await this.processInstancesRepository.findById(id);
+
+    if (user && (user.permissions.includes('super_admin') || processInstance.userId === user.id)) {
+      await this.processInstancesRepository.updateById(id, processInstances);
+      return;
+    }
+
+    throw new HttpErrors.Unauthorized('Unauthorized access');
   }
 
-  @authenticate({
-    strategy: 'jwt',
-    options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
-  })
-  @put('/process-instances/{id}')
-  @response(204, {
-    description: 'ProcessInstances PUT success',
-  })
-  async replaceById(
-    @param.path.number('id') id: number,
-    @requestBody() processInstances: ProcessInstances,
-  ): Promise<void> {
-    await this.processInstancesRepository.replaceById(id, processInstances);
-  }
+  // @authenticate({
+  //   strategy: 'jwt',
+  //   options: { required: [PermissionKeys.ADMIN, PermissionKeys.SUPER_ADMIN] }
+  // })
+  // @put('/process-instances/{id}')
+  // @response(204, {
+  //   description: 'ProcessInstances PUT success',
+  // })
+  // async replaceById(
+  //   @param.path.number('id') id: number,
+  //   @requestBody() processInstances: ProcessInstances,
+  // ): Promise<void> {
+  //   await this.processInstancesRepository.replaceById(id, processInstances);
+  // }
 
   @authenticate({
     strategy: 'jwt',
@@ -462,7 +511,7 @@ export class ProcessInstancesController {
         throw new HttpErrors.BadRequest('Extracted data for process instance not found');
       }
 
-      const processInstanceOutput : any = await this.processInstanceDocumentsRepository.findOne({ where: { processInstancesId: processInstanceId } });
+      const processInstanceOutput: any = await this.processInstanceDocumentsRepository.findOne({ where: { processInstancesId: processInstanceId } });
 
       if (!processInstanceOutput || !processInstanceOutput?.extractedFields) {
         throw new HttpErrors.NotFound('No extracted fields found');
@@ -474,7 +523,7 @@ export class ProcessInstancesController {
       });
 
       const workflowBody = Object.fromEntries(
-        (processInstanceOutput.extractedFields || []).map((f:any) => [f.fieldName, f.fieldValue])
+        (processInstanceOutput.extractedFields || []).map((f: any) => [f.fieldName, f.fieldValue])
       );
 
       if (response && response?.data?.success) {

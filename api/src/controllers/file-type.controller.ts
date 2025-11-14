@@ -51,9 +51,9 @@ export class FileTypeController {
     return this.fileTypeRepository.create(fileType);
   }
 
-  @authenticate({
-    strategy: 'jwt',
-  })
+  // @authenticate({
+  //   strategy: 'jwt',
+  // })
   @get('/file-types')
   @response(200, {
     description: 'Array of FileType model instances',

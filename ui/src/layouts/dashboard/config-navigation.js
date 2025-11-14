@@ -4,8 +4,6 @@ import { paths } from 'src/routes/paths';
 // locales
 import { useLocales } from 'src/locales';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import SvgColor from 'src/components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -66,12 +64,11 @@ export function useNavData() {
           { title: t('Process Instance'), path: paths.dashboard.processesInstance.root, icon: ICONS.processInstance },
           { title: t('workflow'), path: paths.dashboard.workflow.root, icon: ICONS.processInstance },
           { title: t('Workflow Instance'), path: paths.dashboard.workflowInstance.root, icon: ICONS.processInstance },
-          // { title: t(' Mail Server '), path: paths.dashboard.mailServer.root, icon: ICONS.mailServer },
           {
             title: t('Settings'),
             path: paths.dashboard.processType.list,
             icon: ICONS.settings,
-            roles: ['super_admin'],
+            roles: ['super_admin', 'admin', 'company'],
             children: [
               {
                 title: t('Process Types'),
@@ -91,7 +88,7 @@ export function useNavData() {
               {
                 title: t('Notification Setting'),
                 path: paths.dashboard.notificationSetting.list,
-                roles: ['super_admin'],
+                roles: ['super_admin', 'company', 'admin'],
               },
               {
                 title: t(' Mail Server '),
