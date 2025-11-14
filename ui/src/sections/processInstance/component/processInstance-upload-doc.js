@@ -113,7 +113,7 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                         multiple
                         thumbnail
                         name="files"
-                        maxSize={3145728}
+                        maxSize={104857600}
                         accept={{
                             'application/pdf': [],
                             'application/msword': [],
