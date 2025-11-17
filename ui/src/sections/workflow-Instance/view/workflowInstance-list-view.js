@@ -36,7 +36,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import axiosInstance from 'src/utils/axios';
+import { workflowAxiosInstance } from 'src/utils/axios';
 import { useGetWorkflowInstances } from 'src/api/workflow-instance';
 import { Box, Grid, Typography } from '@mui/material';
 import WorkflowInstanceTableRow from '../workflowInstance-table-row';
@@ -153,7 +153,7 @@ export default function WorkflowInstanceListView() {
 
   const handleProcessInstanceRunningStatus = async(row) => {
     try{
-      await axiosInstance.patch(`/workflow-instances/${row?.id}`, {isInstanceRunning: !row?.isInstanceRunning});
+      await workflowAxiosInstance.patch(`/workflow-instances/${row?.id}`, {isInstanceRunning: !row?.isInstanceRunning});
       refreshWorkflowInstances();
     }catch(error){
       console.error('Error while changing running status', error);

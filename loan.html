@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Loan Enquiry Form</title>
+        <style>
+    :root{
+      --bg:#f6f8fa; --card:#ffffff; --accent:#2563eb; --muted:#6b7280; --danger:#dc2626;
+      --success:#16a34a; font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);color:#0f172a}
+    .container{max-width:920px;margin:36px auto;padding:24px}
+    .card{background:var(--card);border-radius:12px;box-shadow:0 6px 18px rgba(15,23,42,0.06);padding:24px}
+    h1{margin:0 0 12px;font-size:22px}
+    p.lead{margin:0 0 18px;color:var(--muted)}
+    form .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    label{display:block;font-size:13px;margin-bottom:6px;color:#0b1220}
+    input[type="text"], input[type="email"], input[type="tel"], input[type="number"], select, textarea {
+      width:100%;padding:10px 12px;border:1px solid #e6e9ef;border-radius:8px;font-size:14px;
+      box-sizing:border-box;
+    }
+    textarea{min-height:100px;resize:vertical}
+    .full{grid-column:1 / -1}
+    .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .help{font-size:12px;color:var(--muted);margin-top:6px}
+    .error{color:var(--danger);font-size:13px;margin-top:6px}
+    .success{color:var(--success);font-size:13px;margin-top:6px}
+    .info-box{
+      background:#eef2ff;border-left:4px solid var(--accent);
+      padding:12px 14px;border-radius:6px;font-size:14px;color:#334155;margin-bottom:16px;
+    }
+    @media (max-width:780px){ .grid{grid-template-columns:1fr} .container{padding:12px} }
+  </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="card">
+                <h1>Loan Enquiry</h1>
+                <p class="lead">Fill this form to create your loan enquiry.
+                    Document verification will be completed later during the
+                    main workflow.</p>
+
+                <!-- Info message replacing upload fields -->
+                <div class="info-box">
+                    <strong>Note:</strong> You will be required to provide your
+                    Aadhaar, PAN card, and income proof documents later during
+                    the verification workflow.
+                    This form only collects your document numbers at this stage.
+                </div>
+
+                <form id="loanForm" novalidate>
+                    <div class="grid">
+
+                        <div>
+                            <label for="firstname">First name *</label>
+                            <input id="firstname" name="firstname" type="text"
+                                required placeholder="e.g. Karan" />
+                        </div>
+
+                        <div>
+                            <label for="middlename">Middle name
+                                (optional)</label>
+                            <input id="middlename" name="middlename" type="text"
+                                placeholder="e.g. Dilip" />
+                        </div>
+
+                        <div>
+                            <label for="lastname">Last name *</label>
+                            <input id="lastname" name="lastname" type="text"
+                                required placeholder="e.g. Rakh" />
+                        </div>
+
+                        <div>
+                            <label for="employmentType">Employment Type
+                                *</label>
+                            <select id="employmentType" name="employmentType"
+                                required>
+                                <option value>Select</option>
+                                <option value="salaried">Salaried</option>
+                                <option
+                                    value="self-employed">Self-employed</option>
+                                <option value="business">Business</option>
+                                <option value="student">Student</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="aadhar">Aadhaar number *</label>
+                            <input id="aadhar" name="aadhar" type="text"
+                                maxlength="12" required
+                                placeholder="12-digit Aadhaar" />
+                        </div>
+
+                        <div>
+                            <label for="pan">PAN number *</label>
+                            <input id="pan" name="pan" type="text"
+                                maxlength="10" placeholder="ABCDE1234F"
+                                required />
+                        </div>
+
+                        <div>
+                            <label for="phone">Phone number *</label>
+                            <input id="phone" name="phone" type="tel"
+                                maxlength="10" required
+                                placeholder="10-digit mobile" />
+                        </div>
+
+                        <div>
+                            <label for="email">Email address *</label>
+                            <input id="email" name="email" type="email" required
+                                placeholder="name@example.com" />
+                        </div>
+
+                        <div class="full">
+                            <label for="address">Address</label>
+                            <textarea id="address" name="address"
+                                placeholder="Full address"></textarea>
+                        </div>
+
+                        <div>
+                            <label for="salary">Monthly Salary / Income
+                                *</label>
+                            <input id="salary" name="salary" type="number"
+                                required placeholder="35000" />
+                        </div>
+
+                        <div>
+                            <label for="loanPurpose">Loan purpose *</label>
+                            <select id="loanPurpose" name="loanPurpose"
+                                required>
+                                <option value>Select</option>
+                                <option value="home">Home loan</option>
+                                <option value="car">Car loan</option>
+                                <option value="business">Business loan</option>
+                                <option value="education">Education
+                                    loan</option>
+                                <option value="personal">Personal loan</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="loanAmount">Requested Loan Amount
+                                *</label>
+                            <input id="loanAmount" name="loanAmount"
+                                type="number" required placeholder="500000" />
+                        </div>
+
+                        <div>
+                            <label for="tenure">Tenure (months) *</label>
+                            <input id="tenure" name="tenure" type="number"
+                                required placeholder="60" />
+                        </div>
+
+                        <div class="full">
+                            <label for="notes">Notes (optional)</label>
+                            <textarea id="notes" name="notes"
+                                placeholder="Describe your loan use case if needed…"></textarea>
+                        </div>
+
+                        <div class="full">
+                            <label><input type="checkbox" id="consent"
+                                    name="consent" required /> I agree to share
+                                my information for loan processing.</label>
+                        </div>
+
+                    </div>
+
+                    <div style="margin-top:18px;display:flex;gap:12px">
+                        <button class="btn" id="submitBtn">Create
+                            Enquiry</button>
+                        <div id="formFeedback"></div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <script>
+(function(){
+  const MINI_ENQUIRY_API_URL = "http://localhost:3058/workflow/webhook/691affb278d2db15cc916761/wh_mi30g683_k9qzws"; // update your real API
+
+  const form = document.getElementById('loanForm');
+  const btn = document.getElementById('submitBtn');
+  const feedback = document.getElementById('formFeedback');
+
+  function showError(msg){ feedback.innerHTML = '<div class="error">'+msg+'</div>'; }
+  function showSuccess(msg){ feedback.innerHTML = '<div class="success">'+msg+'</div>'; }
+
+  function validateAadhar(a){ return /^\d{12}$/.test(a); }
+  function validatePAN(p){ return /^[A-Z]{5}[0-9]{4}[A-Z]$/i.test(p); }
+  function validatePhone(p){ return /^\d{10}$/.test(p); }
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    feedback.innerHTML="";
+
+    const data = new FormData(form);
+
+    const firstname = (data.get('firstname') || '').trim();
+    const middlename = (data.get('middlename') || '').trim();
+    const lastname = (data.get('lastname') || '').trim();    
+    const aadhar = data.get('aadhar').trim();
+    const pan = data.get('pan').trim();
+    const phone = data.get('phone').trim();
+    const email = data.get('email').trim();
+    const salary = Number(data.get('salary'));
+    const loanAmount = Number(data.get('loanAmount'));
+    const tenure = Number(data.get('tenure'));
+    const loanPurpose = data.get('loanPurpose');
+    const employmentType = data.get('employmentType');
+
+    if (!firstname) return showError("First name is required.");
+    if (!lastname) return showError("Last name is required.");
+    if(!validateAadhar(aadhar)) return showError("Invalid Aadhaar number.");
+    if(!validatePAN(pan)) return showError("Invalid PAN number.");
+    if(!validatePhone(phone)) return showError("Phone must be 10 digits.");
+    if(!email) return showError("Email required.");
+    if(!salary) return showError("Salary required.");
+    if(!loanAmount) return showError("Loan amount required.");
+    if(!tenure) return showError("Tenure required.");
+    if(!loanPurpose) return showError("Select loan purpose.");
+    if(!employmentType) return showError("Select employment type.");
+    if(!data.get('consent')) return showError("Consent is required.");
+
+    const payload = {
+      firstname,
+      middlename,
+      lastname,
+      aadhar,
+      pan,
+      phone,
+      email,
+      address: data.get('address'),
+      salary,
+      loanAmount,
+      tenure,
+      loanPurpose,
+      employmentType,
+      notes: data.get('notes')
+    };
+
+    try {
+      btn.disabled = true;
+      btn.textContent = "Creating...";
+
+      const resp = await fetch(MINI_ENQUIRY_API_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body:JSON.stringify(payload)
+      });
+
+      const res = await resp.json();
+      showSuccess("Enquiry created successfully!");
+
+      form.reset();
+    } catch(err){
+      showError("Error: "+err.message);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Create Enquiry";
+    }
+  });
+})();
+</script>
+    </body>
+</html>

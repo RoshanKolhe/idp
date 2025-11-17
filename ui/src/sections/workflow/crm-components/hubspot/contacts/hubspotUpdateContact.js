@@ -27,7 +27,7 @@ const leadStatusOptions = [
     { label: 'Bad Timing', value: 'BAD_TIMING' },
 ];
 
-export default function HubSpotCreateContact({ variables }) {
+export default function HubSpotUpdateContact({ variables }) {
     const { watch, setValue, getValues } = useFormContext();
     const values = watch();
     const [popoverOpen, setPopoverOpen] = useState(false);
@@ -121,6 +121,6 @@ export default function HubSpotCreateContact({ variables }) {
     )
 }
 
-HubSpotCreateContact.propTypes = {
+HubSpotUpdateContact.propTypes = {
     variables: PropTypes.array
 }

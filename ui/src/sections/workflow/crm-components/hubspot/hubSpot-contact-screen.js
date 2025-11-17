@@ -2,15 +2,23 @@ import { useFormContext } from "react-hook-form";
 import PropTypes from "prop-types";
 import { RHFSelect } from "src/components/hook-form";
 import { Grid, MenuItem } from "@mui/material";
-import { HubSpotCreateContact } from "./contacts";
+import { HubSpotCreateContact, HubSpotFetchContacts, HubSpotUpdateContact } from "./contacts";
 
 // switch case functions
 function Switch({ opt, variables }) {
     let component;
 
     switch (opt) {
+        case 1:
+            component = <HubSpotFetchContacts variables={variables} />;
+            break;
+
         case 3:
             component = <HubSpotCreateContact variables={variables} />;
+            break;
+
+        case 4:
+            component = <HubSpotUpdateContact variables={variables} />;
             break;
 
         default:
@@ -31,7 +39,7 @@ export default function HubSpotContactScreen({ variables }) {
     const values = watch();
     const hubSpotContactTaskOptions = [
         { label: 'Get Contacts', value: 1 },
-        { label: 'Search Contact', value: 2 },
+        { label: 'Get Single Contact', value: 2 },  // either through email or contactID
         { label: 'Create New Contact', value: 3 },
         { label: 'Update Contact', value: 4 },
         { label: 'Delete Contact', value: 5 },

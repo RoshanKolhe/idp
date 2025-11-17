@@ -18,7 +18,7 @@ const hubSpotTaskSchemas = {
     1: Yup.object().shape({
         contactTask: Yup.number().required("Please select contact task"),
         contactDetails: Yup.object().when("contactTask", {
-            is: 3,
+            is: (val) => val === 3 || val === 4,
             then: (shape) => shape.shape({
                 firstname: Yup.string().required("First name is required"),
                 lastname: Yup.string().required("Last name is required"),
@@ -37,8 +37,19 @@ const hubSpotTaskSchemas = {
                         }
                     ),
                 phone: Yup.string().required("Phone number is required"),
+                lifecycle_stage: Yup.string().required("lifecycle stage is required"),
+                lead_status: Yup.string().required("Lead status is required")
             }),
-            otherwise: (shape) => shape.notRequired(),
+            otherwise: (shape) => shape.when("contactTask", {
+                is: 1,
+                then: (schema) =>
+                    schema.shape({
+                        limit: Yup.number().required('Number if contacts to fetch are required'),
+                        skip: Yup.number().notRequired(),
+                    }),
+
+                otherwise: (schema) => schema.notRequired(),
+            }),
         }),
     }),
 };

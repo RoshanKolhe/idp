@@ -56,7 +56,7 @@ export default function HubSpotScreen({ variables }) {
 
                     <Switch opt={values.hubspotTask} variables={variables} />
 
-                    <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
+                    <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', alignItems: 'flex-end', gap: '10px', width: '100%' }}>
                         <LoadingButton sx={{ backgroundColor: "black" }} type="submit" variant="contained" loading={isSubmitting}>
                             Save
                         </LoadingButton>
