@@ -105,10 +105,18 @@ export default function ReactFlowBoard() {
         const { nodes: layouted, edges: layoutedE } = getLayoutedElements(nodes, edges, workflowDirection);
         setNodes(layouted);
         setEdges(layoutedE);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [workflowDirection]);
 
     const handleBluePrintComponent = (label, id, updatedComponent) => {
+        setNodes((prev) =>
+            prev.map((node) =>
+                node.id === id && node.type === 'case'
+                    ? { ...node, data: { ...node.data, label: updatedComponent.caseName } }
+                    : node
+            )
+        );
+
         setBluePrint((prev) => prev.map((node) => {
             if (node.id === id) {
                 return {

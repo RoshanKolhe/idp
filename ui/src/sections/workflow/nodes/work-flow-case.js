@@ -10,7 +10,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import Autocomplete from "@mui/material/Autocomplete";
 import Iconify from "src/components/iconify";
-import FormProvider, { RHFSelect } from "src/components/hook-form";
+import FormProvider, { RHFSelect, RHFTextField } from "src/components/hook-form";
 
 // Date pickers
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -102,6 +102,7 @@ export default function WorkflowCase({ data }) {
 
     // validation schema
     const schema = Yup.object().shape({
+        caseName: Yup.string().required('please enter case name'),
         logicalOperator: Yup.string().oneOf(['AND', 'OR']).required(),
         conditions: Yup.array().of(
             Yup.object().shape({
@@ -115,6 +116,7 @@ export default function WorkflowCase({ data }) {
     });
 
     const defaultValues = useMemo(() => ({
+        caseName: data?.bluePrint?.caseName || '',
         logicalOperator: data?.bluePrint?.logicalOperator || 'AND',
         conditions: (data?.bluePrint?.conditions && Array.isArray(data.bluePrint.conditions))
             ? data.bluePrint.conditions.map(c => ({ ...c })) // clone
@@ -142,29 +144,11 @@ export default function WorkflowCase({ data }) {
         return found?.type || 'string';
     }, [fieldOptions]);
 
-    // carefully update fieldType for conditions only when it actually differs to avoid loops
-    // useEffect(() => {
-    //     if (!Array.isArray(watchedConditions)) return;
-    //     let changed = false;
-    //     const updated = watchedConditions.map((cond) => {
-    //         const detected = getFieldType(cond.field) || 'string';
-    //         if (cond.fieldType !== detected) {
-    //             changed = true;
-    //             return { ...cond, fieldType: detected };
-    //         }
-    //         return cond;
-    //     });
-    //     if (changed) {
-    //         // replace only when type changed (preserves user-entered condition/value)
-    //         replace(updated);
-    //     }
-    //     // track field names only for triggering
-    // }, [JSON.stringify((watchedConditions || []).map(c => c.field)), getFieldType, replace]);
-
     // submit handler
     const onSubmit = (formData) => {
         // ensure we save only minimal shape
         const payload = {
+            caseName: formData.caseName,
             logicalOperator: formData.logicalOperator,
             conditions: formData.conditions.map(c => ({
                 field: c.field,
@@ -403,6 +387,9 @@ export default function WorkflowCase({ data }) {
             <CustomWorkflowDialogue isOpen={open} handleCloseModal={() => setOpen(false)} title="Case Node" color={data.bgColor || '#f50057'}>
                 <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
                     <Grid container spacing={2} sx={{ mb: 2 }}>
+                        <Grid item xs={12}>
+                            <RHFTextField name='caseName' label='Case Name' />
+                        </Grid>
                         <Grid item xs={12}>
                             <Controller name="logicalOperator" control={control} render={({ field }) => (
                                 <RHFSelect {...field} name="logicalOperator" label="Logical Operator">

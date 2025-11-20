@@ -1,4 +1,4 @@
-import { Grid, Button } from "@mui/material";
+import { Grid, Button, Stack, Box } from "@mui/material";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { RHFTextField } from "src/components/hook-form";
 import PropTypes from "prop-types";
@@ -21,17 +21,32 @@ export default function GenAIComponent({ namePrefix }) {
     return (
         <>
             {fields.map((field, index) => (
-                <Grid sx={{mb: '10px'}} container spacing={2} key={field.id}>
-                    <Grid item xs={5}>
-                        <RHFTextField name={`${namePrefix}[${index}].prompt`} label="Prompt" />
+                <Grid sx={{ mb: '10px' }} container spacing={2} key={field.id}>
+                    <Grid item xs={12} md={6}>
+                        <RHFTextField multiline name={`${namePrefix}[${index}].prompt`} label="Prompt" />
                     </Grid>
-                    <Grid item xs={5}>
-                        <RHFTextField name={`${namePrefix}[${index}].variableName`} label="Variable Name" />
-                    </Grid>
-                    <Grid item xs={2}>
-                        <Button onClick={() => remove(index)} color="error">
-                            Remove
-                        </Button>
+                    <Grid item xs={12} md={6}>
+                        <Stack direction='column' spacing={1}>
+                            <Box
+                                component='div'
+                                sx={{
+                                    width: '100%'
+                                }}
+                            >
+                                <RHFTextField name={`${namePrefix}[${index}].variableName`} label="Variable Name" />
+                            </Box>
+                            <Box
+                                component='div'
+                                sx={{
+                                    width: '100%',
+                                    textAlign: 'right'
+                                }}
+                            >
+                                <Button onClick={() => remove(index)} color="error">
+                                    Remove
+                                </Button>
+                            </Box>
+                        </Stack>
                     </Grid>
                 </Grid>
             ))}
