@@ -511,9 +511,19 @@ export class ProcessInstancesController {
         throw new HttpErrors.BadRequest('Extracted data for process instance not found');
       }
 
-      const processInstanceOutput: any = await this.processInstanceDocumentsRepository.findOne({ where: { processInstancesId: processInstanceId } });
+      const processInstanceDocuments: any = await this.processInstanceDocumentsRepository.find({ where: { processInstancesId: processInstanceId } });
 
-      if (!processInstanceOutput || !processInstanceOutput?.extractedFields) {
+      // Check if we found any document
+      if (!processInstanceDocuments || processInstanceDocuments.length === 0) {
+        throw new HttpErrors.NotFound('No documents found for this process instance');
+      }
+
+      // Extract all fields from all documents
+      const allExtractedFields = processInstanceDocuments
+        .flatMap((doc : any) => doc.extractedFields || []);
+
+      // Ensure fields exist
+      if (!allExtractedFields || allExtractedFields.length === 0) {
         throw new HttpErrors.NotFound('No extracted fields found');
       }
 
@@ -523,7 +533,7 @@ export class ProcessInstancesController {
       });
 
       const workflowBody = Object.fromEntries(
-        (processInstanceOutput.extractedFields || []).map((f: any) => [f.fieldName, f.fieldValue])
+        allExtractedFields.map((f: any) => [f.fieldName, f.fieldValue])
       );
 
       if (response && response?.data?.success) {
