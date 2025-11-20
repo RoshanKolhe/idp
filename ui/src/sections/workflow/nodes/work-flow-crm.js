@@ -82,7 +82,6 @@ const getCRMSchemas = (values) => {
 
                     selectedConnection: Yup.string().required("Please select connection"),
                     hubspotTask: Yup.number().required("Please select task"),
-
                     ...(hubSpotTaskSchemas[values.hubspotTask]?.fields || {}),
                 }),
             };
@@ -120,7 +119,13 @@ const getValidationSchema = (values) => {
     const crmSchemas = getCRMSchemas(values);
     return Yup.object().shape({
         crmType: Yup.string().required("CRM Type is required"),
-        ...(crmSchemas[crmType] ? crmSchemas[crmType].fields : {}),
+        valueRef: Yup.number().required("Value is required"),
+        ...((crmSchemas[crmType] && values.valueRef === 0) ? crmSchemas[crmType].fields : {}),
+        prompt: Yup.string().when('valueRef', {
+            is: 1,
+            then: (schema) => schema.required('Prompt is required'),
+            otherwise: (schema) => schema.notRequired()
+        })
     });
 };
 
@@ -132,6 +137,7 @@ export default function WorkFlowCRM({ data }) {
     const defaultValues = useMemo(
         () => ({
             crmType: data.bluePrint?.crmType || '',
+            valueRef: data.bluePrint?.valueRef || 0,
             connectionDetails: data.bluePrint?.connectionDetails || [],
             selectedConnection: data.bluePrint?.selectedConnection || '',
             hubspotTask: data.bluePrint?.hubspotTask || 1,
@@ -178,7 +184,7 @@ export default function WorkFlowCRM({ data }) {
     useEffect(() => {
         setDynamicSchema(getValidationSchema(values));
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [values.crmType, values.hubspotTask]);
+    }, [values.crmType, values.hubspotTask, values.valueRef]);
 
     useEffect(() => {
         reset(defaultValues);

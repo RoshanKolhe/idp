@@ -4,6 +4,7 @@ import { Grid, MenuItem, Stack } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { RHFSelect } from "src/components/hook-form";
 import { HubSpotConnection, HubSpotContactScreen } from "../hubspot";
+import { CRMPromptField, CRMPromptToggle } from "../components";
 
 // switch case functions
 function Switch({ opt, variables }) {
@@ -27,7 +28,7 @@ Switch.propTypes = {
     variables: PropTypes.array
 }
 
-export default function HubSpotScreen({ variables }) {
+export default function HubSpotScreen({ variables}) {
     const { watch, formState: { isSubmitting } } = useFormContext();
     const values = watch();
     const hubSpotOptions = [
@@ -46,15 +47,26 @@ export default function HubSpotScreen({ variables }) {
                         <HubSpotConnection />
                     </Grid>
 
-                    <Grid item xs={12} md={12}>
-                        <RHFSelect name='hubspotTask' label='Select The Task'>
-                            {hubSpotOptions?.map((opt) => (
-                                <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                            ))}
-                        </RHFSelect>
-                    </Grid>
+                    <CRMPromptToggle />
 
-                    <Switch opt={values.hubspotTask} variables={variables} />
+                    {values.valueRef === 0 ?
+                        (
+                            <>
+                                <Grid item xs={12} md={12}>
+                                    <RHFSelect name='hubspotTask' label='Select The Task'>
+                                        {hubSpotOptions?.map((opt) => (
+                                            <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                                        ))}
+                                    </RHFSelect>
+                                </Grid>
+
+                                <Switch opt={values.hubspotTask} variables={variables} />
+                            </>
+                        ) :
+                        (
+                            <CRMPromptField variables={variables} />
+                        )
+                    }
 
                     <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', alignItems: 'flex-end', gap: '10px', width: '100%' }}>
                         <LoadingButton sx={{ backgroundColor: "black" }} type="submit" variant="contained" loading={isSubmitting}>
@@ -70,5 +82,5 @@ export default function HubSpotScreen({ variables }) {
 }
 
 HubSpotScreen.propTypes = {
-    variables: PropTypes.array
+    variables: PropTypes.array,
 }
