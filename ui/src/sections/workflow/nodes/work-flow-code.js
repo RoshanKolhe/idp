@@ -5,28 +5,26 @@ import { LoadingButton } from "@mui/lab";
 import Editor from "@monaco-editor/react";
 import FormProvider from "src/components/hook-form";
 import Iconify from "src/components/iconify";
-import { CustomWorkflowNode, CustomWorkflowDialogue } from "../components";
+import { CustomWorkflowNode, CustomWorkflowDialogue, CustomWorkflowVariablePopover } from "../components";
 
 export default function WorkFlowCode({ data }) {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState(null);
+  const [popoverOpen, setPopoverOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [variables, setVariables] = useState([]);
+  const [currentField, setCurrentField] = useState({ name: null, ref: null });
+  const [editorInstance, setEditorInstance] = useState(null);
 
   // Default starter code
   const defaultCode = `function main() {
   // Write your custom logic here
   // You can access input variables or make transformations
+  // always return data into object
   console.log("Custom code node executing...");
 }
-main();`;
-
-  useEffect(() => {
-    if (data?.bluePrint?.code) {
-      setCode(data.bluePrint.code);
-    } else {
-      setCode(defaultCode);
-    }
-  }, [data, defaultCode]);
+return main();`;
 
   const handleClose = () => {
     setOpen(false);
@@ -54,6 +52,56 @@ main();`;
       console.error("Error while saving code node", newError);
     }
   };
+
+  const handleEditorMount = (editor, monaco) => {
+    setEditorInstance(editor);
+
+    // If you want to open variable popover on focus
+    editor.onDidFocusEditorText(() => {
+      console.log('popover true');
+      setAnchorEl(editor.getDomNode());
+      setPopoverOpen(true);
+    });
+  };
+
+  const handleSelectVariable = (variable) => {
+    if (!variable) {
+      setPopoverOpen(false);
+      return;
+    }
+
+    if (!editorInstance) return;
+
+    const insertText = `{{${variable}}}`;
+
+    editorInstance.executeEdits(null, [
+      {
+        range: editorInstance.getSelection(),
+        text: insertText,
+        forceMoveMarkers: true,
+      },
+    ]);
+
+    const updated = editorInstance.getValue();
+    setCode(updated);
+
+    setPopoverOpen(false);
+  };
+
+  useEffect(() => {
+    if (data?.bluePrint?.code) {
+      setCode(data.bluePrint.code);
+    } else {
+      setCode(defaultCode);
+    }
+  }, [data, defaultCode]);
+
+  // variables
+  useEffect(() => {
+    if (data && data.variables) {
+      setVariables(data.variables);
+    }
+  }, [data]);
 
   return (
     <Box component="div">
@@ -95,6 +143,7 @@ main();`;
                 theme="vs-dark"
                 value={code}
                 onChange={(value) => setCode(value)}
+                onMount={handleEditorMount}
                 options={{
                   fontSize: 14,
                   minimap: { enabled: false },
@@ -134,6 +183,12 @@ main();`;
           </FormProvider>
         </CustomWorkflowDialogue>
       </Stack>
+      <CustomWorkflowVariablePopover
+        open={popoverOpen}
+        handleClose={handleSelectVariable}
+        anchorEl={anchorEl}
+        variables={variables}
+      />
     </Box>
   );
 }
