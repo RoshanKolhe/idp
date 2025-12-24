@@ -17,7 +17,9 @@ export default function ProcessesTableGrid({ row, onViewRow, onQueryRow, onEdit,
         boxShadow: '0 4px 20px rgba(0,0,0,0.05)',
         backgroundColor: '#fff',
         maxWidth: 520,
+        maxHeight: 250,
         width: '100%',
+        height: '100%',
         mx: 'auto',
       }}
     >
