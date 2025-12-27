@@ -18,7 +18,6 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router';
-import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -46,7 +45,24 @@ export default function ProcessTypeTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{processType}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
+        <TableCell sx={{ maxWidth: 300 }}>
+          <Tooltip title={description} placement="top-start" arrow>
+            <span
+              style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'normal',
+                cursor: 'pointer',
+              }}
+            >
+              {description}
+            </span>
+          </Tooltip>
+        </TableCell>
+        
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}

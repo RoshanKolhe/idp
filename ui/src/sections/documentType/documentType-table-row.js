@@ -46,7 +46,24 @@ export default function DocumentTypeTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{documentType}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{description}</TableCell>
+        <TableCell sx={{ maxWidth: 300 }}>
+          <Tooltip title={description} placement="top-start" arrow>
+            <span
+              style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'normal',
+                cursor: 'pointer',
+              }}
+            >
+              {description}
+            </span>
+          </Tooltip>
+        </TableCell>
+
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}
