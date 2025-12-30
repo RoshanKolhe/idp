@@ -26,7 +26,7 @@ import {
     getLayoutedElements,
     CustomWorkflowNodesPanel
 } from './components';
-import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkFlowCRM, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowIterator, WorkflowIteratorEnd, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
+import { WorkFlowAPI, WorkFlowApproval, WorkflowCase, WorkFlowCode, WorkFlowCRM, WorkflowDecision, WorkflowEventTrigger, WorkFlowIngestion, WorkFlowIterator, WorkflowIteratorEnd, WorkFlowMonorepo, WorkFlowNotification, WorkFlowSetVariable, WorkFlowTimeTrigger, WorkFlowWait, WorkFlowWebhookTrigger } from './nodes';
 import { useWorkflowContext } from './hooks';
 
 const nodeTypes = {
@@ -47,6 +47,7 @@ const nodeTypes = {
     iterator: WorkFlowIterator,
     iteratorEnd: WorkflowIteratorEnd,
     crm: WorkFlowCRM,
+    monorepo: WorkFlowMonorepo
 }
 
 const edgeTypes = {
@@ -188,6 +189,11 @@ export default function ReactFlowBoard() {
                         },
                         bluePrint: bluePrint.find((item) => item.id === newOpCompNodeId)?.component,
                         variables: VariableDetection(prevNodes, bluePrint),
+                        ...(operation?.type === 'monorepo' && { 
+                            popupKey: operation.popupKey,
+                            configFields: operation.configFields,
+                            defaultValues: operation.defaultValues
+                        })
                     },
                     position: { x: 0, y: 0 },
                 };

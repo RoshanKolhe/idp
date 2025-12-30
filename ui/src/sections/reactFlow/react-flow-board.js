@@ -23,6 +23,8 @@ import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
 import { ReactFlowClassify, ReactFlowDeliver, ReactFlowExtract, ReactFlowIngestion, ReactFlowValidate } from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
+import CustomEdgeWithSettings from './react-flow-custom-edge';
+import { ReactFlowEdgeSettingPopup } from './edge-setting-components';
 
 const nodeTypes = {
   custom: ReactFlowCustomNodeStructure,
@@ -32,6 +34,10 @@ const nodeTypes = {
   extract: ReactFlowExtract,
   validate: ReactFlowValidate,
   deliver: ReactFlowDeliver,
+}
+
+const edgeTypes = {
+  settingsEdge: CustomEdgeWithSettings
 }
 
 const initialNodes = [
@@ -80,91 +86,59 @@ export default function ReactFlowBoard({ isUnlock }) {
   const [showModal, setShowModal] = useState(false);
   const [lastNodeId, setLastNodeId] = useState(undefined);
   const [selectedNodeId, setSelectedNodeId] = useState(null);
+  const [edgeSettings, setEdgeSettings] = useState([]);
+  const [activeEdgeData, setActiveEdgeData] = useState(null);
+  const [edgePopup, setEdgePopup] = useState(false);
 
-  useEffect(() => {
-    if (bluePrints && !bluePrintsLoading) {
-      if (bluePrints?.success) {
-        setData(bluePrints?.data);
+  // configure settings...
+  const configureSettings = (sourceNode, targetNode, settingObj) => {
+    setEdgeSettings((prev) => {
+      const existingSetting = prev.find((setting) => setting.sourceNode === sourceNode && setting.targetNode === targetNode);
+
+      if (existingSetting) {
+        const newSettings = prev.map((setting) => {
+          if (setting.id === existingSetting.id) {
+            return {
+              sourceNode,
+              targetNode,
+              settings: settingObj
+            }
+          }
+
+          return setting;
+        })
+
+        return newSettings;
       }
-    }
-  }, [bluePrints, bluePrintsLoading]);
 
-  useEffect(() => {
-    if (data) {
-      // setting bluePrint
-      setBluePrint(data?.bluePrint);
+      const newSettingObj = {
+        id: `set-${sourceNode}-${targetNode}`,
+        edgeId: settingObj.edgeId,
+        sourceNode,
+        targetNode,
+        settings: settingObj
+      }
 
-      const newPresentNodes = data?.bluePrint.length > 0 ? data?.bluePrint.map((item) => item.nodeName) : [];
-      setPresentNodes(newPresentNodes);
+      return [...prev, newSettingObj];
+    })
+  }
 
-      // setting nodes
-      const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
-          ...node,
-          data : {
-            ...node.data,
-            functions: {
-              addToLeft: addNodeToLeft,
-              addToRight: addNodeToRight,
-              deleteNode,
-              handleBluePrintComponent
-            },
-            bluePrint: data?.bluePrint?.find((item) => item.nodeName === node.data.label)?.component,
-          }
-        }));
+  // edge popup function
+  const handleEdgePopup = (payload) => {
+    setActiveEdgeData({
+      ...payload,
+      bluePrint: edgeSettings.find((setting) => setting.sourceNode === payload.sourceNode && setting.targetNode === payload.targetNode) ?? null,
+      configureSettings
+    });
 
-      setNodes(newNodes || initialNodes);
+    setEdgePopup(true);
+  }
 
-      setLastNodeId(newNodes?.length || 2);
-
-      setEdges(data?.edges || []);
-    } else {
-      // setting up the nodes...
-      setNodes((prev) => [...prev, ...initialNodes.map((node) => (
-        {
-          ...node, data: {
-            ...node.data,
-            functions: {
-              addToLeft: addNodeToLeft,
-              addToRight: addNodeToRight,
-              deleteNode,
-              handleBluePrintComponent
-            },
-            bluePrint: bluePrint.find((item) => item.nodeName === node.data.label)?.component,
-          }
-        }))]);
-
-      setLastNodeId(2);
-
-      // setting up the edges...
-      setEdges([{
-        id: `e1-2`,
-        source: `1`,
-        target: `2`,
-        animated: true,
-        style: { stroke: 'black' },
-      }])
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data])
-
-  useEffect(() => {
-    if (nodes && nodes.length > 0) {
-      const filteredNodes = nodes.filter((node) => node.type !== 'customAddNode');
-
-      setBluePrint((prev) => {
-        const existingNames = new Set(prev.map(item => item.nodeName));
-
-        const newBlueprintEntries = filteredNodes
-          .filter((node) => !existingNames.has(node.data.label))
-          .map((node) => ({
-            nodeName: node.data.label,
-            component: null,
-          }));
-
-        return [...prev, ...newBlueprintEntries];
-      });
-    }
-  }, [nodes]);
+  // on close edge popup
+  const handleCloseEdgePopup = () => {
+    setActiveEdgeData(null);
+    setEdgePopup(false);
+  }
 
   const handleBluePrintComponent = (label, updatedComponent) => {
     setBluePrint((prev) => prev.map((node) => {
@@ -185,7 +159,6 @@ export default function ReactFlowBoard({ isUnlock }) {
     }
   };
 
-  console.log('present nodes', presentNodes);
   const addNewNode = (operation) => {
     // const newOpNodeId = `${lastNodeId + 1}`;
     const newOpCompNodeId = `${lastNodeId}`;
@@ -280,6 +253,10 @@ export default function ReactFlowBoard({ isUnlock }) {
       target: `${newOpCompNodeId}`,
       animated: true,
       style: { stroke: 'black' },
+      type: 'settingsEdge',
+      data: {
+        handleEdgePopup
+      }
     }
 
     setNodes((nds) =>
@@ -395,6 +372,10 @@ export default function ReactFlowBoard({ isUnlock }) {
       target: `${id}`,
       animated: true,
       style: { stroke: 'black' },
+      type: 'settingsEdge',
+      data: {
+        handleEdgePopup
+      }
     }])
 
     setPresentNodes((prev) => [...prev, operation?.title]);
@@ -499,16 +480,19 @@ export default function ReactFlowBoard({ isUnlock }) {
         target: `${targetId + 1}`,
         animated: true,
         style: { stroke: 'black' },
+        type: 'settingsEdge',
+        data: {
+          handleEdgePopup
+        }
       },
     ]);
 
     setPresentNodes((prev) => [...prev, operation?.title]);
   };
 
-  console.log('nodes', nodes);
   // delete node
   const deleteNode = (id, label) => {
-    const deleteId = Number(id);    
+    const deleteId = Number(id);
     const gapX = 370;
 
     let prevNodeId = null;
@@ -605,6 +589,10 @@ export default function ReactFlowBoard({ isUnlock }) {
         isActive: true
       };
 
+      if (edgeSettings.length > 0) {
+        data.edgeSettings = edgeSettings;
+      }
+
       const response = await axiosInstance.post('/blue-prints', data);
       if (response?.data) {
         enqueueSnackbar("Blue Print Saved", { variant: 'success' });
@@ -617,6 +605,98 @@ export default function ReactFlowBoard({ isUnlock }) {
     }
   }
 
+  useEffect(() => {
+    if (bluePrints && !bluePrintsLoading) {
+      if (bluePrints?.success) {
+        setData(bluePrints?.data);
+      }
+    }
+  }, [bluePrints, bluePrintsLoading]);
+
+  useEffect(() => {
+    if (data) {
+      // setting bluePrint
+      setBluePrint(data?.bluePrint);
+
+      const newPresentNodes = data?.bluePrint.length > 0 ? data?.bluePrint.map((item) => item.nodeName) : [];
+      setPresentNodes(newPresentNodes);
+
+      // setting nodes
+      const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          functions: {
+            addToLeft: addNodeToLeft,
+            addToRight: addNodeToRight,
+            deleteNode,
+            handleBluePrintComponent
+          },
+          bluePrint: data?.bluePrint?.find((item) => item.nodeName === node.data.label)?.component,
+        }
+      }));
+
+      setNodes(newNodes || initialNodes);
+
+      setLastNodeId(newNodes?.length || 2);
+
+      setEdges(data?.edges?.length > 0 ? data?.edges?.map((edge) => ({
+        ...edge,
+        data: {
+          handleEdgePopup
+        }
+      })) : []);
+
+      setEdgeSettings(data?.edgeSettings || []);
+    } else {
+      // setting up the nodes...
+      setNodes((prev) => [...prev, ...initialNodes.map((node) => (
+        {
+          ...node, data: {
+            ...node.data,
+            functions: {
+              addToLeft: addNodeToLeft,
+              addToRight: addNodeToRight,
+              deleteNode,
+              handleBluePrintComponent
+            },
+            bluePrint: bluePrint.find((item) => item.nodeName === node.data.label)?.component,
+          }
+        }))]);
+
+      setLastNodeId(2);
+
+      // setting up the edges...
+      setEdges([{
+        id: `e1-2`,
+        source: `1`,
+        target: `2`,
+        animated: true,
+        style: { stroke: 'black' },
+      }])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data])
+
+  useEffect(() => {
+    if (nodes && nodes.length > 0) {
+      const filteredNodes = nodes.filter((node) => node.type !== 'customAddNode');
+
+      setBluePrint((prev) => {
+        const existingNames = new Set(prev.map(item => item.nodeName));
+
+        const newBlueprintEntries = filteredNodes
+          .filter((node) => !existingNames.has(node.data.label))
+          .map((node) => ({
+            nodeName: node.data.label,
+            component: null,
+          }));
+
+        return [...prev, ...newBlueprintEntries];
+      });
+    }
+  }, [nodes]);
+
   return (
     <div style={{ width: '100%', height: '100vh' }}>
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
@@ -625,6 +705,7 @@ export default function ReactFlowBoard({ isUnlock }) {
       <ReactFlowProvider >
         <ReactFlow
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -638,7 +719,8 @@ export default function ReactFlowBoard({ isUnlock }) {
           <Controls />
           <Background />
         </ReactFlow>
-        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode = {presentNodes}/>}
+        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode={presentNodes} />}
+        <ReactFlowEdgeSettingPopup isOpen={edgePopup} data={activeEdgeData} handleCloseModal={() => handleCloseEdgePopup()} />
       </ReactFlowProvider>
     </div>
   );

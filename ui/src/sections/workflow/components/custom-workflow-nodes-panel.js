@@ -13,10 +13,13 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Tooltip,
 } from "@mui/material";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import Iconify from "src/components/iconify";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { centralizedTools } from "@workflow/central-nodes";
 
 const customOperations = [
   // 🔹 TRIGGER NODES
@@ -191,6 +194,15 @@ const customOperations = [
       }
     ],
   },
+
+  // 🔹 MONOREPO NODES
+  {
+    category: "Monorepo nodes",
+    items: [
+      ...centralizedTools
+    ]
+
+  }
 ];
 
 export default function CustomWorkflowNodesPanel({
@@ -201,13 +213,14 @@ export default function CustomWorkflowNodesPanel({
 }) {
   const [filteredCategories, setFilteredCategories] = useState(customOperations);
   const [search, setSearch] = useState("");
+  const [expanded, setExpanded] = useState(false); // 👈 NEW
 
   useEffect(() => {
     const filtered = customOperations.map((cat) => ({
       ...cat,
       items: cat.items.filter(
         (opt) =>
-          (!bluePrintNode?.includes(opt.title)) &&
+          !bluePrintNode?.includes(opt.title) &&
           (opt.title.toLowerCase().includes(search.toLowerCase()) ||
             opt.description.toLowerCase().includes(search.toLowerCase()))
       ),
@@ -221,65 +234,136 @@ export default function CustomWorkflowNodesPanel({
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { width: { xs: '100%', md: '400px' }, padding: 2 },
+        sx: {
+          width: expanded ? { xs: "100%", md: 400 } : 80,
+          transition: "width 0.25s ease",
+          overflowX: "hidden",
+          p: expanded ? 2 : 1,
+        },
       }}
     >
       {/* Header */}
-      <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-        <Typography variant="h6">Add Workflow Node</Typography>
-        <IconButton onClick={onClose} size="small">
-          <Iconify icon="mdi:close" width={20} height={20} />
-        </IconButton>
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent={expanded ? "space-between" : "center"}
+        mb={expanded ? 2 : 1}
+      >
+        {expanded && (
+          <Typography variant="h6">Add Workflow Node</Typography>
+        )}
+
+        <Box display="flex" gap={1}>
+          <IconButton size="small" onClick={() => setExpanded((p) => !p)}>
+            <Iconify
+              icon={expanded ? "mdi:chevron-right" : "mdi:chevron-left"}
+              width={20}
+              height={20}
+            />
+          </IconButton>
+
+          {expanded && (
+            <IconButton onClick={onClose} size="small">
+              <Iconify icon="mdi:close" width={20} height={20} />
+            </IconButton>
+          )}
+        </Box>
       </Box>
 
-      {/* Search */}
-      <TextField
-        size="small"
-        fullWidth
-        placeholder="Search nodes..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ mb: 2 }}
-      />
+      {/* Search (ONLY expanded) */}
+      {expanded && (
+        <TextField
+          size="small"
+          fullWidth
+          placeholder="Search nodes..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+      )}
 
-      {/* Category Accordions */}
+      {/* Categories */}
       {filteredCategories.map(
         (cat) =>
           cat.items.length > 0 && (
-            <Accordion key={cat.category} defaultExpanded>
-              <AccordionSummary expandIcon={<Iconify icon="mdi:chevron-down" />}>
-                <Typography fontWeight={600}>{cat.category}</Typography>
-              </AccordionSummary>
+            <Accordion
+              key={cat.category}
+              defaultExpanded
+              disableGutters
+              elevation={0}
+              sx={{ mb: 2 }}
+            >
+              {expanded && (
+                <AccordionSummary
+                  expandIcon={<Iconify icon="mdi:chevron-down" />}
+                >
+                  <Typography fontWeight={600}>
+                    {cat.category}
+                  </Typography>
+                </AccordionSummary>
+              )}
+
               <AccordionDetails sx={{ p: 0 }}>
                 <List>
                   {cat.items.map((operation) => (
                     <ListItem
                       key={operation.id}
                       disablePadding
-                      sx={{ borderBottom: "1px solid #eee" }}
+                      sx={{ borderBottom: expanded ? "1px solid #eee" : "none" }}
                     >
-                      <ListItemButton onClick={() => onSelect(operation)}>
-                        <ListItemAvatar
-                          sx={{
-                            width: 40,
-                            height: 40,
-                            borderRadius: "50%",
-                            backgroundColor: operation.color,
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
+                      <ListItemButton
+                        onClick={() => onSelect(operation)}
+                        sx={{
+                          justifyContent: expanded ? "flex-start" : "center",
+                          px: expanded ? 2 : 1,
+                          py: 1.5,
+                        }}
+                      >
+                        <Tooltip
+                          title={
+                            !expanded ? (
+                              <strong>{operation.title}</strong>
+                            ) : ""
+                          }
+                          placement="left"
+                          arrow
+                          disableHoverListener={expanded}
                         >
-                          <Avatar
-                            src={operation.icon}
-                            alt={operation.title}
-                            sx={{ width: 32, height: 32 }}
+                          <ListItemAvatar
+                            sx={{
+                              minWidth: "auto",
+                              mr: expanded ? 2 : 0,
+                              backgroundColor: operation.color,
+                              width: 40,
+                              height: 40,
+                              borderRadius: "50%",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <Avatar
+                              src={operation.icon}
+                              alt={operation.title}
+                              sx={{ width: 28, height: 28 }}
+                            />
+                          </ListItemAvatar>
+                        </Tooltip>
+
+                        {expanded && (
+                          <ListItemText
+                            primary={operation.title}
+                            secondary={operation.description}
+                            primaryTypographyProps={{
+                              fontSize: 14,
+                              fontWeight: 600,
+                            }}
+                            secondaryTypographyProps={{
+                              fontSize: 12,
+                            }}
                           />
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={operation.title}
-                          secondary={operation.description}
-                        />
+                        )}
                       </ListItemButton>
                     </ListItem>
                   ))}
@@ -290,11 +374,17 @@ export default function CustomWorkflowNodesPanel({
       )}
 
       {/* Empty State */}
-      {filteredCategories.every((cat) => cat.items.length === 0) && (
-        <Typography variant="body2" color="text.secondary" textAlign="center" mt={2}>
-          No results found
-        </Typography>
-      )}
+      {expanded &&
+        filteredCategories.every((cat) => cat.items.length === 0) && (
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            textAlign="center"
+            mt={2}
+          >
+            No results found
+          </Typography>
+        )}
     </Drawer>
   );
 }

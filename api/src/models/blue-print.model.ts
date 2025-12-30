@@ -32,6 +32,12 @@ export class BluePrint extends Entity {
   bluePrint: object[];
 
   @property({
+    type: 'array',
+    itemType: 'object'
+  })
+  edgeSettings: object[];
+
+  @property({
     type: 'date',
   })
   createdAt?: Date;
