@@ -57,8 +57,6 @@
     "@mui/x-date-pickers": "^6.8.0",
     "@react-pdf/renderer": "^3.1.12",
     "@reduxjs/toolkit": "^1.9.5",
-    "@workflow/central-nodes": "../../../../workflow-monorepo/my-turborepo/packages/central-nodes",
-    "@workflow/central-popups": "file:../../../../workflow-monorepo/my-turborepo/packages/central-popups/workflow-central-popups-1.0.0.tgz",
     "apexcharts": "^3.41.0",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.4.0",

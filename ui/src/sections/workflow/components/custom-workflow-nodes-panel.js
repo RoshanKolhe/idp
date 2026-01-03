@@ -19,7 +19,7 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import Iconify from "src/components/iconify";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { centralizedTools } from "@workflow/central-nodes";
+// import { centralizedTools } from "@workflow/central-nodes";
 
 const customOperations = [
   // 🔹 TRIGGER NODES
@@ -196,13 +196,13 @@ const customOperations = [
   },
 
   // 🔹 MONOREPO NODES
-  {
-    category: "Monorepo nodes",
-    items: [
-      ...centralizedTools
-    ]
+  // {
+  //   category: "Monorepo nodes",
+  //   items: [
+  //     ...centralizedTools
+  //   ]
 
-  }
+  // }
 ];
 
 export default function CustomWorkflowNodesPanel({
