@@ -12,7 +12,11 @@ export default function ReactFlowCustomNodeStructure({ data }){
     const [direction, setDirection] = useState(null);
 
     const handleMouseEnter = (e) => {
-        if(data?.label?.toLowerCase() !== 'ingestion' && (data?.isProcessInstance !== true)){
+        if(
+            data?.label?.toLowerCase() !== 'ingestion' && 
+            data?.isProcessInstance !== true &&
+            data?.label?.toLowerCase() !== 'router'
+        ){
             setAnchorEl(e.currentTarget);
         }
     };
@@ -123,6 +127,7 @@ export default function ReactFlowCustomNodeStructure({ data }){
                     >
                         {/* image box */}
                         <Box
+                            maxWidth='60px'
                             component='img'
                             src={data.icon}
                             alt='document-proccess'

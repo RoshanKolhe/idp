@@ -89,6 +89,22 @@ const operations = [
     icon: '/assets/icons/document-process/ai-analyzer.svg',
     type: 'default'
   },
+  {
+    id: 11,
+    title: 'Router',
+    description: 'Add multiple route.',
+    icon: '/assets/icons/document-process/plan.svg',
+    type: 'router',
+    color: '#1976D2'
+  },
+  {
+    id: 11,
+    title: 'Aggregator',
+    description: 'Merge split route.',
+    icon: '/assets/icons/document-process/plan.svg',
+    type: 'aggregator',
+    color: '#7B1FA2'
+  },
 ];
 
 export default function OperationSelectorModal({ onSelect, onClose, open, bluePrintNode }) {
@@ -100,7 +116,7 @@ export default function OperationSelectorModal({ onSelect, onClose, open, bluePr
   }, [bluePrintNode])
 
   console.log('nodes already present', bluePrintNode)
-  
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>Select a Node</DialogTitle>

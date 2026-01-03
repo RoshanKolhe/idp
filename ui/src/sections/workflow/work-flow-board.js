@@ -141,7 +141,6 @@ export default function ReactFlowBoard() {
         if (!nodes || nodes.length === 0) return "1";
 
         const maxId = Math.max(...nodes.map((n) => Number(n.id) || 0));
-        console.log('returning', maxId)
         return String(maxId + 1);
     };
 
@@ -189,7 +188,7 @@ export default function ReactFlowBoard() {
                         },
                         bluePrint: bluePrint.find((item) => item.id === newOpCompNodeId)?.component,
                         variables: VariableDetection(prevNodes, bluePrint),
-                        ...(operation?.type === 'monorepo' && { 
+                        ...(operation?.type === 'monorepo' && {
                             popupKey: operation.popupKey,
                             configFields: operation.configFields,
                             defaultValues: operation.defaultValues
@@ -723,7 +722,6 @@ export default function ReactFlowBoard() {
     // case nodes
     const handleCaseNode = (nodeId, newOperationalNode) => {
         try {
-            console.log(nodeId, newOperationalNode);
             setLastNodeId((id) => {
                 setNodes((prevNodes) => {
                     let nodes = prevNodes;
@@ -950,8 +948,6 @@ export default function ReactFlowBoard() {
             });
         }
     }, [nodes]);
-
-    console.log('bluePrint', bluePrint);
 
     return (
         <div style={{ width: '100%', height: '100vh' }}>
