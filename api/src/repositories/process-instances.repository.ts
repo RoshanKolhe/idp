@@ -1,10 +1,11 @@
 import {Constructor, inject, Getter} from '@loopback/core';
-import {DefaultCrudRepository, repository, BelongsToAccessor} from '@loopback/repository';
+import {DefaultCrudRepository, repository, BelongsToAccessor, HasManyRepositoryFactory} from '@loopback/repository';
 import {IdpDataSource} from '../datasources';
-import {ProcessInstances, ProcessInstancesRelations, Processes, User} from '../models';
+import {ProcessInstances, ProcessInstancesRelations, Processes, User, ProcessInstanceTransactions} from '../models';
 import { TimeStampRepositoryMixin } from '../mixins/timestamp-repository-mixin';
 import {ProcessesRepository} from './processes.repository';
 import {UserRepository} from './user.repository';
+import {ProcessInstanceTransactionsRepository} from './process-instance-transactions.repository';
 
 export class ProcessInstancesRepository extends TimeStampRepositoryMixin<
   ProcessInstances,
@@ -22,8 +23,12 @@ export class ProcessInstancesRepository extends TimeStampRepositoryMixin<
 
   public readonly user: BelongsToAccessor<User, typeof ProcessInstances.prototype.id>;
 
-  constructor(@inject('datasources.idp') dataSource: IdpDataSource, @repository.getter('ProcessesRepository') protected processesRepositoryGetter: Getter<ProcessesRepository>, @repository.getter('UserRepository') protected userRepositoryGetter: Getter<UserRepository>,) {
+  public readonly processInstanceTransactions: HasManyRepositoryFactory<ProcessInstanceTransactions, typeof ProcessInstances.prototype.id>;
+
+  constructor(@inject('datasources.idp') dataSource: IdpDataSource, @repository.getter('ProcessesRepository') protected processesRepositoryGetter: Getter<ProcessesRepository>, @repository.getter('UserRepository') protected userRepositoryGetter: Getter<UserRepository>, @repository.getter('ProcessInstanceTransactionsRepository') protected processInstanceTransactionsRepositoryGetter: Getter<ProcessInstanceTransactionsRepository>,) {
     super(ProcessInstances, dataSource);
+    this.processInstanceTransactions = this.createHasManyRepositoryFactoryFor('processInstanceTransactions', processInstanceTransactionsRepositoryGetter,);
+    this.registerInclusionResolver('processInstanceTransactions', this.processInstanceTransactions.inclusionResolver);
     this.user = this.createBelongsToAccessorFor('user', userRepositoryGetter,);
     this.registerInclusionResolver('user', this.user.inclusionResolver);
     this.processes = this.createBelongsToAccessorFor('processes', processesRepositoryGetter,);

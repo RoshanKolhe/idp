@@ -26,3 +26,4 @@ export * from './workflow-instances.controller';
 export * from './processes-user.controller';
 export * from './process-instances-user.controller';
 export * from './escalation-user.controller';
+export * from './process-instance-transactions.controller';

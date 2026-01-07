@@ -156,30 +156,30 @@ export class LogEntryController {
           schema: {
             type: 'object',
             properties: {
-              processInstanceId: { type: 'number' },
+              processInstanceTransactionId: { type: 'number' },
               nodeName: { type: 'string' },
               limit: { type: 'number', default: 10 }, 
               skip: { type: 'number', default: 0 },    
             },
-            required: ['processInstanceId', 'nodeName']
+            required: ['processInstanceTransactionId', 'nodeName']
           }
         }
       }
     })
     requestBody: {
-      processInstanceId: number;
+      processInstanceTransactionId: number;
       nodeName: string;
       limit?: number;
       skip?: number;
     }
   ): Promise<LogEntry[]> {
     try {
-      const { processInstanceId, nodeName, limit = 10, skip = 0 } = requestBody;
+      const { processInstanceTransactionId, nodeName, limit = 10, skip = 0 } = requestBody;
 
       const logs = await this.logEntryRepository.find({
         where: {
           and: [
-            { processInstanceId },
+            { processInstanceTransactionId },
             { nodeName }
           ]
         },

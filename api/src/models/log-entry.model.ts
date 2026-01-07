@@ -13,7 +13,7 @@ export class LogEntry extends Entity {
     type: 'number',
     required: true
   })
-  processInstanceId: number;
+  processInstanceTransactionId: number;
 
   @property({
     type: 'string',

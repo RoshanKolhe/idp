@@ -24,7 +24,8 @@ export async function migrate(args: string[]) {
       'Workflow',
       'WorkflowBlueprint',
       'WorkflowInstances',
-      'ProcessWorkflowOutput'
+      'ProcessWorkflowOutput',
+      'ProcessInstanceTransactions'
     ],
   });
   // Connectors usually keep a pool of opened connections,
