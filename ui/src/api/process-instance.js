@@ -92,3 +92,28 @@ export function useGetProcessInstancesWithFilter(filter) {
     refreshFilterProcessInstances, // Include the refresh function separately
   };
 }
+
+// ----------------------------------------------------------------------
+
+export function useGetProcessInstanceLogs(processInstanceId) {
+  const URL = processInstanceId ? [endpoints.processInstance.logs(processInstanceId)] : null;
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+
+    const refreshProcessInstanceLogs = () => {
+    // Use the `mutate` function to trigger a revalidation
+    mutate();
+  };
+
+  const memoizedValue = useMemo(
+    () => ({
+      processInstanceLogs: data || [],
+      processInstanceLogsLoading: isLoading,
+      processInstanceLogsError: error,
+      processInstanceLogsValidating: isValidating,
+      processInstanceLogsEmpty: !isLoading && !data?.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return {...memoizedValue, refreshProcessInstanceLogs};
+}

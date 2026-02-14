@@ -110,6 +110,7 @@ export const paths = {
       view: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/view`,
       reactFlow: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/blueprint`,
       extractedDocs: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/extracted-documents`,
+      logsList: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/logs`,
     },
     // workflows
     workflow: {
@@ -129,7 +130,7 @@ export const paths = {
       view: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/view`,
       reactFlow: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/blueprint`,
       extractedDocs: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/extracted-documents`,
-      logsList: (id) =>  `${ROOTS.DASHBOARD}/workflowInstance/${id}/logs`,
+      logsList: (id) => `${ROOTS.DASHBOARD}/workflowInstance/${id}/logs`,
       executionFlow: (workflowId, outputId) => `${ROOTS.DASHBOARD}/workflowInstance/${workflowId}/execution/${outputId}`
     },
     fileType: {
@@ -155,6 +156,16 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/user/${MOCK_ID}/edit`,
       },
     },
+
+    // process templates
+    processTemplates: {
+      root: `${ROOTS.DASHBOARD}/process-template`,
+      new: `${ROOTS.DASHBOARD}/process-template/new`,
+      list: `${ROOTS.DASHBOARD}/process-template/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/process-template/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/process-template/${id}/view`,
+    },
+
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,

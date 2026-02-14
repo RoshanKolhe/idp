@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable no-nested-ternary */
 import isEqual from 'lodash/isEqual';
 import { useState, useCallback, useEffect } from 'react';
@@ -15,7 +16,7 @@ import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
+import { useParams, useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
 // hooks
@@ -37,19 +38,17 @@ import {
 } from 'src/components/table';
 //
 import axiosInstance from 'src/utils/axios';
-import { useGetProcessInstances } from 'src/api/process-instance';
+import { useGetWorkflowInstanceLogs } from 'src/api/workflow-instance';
 import { Box, Grid, Typography } from '@mui/material';
-import ProcessTypeTableRow from '../processInstance-table-row';
-import ProcessTypeTableGrid from '../processInstance-table-grid';
+import ProcessInstanceTableRow from '../processInstance-table-row';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'no', label: 'NO.', width: 180 },
-  { id: 'instanceId', label: 'Instance Id' },
-  { id: 'processName', label: 'Process Name' },
-  { id: 'runningTransactions', label: 'Running Transactions' },
-  { id: '', label: 'Actions', width: 120},
+  { id: 'no', label: 'ID.', width: 180 },
+  { id: 'createdAt', label: 'Created At' },
+  { id: 'status', label: 'Status' },
+  { id: '', label: 'Actions', width: 120 },
 ];
 
 const defaultFilters = {
@@ -60,9 +59,12 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function ProcessInstanceListView() {
+export default function ProcessInstanceLogsListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
   const [view, setView] = useState('list');
+  const params = useParams();
+
+  const { id } = params;
 
   const settings = useSettingsContext();
 
@@ -74,7 +76,7 @@ export default function ProcessInstanceListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { processInstances, processInstancesEmpty, refreshProcessInstances } = useGetProcessInstances();
+  const { workflowInstanceLogs, workflowInstanceLogsEmpty, refreshWorkflowInstanceLogs } = useGetWorkflowInstanceLogs(id);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -127,7 +129,7 @@ export default function ProcessInstanceListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.processesInstance.edit(id));
+      router.push(paths.dashboard.workflowInstance.edit(id));
     },
     [router]
   );
@@ -151,20 +153,20 @@ export default function ProcessInstanceListView() {
     // setFilters(defaultFilters);
   }, []);
 
-  const handleProcessInstanceRunningStatus = async(row) => {
-    try{
-      await axiosInstance.patch(`/process-instances/${row?.id}`, {isInstanceRunning: !row?.isInstanceRunning});
-      refreshProcessInstances();
-    }catch(error){
+  const handleProcessInstanceRunningStatus = async (row) => {
+    try {
+      await axiosInstance.patch(`/workflow-instances/${row?.id}`, { isInstanceRunning: !row?.isInstanceRunning });
+      refreshWorkflowInstanceLogs();
+    } catch (error) {
       console.error('Error while changing running status', error);
     }
   }
 
   useEffect(() => {
-    if (processInstances) {
-      setTableData(processInstances);
+    if (workflowInstanceLogs) {
+      setTableData(workflowInstanceLogs);
     }
-  }, [processInstances]);
+  }, [workflowInstanceLogs]);
 
   return (
     <>
@@ -180,7 +182,7 @@ export default function ProcessInstanceListView() {
         >
           {/* Left Side: Heading */}
           <Typography variant="h6" component="div">
-            Process Instances
+            Process Instance Transactions
           </Typography>
 
           {/* Right Side: Icons + Create Button */}
@@ -191,7 +193,7 @@ export default function ProcessInstanceListView() {
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
               component={RouterLink}
-              href={paths.dashboard.processesInstance.new}
+              href={paths.dashboard.workflowInstance.new}
               sx={{
                 borderRadius: '30px',
                 backgroundColor: '#4182EB',
@@ -254,9 +256,10 @@ export default function ProcessInstanceListView() {
                         table.page * table.rowsPerPage,
                         table.page * table.rowsPerPage + table.rowsPerPage
                       )
-                      .map((row) => (
-                        <ProcessTypeTableRow
+                      .map((row, index) => (
+                        <ProcessInstanceTableRow
                           key={row.id}
+                          index={index + 1}
                           row={row}
                           selected={table.selected.includes(row.id)}
                           onSelectRow={() => table.onSelectRow(row.id)}
@@ -289,24 +292,6 @@ export default function ProcessInstanceListView() {
               onChangeDense={table.onChangeDense}
             />
           </Card>
-        ) : view === 'grid' ? (
-          <Grid container spacing={2}>
-            {dataFiltered
-              .slice(
-                table.page * table.rowsPerPage,
-                table.page * table.rowsPerPage + table.rowsPerPage
-              )
-              .map((row) => (
-                <Grid item xs={12} sm={6} md={4} key={row.id}>
-                  <ProcessTypeTableGrid
-                    row={row}
-                    onDeleteRow={() => handleDeleteRow(row.id)}
-                    onEditRow={() => handleEditRow(row.id)}
-                    onViewRow={() => handleViewRow(row.id)}
-                  />
-                </Grid>
-              ))}
-          </Grid>
         ) : null}
       </Container>
 

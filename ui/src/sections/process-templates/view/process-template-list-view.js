@@ -37,18 +37,18 @@ import {
 } from 'src/components/table';
 //
 import axiosInstance from 'src/utils/axios';
-import { useGetProcessInstances } from 'src/api/process-instance';
+import { useGetProcessTemplates } from 'src/api/process-templates';
 import { Box, Grid, Typography } from '@mui/material';
-import ProcessTypeTableRow from '../processInstance-table-row';
-import ProcessTypeTableGrid from '../processInstance-table-grid';
+import ProcessTemplateTableRow from '../process-template-table-row';
+import ProcessTemplateTableGrid from '../process-template-table-grid';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'no', label: 'NO.', width: 180 },
-  { id: 'instanceId', label: 'Instance Id' },
+  { id: 'name', label: 'Name', width: 180 },
+  { id: 'version', label: 'Version' },
   { id: 'processName', label: 'Process Name' },
-  { id: 'runningTransactions', label: 'Running Transactions' },
+  { id: 'status', label: 'Status' },
   { id: '', label: 'Actions', width: 120},
 ];
 
@@ -60,7 +60,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function ProcessInstanceListView() {
+export default function ProcessTemplateListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
   const [view, setView] = useState('list');
 
@@ -74,7 +74,7 @@ export default function ProcessInstanceListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { processInstances, processInstancesEmpty, refreshProcessInstances } = useGetProcessInstances();
+  const { processTemplates, processTemplatesLoading, refreshProcessTemplates } = useGetProcessTemplates();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -154,17 +154,17 @@ export default function ProcessInstanceListView() {
   const handleProcessInstanceRunningStatus = async(row) => {
     try{
       await axiosInstance.patch(`/process-instances/${row?.id}`, {isInstanceRunning: !row?.isInstanceRunning});
-      refreshProcessInstances();
+      refreshProcessTemplates();
     }catch(error){
       console.error('Error while changing running status', error);
     }
   }
 
   useEffect(() => {
-    if (processInstances) {
-      setTableData(processInstances);
+    if (processTemplates) {
+      setTableData(processTemplates);
     }
-  }, [processInstances]);
+  }, [processTemplates]);
 
   return (
     <>
@@ -180,7 +180,7 @@ export default function ProcessInstanceListView() {
         >
           {/* Left Side: Heading */}
           <Typography variant="h6" component="div">
-            Process Instances
+            Process Templates
           </Typography>
 
           {/* Right Side: Icons + Create Button */}
@@ -191,7 +191,7 @@ export default function ProcessInstanceListView() {
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
               component={RouterLink}
-              href={paths.dashboard.processesInstance.new}
+              href={paths.dashboard.processTemplates.new}
               sx={{
                 borderRadius: '30px',
                 backgroundColor: '#4182EB',
@@ -204,7 +204,7 @@ export default function ProcessInstanceListView() {
                 },
               }}
             >
-              Create Instance
+              Create Template
             </Button>
           </Box>
         </Box>
@@ -255,7 +255,7 @@ export default function ProcessInstanceListView() {
                         table.page * table.rowsPerPage + table.rowsPerPage
                       )
                       .map((row) => (
-                        <ProcessTypeTableRow
+                        <ProcessTemplateTableRow
                           key={row.id}
                           row={row}
                           selected={table.selected.includes(row.id)}
@@ -298,7 +298,7 @@ export default function ProcessInstanceListView() {
               )
               .map((row) => (
                 <Grid item xs={12} sm={6} md={4} key={row.id}>
-                  <ProcessTypeTableGrid
+                  <ProcessTemplateTableGrid
                     row={row}
                     onDeleteRow={() => handleDeleteRow(row.id)}
                     onEditRow={() => handleEditRow(row.id)}

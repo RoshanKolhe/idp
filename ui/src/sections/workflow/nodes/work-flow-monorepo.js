@@ -5,7 +5,7 @@ import { CustomWorkflowNode } from "../components";
 
 // Import popup registry from your external package
 // eslint-disable-next-line import/no-extraneous-dependencies, import/order
-// import popupRegistry from "@workflow/central-popups";
+import popupRegistry from "@workflow/central-popups";
 
 export default function WorkFlowMonorepo({ data }) {
   const [open, setOpen] = useState(false);
@@ -14,7 +14,7 @@ export default function WorkFlowMonorepo({ data }) {
   const handleClose = () => setOpen(false);
 
   // Get popup component from registry dynamically
-  // const PopupComponent = popupRegistry?.[data?.popupKey];
+  const PopupComponent = popupRegistry?.[data?.popupKey];
 
   console.log("External Node Data:", data);
   console.log("Popup Key:", data?.popupKey);
@@ -34,13 +34,13 @@ export default function WorkFlowMonorepo({ data }) {
         </Box>
 
         {/* RENDER POPUP ONLY IF IT EXISTS */}
-        {/* {PopupComponent && (
+        {PopupComponent && (
           <PopupComponent
             open={open}
             data={data}
             onClose={handleClose}
           />
-        )} */}
+        )}
 
       </Stack>
     </Box>

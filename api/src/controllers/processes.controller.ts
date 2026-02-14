@@ -22,6 +22,7 @@ import { authenticate, AuthenticationBindings } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
 import { inject } from '@loopback/core';
 import { UserProfile } from '@loopback/security';
+import { ProcessTemplateService } from '../services/process-template.service';
 
 export class ProcessesController {
   constructor(
@@ -29,6 +30,8 @@ export class ProcessesController {
     public processesRepository: ProcessesRepository,
     @repository(UserRepository)
     public userRepository: UserRepository,
+    @inject('services.ProcessTemplate')
+    private processTemplateService: ProcessTemplateService
   ) { }
 
   @authenticate({
@@ -60,10 +63,22 @@ export class ProcessesController {
     })
     processes: Omit<Processes, 'id'>,
   ): Promise<Processes> {
-    return this.processesRepository.create({
+    const process = await this.processesRepository.create({
       ...processes,
       userId: currentUser.id
     });
+
+    if (process.isTemplateUsed === true && process.id) {
+      const response = await this.processTemplateService.createBlueprintFromTemplate(process.id, process.processTemplatesId);
+
+      if (response.success) {
+        return process;
+      }
+
+      throw new HttpErrors.BadRequest('Failed to create process');
+    }
+
+    throw new HttpErrors.BadRequest('Failed to create process');
   }
 
   @authenticate({

@@ -87,7 +87,8 @@ export const endpoints = {
     list: '/process-instances',
     filterList: (filter) => `/process-instances?${filter}`,
     details: (id) => `/process-instances/${id}`,
-    extractedDocuments: (id) => `/process-instance-documents/by-process-instance/${id}`
+    extractedDocuments: (id) => `/process-instance-documents/by-process-instance/${id}`,
+    logs: (processInstanceId) => `/process-instance-transactions/${processInstanceId}`
   },
   fileType: {
     list: '/file-types',
@@ -138,4 +139,9 @@ export const endpoints = {
     filterList: (filter) => `/escalations?filter=${filter}`,
     details: (id) => `/escalations/${id}`,
   },
+  processTemplates: {
+    list: '/process-templates',
+    filterList: (filter) => `/process-templates?filter=${filter}`,
+    details: (id) => `/process-templates/${id}`,
+  }
 };

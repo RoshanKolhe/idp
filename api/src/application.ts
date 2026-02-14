@@ -27,6 +27,7 @@ import { IngestionService } from './services/nodes/ingestion.service';
 import { Main } from './services/nodes/main.service';
 import { NotificationService } from './services/nodes/notification.service';
 import { CaseService } from './services/nodes/case.service';
+import { ProcessTemplateService } from './services/process-template.service';
 
 
 export { ApplicationConfig };
@@ -81,6 +82,7 @@ export class IdpApplication extends BootMixin(
     this.bind('services.IngestionService').toClass(IngestionService);
     this.bind('services.NotificationService').toClass(NotificationService);
     this.bind('services.CaseService').toClass(CaseService);
+    this.bind('services.ProcessTemplate').toClass(ProcessTemplateService);
   }
 
   protected configureFileUpload(destination?: string) {

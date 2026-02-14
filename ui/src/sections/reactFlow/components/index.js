@@ -5,4 +5,5 @@ export { default as ReactFlowValidate } from './react-flow-validate';
 export { default as ReactFlowDeliver } from './react-flow-deliver';
 export { default as ReactFlowRouter } from './react-flow-router';
 export { default as ReactFlowAggregator } from './react-flow-aggregator';
+export { default as ReactFlowImageProcessing } from './react-flow-image-processing';
 

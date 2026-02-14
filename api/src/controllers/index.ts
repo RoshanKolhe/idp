@@ -27,3 +27,5 @@ export * from './processes-user.controller';
 export * from './process-instances-user.controller';
 export * from './escalation-user.controller';
 export * from './process-instance-transactions.controller';
+export * from './process-template.controller';
+export * from './processes-process-templates.controller';

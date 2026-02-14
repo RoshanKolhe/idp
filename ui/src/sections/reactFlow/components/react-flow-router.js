@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from "@mui/material"
 import PropTypes from "prop-types"
-import ReactFlowCustomNodeStructure from "../react-flow-custom-node"
+import ReactFlowCustomRouterNodeStructure from "../react-flow-custom-router-node";
 
 export default function ReactFlowRouter({ data }) {
     const handleClick = () => {
@@ -16,7 +16,7 @@ export default function ReactFlowRouter({ data }) {
                 }}
                 onClick={() => handleClick()}
             >
-                <ReactFlowCustomNodeStructure data={data} />
+                <ReactFlowCustomRouterNodeStructure data={data} />
             </Box>
             <Typography variant='h5'>{data.label}</Typography>
         </ Stack>

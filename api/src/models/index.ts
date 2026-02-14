@@ -17,3 +17,4 @@ export * from './workflow-blueprint.model';
 export * from './workflow-instances.model';
 export * from './process-workflow-output.model';
 export * from './process-instance-transactions.model';
+export * from './process-templates.model';

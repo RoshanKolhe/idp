@@ -58,7 +58,7 @@ export default function CustomEdgeWithSettings(props) {
                     }}
                 >
                     <IconButton size="medium" onClick={() => handleClick()}>
-                        <Iconify icon="solar:settings-bold" width={24} />
+                        <Iconify icon="solar:clock-circle-bold" width={24} />
                     </IconButton>
                 </div>
             </EdgeLabelRenderer>

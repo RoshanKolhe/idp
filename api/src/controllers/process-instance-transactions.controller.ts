@@ -95,7 +95,7 @@ export class ProcessInstanceTransactionsController {
     return this.processInstanceTransactionsRepository.updateAll(processInstanceTransactions, where);
   }
 
-  @get('/process-instance-transactions/{id}')
+  @get('/process-instance-transactions/{processInstanceId}')
   @response(200, {
     description: 'ProcessInstanceTransactions model instance',
     content: {
@@ -105,10 +105,10 @@ export class ProcessInstanceTransactionsController {
     },
   })
   async findById(
-    @param.path.number('id') id: number,
+    @param.path.number('processInstanceId') processInstanceId: number,
     @param.filter(ProcessInstanceTransactions, { exclude: 'where' }) filter?: FilterExcludingWhere<ProcessInstanceTransactions>
-  ): Promise<ProcessInstanceTransactions> {
-    return this.processInstanceTransactionsRepository.findById(id, filter);
+  ): Promise<ProcessInstanceTransactions[]> {
+    return this.processInstanceTransactionsRepository.find({...filter, where: {processInstancesId: processInstanceId}});
   }
 
   @patch('/process-instance-transactions/{id}')

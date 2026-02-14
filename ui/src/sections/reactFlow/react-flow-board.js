@@ -21,7 +21,7 @@ import axiosInstance from 'src/utils/axios';
 import { useGetBluePrint } from 'src/api/blue-print';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
-import { ReactFlowAggregator, ReactFlowClassify, ReactFlowDeliver, ReactFlowExtract, ReactFlowIngestion, ReactFlowRouter, ReactFlowValidate } from './components';
+import { ReactFlowAggregator, ReactFlowClassify, ReactFlowDeliver, ReactFlowExtract, ReactFlowImageProcessing, ReactFlowIngestion, ReactFlowRouter, ReactFlowValidate } from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 import CustomEdgeWithSettings from './react-flow-custom-edge';
 import { ReactFlowEdgeSettingPopup } from './edge-setting-components';
@@ -35,7 +35,8 @@ const nodeTypes = {
   validate: ReactFlowValidate,
   deliver: ReactFlowDeliver,
   router: ReactFlowRouter,
-  aggregator: ReactFlowAggregator
+  aggregator: ReactFlowAggregator,
+  imageProcessing: ReactFlowImageProcessing
 }
 
 const edgeTypes = {
@@ -923,7 +924,7 @@ export default function ReactFlowBoard({ isUnlock }) {
       }])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data])
+  }, [data]);
 
   useEffect(() => {
     if (nodes && nodes.length > 0) {

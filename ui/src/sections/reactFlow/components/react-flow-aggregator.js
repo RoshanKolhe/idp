@@ -6,8 +6,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FormProvider, { RHFSelect } from "src/components/hook-form";
-import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
 import CustomProcessDialogue from "./components-dialogue";
+import ReactFlowCustomAggregatorNodeStructure from "../react-flow-custom-aggregator-node";
 
 export default function ReactFlowAggregator({ data }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function ReactFlowAggregator({ data }) {
                 }}
                 onClick={() => handleOpenModal()}
             >
-                <ReactFlowCustomNodeStructure data={data} />
+                <ReactFlowCustomAggregatorNodeStructure data={data} />
             </Box>
             <Typography variant='h5'>{data.label}</Typography>
             {(data?.isProcessInstance !== true) && <Button

@@ -20,6 +20,7 @@ import { useGetProcessTypes } from 'src/api/processType';
 import axiosInstance from 'src/utils/axios';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
+import ProcessTemplateSelection from './processes-template-selection';
 
 // ----------------------------------------------------------------------
 
@@ -27,14 +28,17 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const [processTypeOptions, setProcessTypeOptions] = useState([]);
+  const [step, setStep] = useState(1);
 
-  const { processTypes, processTypesLoading, processTypesEmpty, refreshProcessTypes } =
+  const { processTypes } =
     useGetProcessTypes();
 
   const NewUserSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     description: Yup.string(),
     processType: Yup.object().required('Customer Name is Required'),
+    isTemplateUsed: Yup.boolean().required(),
+    template: Yup.number()
   });
 
   const defaultValues = useMemo(
@@ -42,6 +46,8 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
       name: currentProcess?.name || '',
       description: currentProcess?.description || '',
       processType: currentProcess?.processType || null,
+      isTemplateUsed: currentProcess?.isTemplateUsed || false,
+      template: currentProcess?.processTemplatesId || ''
     }),
     [currentProcess]
   );
@@ -65,7 +71,12 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
         description: formData.description,
         processTypeId: formData.processType.id,
         isActive: true,
+        isTemplateUsed: formData.isTemplateUsed
       };
+
+      if (formData.isTemplateUsed === true) {
+        inputData.processTemplatesId = formData.template
+      }
 
       if (!currentProcess) {
         const response = await axiosInstance.post('/processes', inputData);
@@ -86,14 +97,26 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
     }
   });
 
-useEffect(() => {
-  if (processTypes ) {
-    const activeProcessTypes = processTypes.filter(
-      (item) => item.isActive === true
-    );
-    setProcessTypeOptions(activeProcessTypes);
-  }
-}, [processTypes]);
+  const handleNext = async () => {
+    const isValid = await methods.trigger([
+      'name',
+      'processType',
+    ]);
+
+    if (isValid) {
+      setStep(2);
+    }
+  };
+
+
+  useEffect(() => {
+    if (processTypes) {
+      const activeProcessTypes = processTypes.filter(
+        (item) => item.isActive === true
+      );
+      setProcessTypeOptions(activeProcessTypes);
+    }
+  }, [processTypes]);
 
 
   return (
@@ -125,46 +148,50 @@ useEffect(() => {
         </DialogTitle>
 
         <DialogContent>
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(1, 1fr)',
-            }}
-            mt={2}
-          >
-            <RHFTextField name="name" label="Process Name" />
-            <RHFTextField name="description" label="Description" />
-            <RHFAutocomplete
-              name="processType"
-              label="Process Type"
-              options={processTypeOptions}
-              getOptionLabel={(option) => `${option?.processType}` || ''}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              renderOption={(props, option) => (
-                <li {...props}>
-                  <div>
-                    <Typography variant="subtitle2" fontWeight="bold">
-                      {`${option?.processType}`}
-                    </Typography>
-                  </div>
-                </li>
-              )}
-            />
-          </Box>
+          {step === 1 && (
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(1, 1fr)',
+              }}
+              mt={2}
+            >
+              <RHFTextField name="name" label="Process Name" />
+              <RHFTextField name="description" label="Description" />
+              <RHFAutocomplete
+                name="processType"
+                label="Process Type"
+                options={processTypeOptions}
+                getOptionLabel={(option) => `${option?.processType}` || ''}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <div>
+                      <Typography variant="subtitle2" fontWeight="bold">
+                        {`${option?.processType}`}
+                      </Typography>
+                    </div>
+                  </li>
+                )}
+              />
+            </Box>
+          )}
+
+          {step === 2 && <ProcessTemplateSelection handleSubmitForm={onSubmit} isSubmitting={isSubmitting} />}
         </DialogContent>
 
-        <DialogActions>
+        {step === 1 && <DialogActions>
           <Button variant="outlined" onClick={onClose}>
             Cancel
           </Button>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+          <Button type="button" variant="contained" onClick={handleNext}>
             Save & Next
-          </LoadingButton>
-        </DialogActions>
+          </Button>
+        </DialogActions>}
       </FormProvider>
     </Dialog>
   );

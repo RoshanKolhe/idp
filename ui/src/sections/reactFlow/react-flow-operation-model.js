@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -20,7 +20,8 @@ const operations = [
     title: 'Image Processing',
     description: 'Optimize images for analysis.',
     icon: '/assets/icons/document-process/process.svg',
-    type: 'imageProcessing'
+    type: 'imageProcessing',
+    color: '#FF7D51'
   },
   {
     id: 2,
@@ -98,7 +99,7 @@ const operations = [
     color: '#1976D2'
   },
   {
-    id: 11,
+    id: 12,
     title: 'Aggregator',
     description: 'Merge split route.',
     icon: '/assets/icons/document-process/plan.svg',
@@ -107,23 +108,36 @@ const operations = [
   },
 ];
 
-export default function OperationSelectorModal({ onSelect, onClose, open, bluePrintNode }) {
-  const [data, setData] = useState([]);
+export default function OperationSelectorModal({
+  onSelect,
+  onClose,
+  open,
+  bluePrintNode
+}) {
 
-  useEffect(() => {
-    const newData = operations.filter((opt) => !bluePrintNode?.includes(opt.title));
-    setData(newData);
-  }, [bluePrintNode])
+  // ✅ DERIVED DATA — NO STATE, NO EFFECT
+  const data = useMemo(() => {
+    if (!Array.isArray(bluePrintNode)) {
+      return operations;
+    }
 
-  console.log('nodes already present', bluePrintNode)
+    return operations.filter(
+      (opt) => !bluePrintNode.includes(opt.title)
+    );
+  }, [bluePrintNode]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
       <DialogTitle>Select a Node</DialogTitle>
+
       <DialogContent dividers>
         <List>
           {data.map((operation) => (
-            <ListItem key={operation.id} disablePadding sx={{ borderBottom: '1px solid lightgray' }}>
+            <ListItem
+              key={operation.id}
+              disablePadding
+              sx={{ borderBottom: '1px solid lightgray' }}
+            >
               <ListItemButton onClick={() => onSelect(operation)}>
                 <ListItemAvatar>
                   <Avatar
@@ -132,14 +146,20 @@ export default function OperationSelectorModal({ onSelect, onClose, open, bluePr
                     sx={{ width: 32, height: 32 }}
                   />
                 </ListItemAvatar>
-                <ListItemText primary={operation.title} secondary={operation.description} />
+                <ListItemText
+                  primary={operation.title}
+                  secondary={operation.description}
+                />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
       </DialogContent>
+
       <DialogActions>
-        <Button onClick={onClose} color="error">Cancel</Button>
+        <Button onClick={onClose} color="error">
+          Cancel
+        </Button>
       </DialogActions>
     </Dialog>
   );

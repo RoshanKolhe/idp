@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
@@ -22,7 +23,7 @@ import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
-export default function ProcessTypeTableRow({
+export default function ProcessTemplateTableRow({
   row,
   selected,
   onEditRow,
@@ -32,7 +33,7 @@ export default function ProcessTypeTableRow({
   onStatusChange
 }) {
   const navigate = useNavigate();
-  const { id, processInstanceName, processes, isInstanceRunning } = row;
+  const { name, version, processes, status } = row;
 
   const confirm = useBoolean();
 
@@ -45,50 +46,20 @@ export default function ProcessTypeTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{name}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processInstanceName}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{version}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{processes?.name}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>0</TableCell>
 
-        <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
-          <Tooltip title={isInstanceRunning ? 'Pause' : 'Start'} placement="top" arrow>
-            <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB',
-              }}
-              onClick={() => {
-                onStatusChange();
-              }}
-            >
-              <Iconify
-                icon={isInstanceRunning ? 'ic:round-pause-circle' : 'ic:round-play-circle'}
-                width={20}
-                height={20}
-              />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Documents" placement="top" arrow>
-            <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB', // icon color
-              }}
-              onClick={() => console.log('documents clicked')}
-            >
-              <Iconify icon="ic:baseline-insert-drive-file" width={20} height={20} />
-            </IconButton>
-          </Tooltip>
+        <TableCell sx={{ whiteSpace: 'nowrap', }}>
+          <Label variant="soft" color={(status === 'published' ? 'success' : status === 'unpublished' ? 'error' : 'info') || 'default'}>
+            {status === 'published' ? 'Published' : status === 'unpublished' ? 'Unpublished' : 'Draft'}
+          </Label>
+        </TableCell>
 
+        <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
               sx={{
@@ -98,13 +69,13 @@ export default function ProcessTypeTableRow({
                 borderRadius: '12px',
                 color: '#4182EB', // icon color
               }}
-              onClick={() => onEditRow()}
+              onClick={() => navigate(paths.dashboard.processTemplates.edit(row.id))}
             >
               <Iconify icon="solar:pen-bold" width={20} height={20} />
             </IconButton>
           </Tooltip>
 
-          <Tooltip title="View transactions" placement="top" arrow>
+          <Tooltip title="View" placement="top" arrow>
             <IconButton
               sx={{
                 backgroundColor: 'rgba(65, 130, 235, 0.1)',
@@ -113,7 +84,7 @@ export default function ProcessTypeTableRow({
                 borderRadius: '12px',
                 color: '#4182EB',
               }}
-              onClick={() => navigate(paths.dashboard.processesInstance.logsList(row.id))}
+              onClick={() => navigate(paths.dashboard.processTemplates.view(row.id))}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>
@@ -164,7 +135,7 @@ export default function ProcessTypeTableRow({
   );
 }
 
-ProcessTypeTableRow.propTypes = {
+ProcessTemplateTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,

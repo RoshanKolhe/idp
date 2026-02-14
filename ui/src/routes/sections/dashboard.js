@@ -54,6 +54,12 @@ const ProcessInstanceListPage = lazy(() => import('src/pages/dashboard/processIn
 const ProcessInstanceViewPage = lazy(() => import('src/pages/dashboard/processInstance/view'));
 const ProcessInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/processInstance/extractedDocuments'));
 const ProcessInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/processInstance/react-flow'));
+const ProcessInstanceLogsListPage = lazy(() => import('src/pages/dashboard/processInstance/logs'));
+// PROCESS-TEMPLATE
+const ProcessTemplateCreatePage = lazy(() => import('src/pages/dashboard/processTemplates/new'));
+const ProcessTemplateEditPage = lazy(() => import('src/pages/dashboard/processTemplates/edit'));
+const ProcessTemplateListPage = lazy(() => import('src/pages/dashboard/processTemplates/list'));
+const ProcessTemplateViewPage = lazy(() => import('src/pages/dashboard/processTemplates/view'));
 // WORKFLOWS
 const WorkflowListPage = lazy(() => import('src/pages/dashboard/workflow/list'));
 const WorkflowCreatePage = lazy(() => import('src/pages/dashboard/workflow/new'));
@@ -200,6 +206,22 @@ export const dashboardRoutes = [
           { path: ':id/view', element: <ProcessInstanceViewPage /> },
           { path: ':id/extracted-documents', element: <ProcessInstanceExtractedDocumentsPage /> },
           { path: ':id/blueprint', element: <ProcessInstanceReactFlowPage /> },
+          { path: ':id/logs', element: <ProcessInstanceLogsListPage /> },
+        ],
+      },
+      {
+        path: 'process-template',
+        element: (
+          <RoleBasedGuard roles={['super_admin', 'admin', 'company']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
+        children: [
+          { element: <ProcessTemplateListPage />, index: true },
+          { path: 'list', element: <ProcessTemplateListPage /> },
+          { path: 'new', element: <ProcessTemplateCreatePage /> },
+          { path: ':id/edit', element: <ProcessTemplateEditPage /> },
+          { path: ':id/view', element: <ProcessTemplateViewPage /> },
         ],
       },
       {

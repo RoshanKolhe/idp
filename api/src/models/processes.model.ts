@@ -2,6 +2,7 @@ import {Entity, model, property, belongsTo} from '@loopback/repository';
 import {ProcessType} from './process-type.model';
 import {BluePrint} from './blue-print.model';
 import {User} from './user.model';
+import {ProcessTemplates} from './process-templates.model';
 
 @model()
 export class Processes extends Entity {
@@ -22,6 +23,13 @@ export class Processes extends Entity {
     type: 'string',
   })
   description?: string;
+
+  @property({
+    type: 'boolean',
+    required: true,
+    default: false
+  })
+  isTemplateUsed: boolean;
 
   @property({
     type: 'date',
@@ -63,6 +71,9 @@ export class Processes extends Entity {
 
   @belongsTo(() => User)
   userId: number;
+
+  @belongsTo(() => ProcessTemplates)
+  processTemplatesId: number;
 
   constructor(data?: Partial<Processes>) {
     super(data);
