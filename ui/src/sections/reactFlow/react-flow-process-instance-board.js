@@ -18,7 +18,17 @@ import 'reactflow/dist/style.css';
 import axiosInstance from 'src/utils/axios';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
-import { ReactFlowClassify, ReactFlowDeliver, ReactFlowExtract, ReactFlowIngestion, ReactFlowValidate } from './components';
+import {
+  ReactFlowClassify,
+  ReactFlowDeliver,
+  ReactFlowExternalDataSources,
+  ReactFlowIntegration,
+  ReactFlowDocumentIndex,
+  ReactFlowDocumentQuery,
+  ReactFlowExtract,
+  ReactFlowIngestion,
+  ReactFlowValidate
+} from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 
 const nodeTypes = {
@@ -29,6 +39,10 @@ const nodeTypes = {
   extract: ReactFlowExtract,
   validate: ReactFlowValidate,
   deliver: ReactFlowDeliver,
+  externalDataSources: ReactFlowExternalDataSources,
+  documentIndex: ReactFlowDocumentIndex,
+  documentQuery: ReactFlowDocumentQuery,
+  integration: ReactFlowIntegration,
 }
 
 const initialNodes = [

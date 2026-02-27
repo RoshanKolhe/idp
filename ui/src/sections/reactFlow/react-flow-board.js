@@ -21,7 +21,20 @@ import axiosInstance from 'src/utils/axios';
 import { useGetBluePrint } from 'src/api/blue-print';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
-import { ReactFlowAggregator, ReactFlowClassify, ReactFlowDeliver, ReactFlowExtract, ReactFlowImageProcessing, ReactFlowIngestion, ReactFlowRouter, ReactFlowValidate } from './components';
+import {
+  ReactFlowAggregator,
+  ReactFlowClassify,
+  ReactFlowDeliver,
+  ReactFlowExternalDataSources,
+  ReactFlowIntegration,
+  ReactFlowDocumentIndex,
+  ReactFlowDocumentQuery,
+  ReactFlowExtract,
+  ReactFlowImageProcessing,
+  ReactFlowIngestion,
+  ReactFlowRouter,
+  ReactFlowValidate
+} from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 import CustomEdgeWithSettings from './react-flow-custom-edge';
 import { ReactFlowEdgeSettingPopup } from './edge-setting-components';
@@ -34,9 +47,13 @@ const nodeTypes = {
   extract: ReactFlowExtract,
   validate: ReactFlowValidate,
   deliver: ReactFlowDeliver,
+  externalDataSources: ReactFlowExternalDataSources,
   router: ReactFlowRouter,
   aggregator: ReactFlowAggregator,
-  imageProcessing: ReactFlowImageProcessing
+  imageProcessing: ReactFlowImageProcessing,
+  documentIndex: ReactFlowDocumentIndex,
+  documentQuery: ReactFlowDocumentQuery,
+  integration: ReactFlowIntegration,
 }
 
 const edgeTypes = {
@@ -110,6 +127,70 @@ export default function ReactFlowBoard({ isUnlock }) {
     return edge.source;
   };
 
+  const isDescendantNode = (startId, targetId, edgeList) => {
+    const visited = new Set();
+    const queue = [String(startId)];
+
+    while (queue.length > 0) {
+      const current = queue.shift();
+      if (current === String(targetId)) return true;
+      if (!visited.has(current)) {
+        visited.add(current);
+        for (let i = 0; i < edgeList.length; i += 1) {
+          const edge = edgeList[i];
+          if (String(edge.source) === current) {
+            queue.push(String(edge.target));
+          }
+        }
+      }
+    }
+
+    return false;
+  };
+
+  const resolveActiveGroupForNode = (nodeId, edgeList) =>
+    splitGroups.find((g) =>
+      !g.isClosed &&
+      g.branches.some(
+        (branchId) =>
+          branchId === `${nodeId}` ||
+          isDescendantNode(branchId, nodeId, edgeList)
+      )
+    );
+
+  const getBranchEndNode = (branchStartId, edgeList, nodeList) => {
+    let currentId = String(branchStartId);
+    const visited = new Set();
+
+    while (!visited.has(currentId)) {
+      visited.add(currentId);
+      let outgoing = null;
+      for (let i = 0; i < edgeList.length; i += 1) {
+        const edge = edgeList[i];
+        if (String(edge.source) === currentId) {
+          outgoing = edge;
+          break;
+        }
+      }
+      if (!outgoing) break;
+
+      const nextId = String(outgoing.target);
+      let nextNode = null;
+      for (let i = 0; i < nodeList.length; i += 1) {
+        const node = nodeList[i];
+        if (String(node.id) === nextId) {
+          nextNode = node;
+          break;
+        }
+      }
+
+      if (!nextNode || nextNode.type === 'customAddNode') break;
+      currentId = nextId;
+    }
+
+    return currentId;
+  };
+
   // configure settings...
   const configureSettings = (sourceNode, targetNode, settingObj) => {
     setEdgeSettings((prev) => {
@@ -179,6 +260,8 @@ export default function ReactFlowBoard({ isUnlock }) {
     }
   };
 
+  console.log('splitgroups', splitGroups);
+
   const addNewNode = (operation) => {
     if (operation?.type === 'aggregator') {
       handleAggregatorNode(operation);
@@ -218,6 +301,8 @@ export default function ReactFlowBoard({ isUnlock }) {
               addToRight: addNodeToRight,
               deleteNode,
               handleBluePrintComponent,
+              addParallelNode,
+              mergeParallelNode,
               ...(operation?.type === 'router' && { handleRouterNode })
             },
             bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
@@ -298,27 +383,19 @@ export default function ReactFlowBoard({ isUnlock }) {
         updatedNodes = updatedNodes.filter((n) => n?.id !== selectedNodeId).concat(newOperationComponentNode, newAddNode);
         const updatedEdges = prevEdges.filter((e) => e?.target !== selectedNodeId).concat(lastEdge, addNewEdge);
 
-        if (splitGroups.length > 0) {
-          const group = splitGroups.find((g) =>
-            g.branches.includes(`${getSourceId}`) ||
-            g.routerNodeId === `${getSourceId}`
-          );
-
-          if (group) {
-            setSplitGroups((prevGroups) =>
-              prevGroups.map((g) =>
-                g.id === group.id
-                  ? {
-                    ...g,
-                    branches: g.branches
-                      .filter((id) => id !== `${getSourceId}`)
-                      .concat(`${newOpCompNodeId}`),
-                  }
-                  : g
-              )
+        setSplitGroups((prev) => {
+          console.log('sourceId', getSourceId);
+          const existing = prev.find((g) => !g.isClosed && g.sourceNodeId === `${getSourceId}`);
+          if (existing) {
+            console.log('existing split group', existing);
+            return prev.map((g) =>
+              g.id === existing.id
+                ? { ...g, branches: [...g.branches, `${newOpCompNodeId}`] }
+                : g
             );
           }
-        }
+          return prev;
+        });
 
         if (operation?.type === 'router') {
           setSplitGroups((prev) => {
@@ -446,6 +523,8 @@ export default function ReactFlowBoard({ isUnlock }) {
               addToRight: addNodeToRight,
               deleteNode,
               handleBluePrintComponent,
+              addParallelNode,
+              mergeParallelNode,
               ...(operation?.type === 'router' && { handleRouterNode })
             },
             bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
@@ -525,6 +604,178 @@ export default function ReactFlowBoard({ isUnlock }) {
     setShowModal(false);
   }
 
+  const addParallelNode = (sourceNodeId, operation) => {
+    setNodes((prevNodes) => {
+      let updatedNodes = [...prevNodes];
+
+      setEdges((prevEdges) => {
+        let updatedEdges = [...prevEdges];
+        const sourceNode = updatedNodes.find((n) => n.id === `${sourceNodeId}`);
+        if (!sourceNode) return updatedEdges;
+
+        const activeGroup = splitGroups.find((g) => !g.isClosed && g.sourceNodeId === `${sourceNodeId}`);
+
+        const newOpCompNodeId = getNextNodeId(updatedNodes);
+        const newAddNodeId = getNextNodeId([...updatedNodes, { id: newOpCompNodeId }]);
+        const branchCount = activeGroup?.branches?.length || 0;
+        const baseX = sourceNode.position.x + 320;
+        const baseY = sourceNode.position.y + (branchCount * 170);
+
+        const newOperationComponentNode = {
+          id: newOpCompNodeId,
+          type: operation.type,
+          data: {
+            id: newOpCompNodeId,
+            label: `${operation.title}`,
+            icon: operation.icon,
+            style: {
+              border: `5px solid ${operation.color}`,
+              borderTop: '5px dashed lightgray',
+              borderLeft: '5px dashed lightgray',
+            },
+            functions: {
+              addToLeft: addNodeToLeft,
+              addToRight: addNodeToRight,
+              deleteNode,
+              handleBluePrintComponent,
+              addParallelNode,
+              mergeParallelNode
+            },
+            bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
+          },
+          position: { x: baseX, y: baseY },
+        };
+
+        const newAddNode = {
+          id: newAddNodeId,
+          type: 'customAddNode',
+          data: {
+            id: newAddNodeId,
+            label: '➕ New Node',
+            icon: '/assets/icons/document-process/add.svg',
+            style: {
+              border: '5px solid #2DCA73',
+              borderTop: '5px solid white',
+              borderLeft: '5px solid white',
+            },
+          },
+          position: { x: baseX + 300, y: baseY },
+        };
+
+        updatedNodes = updatedNodes.concat(newOperationComponentNode, newAddNode);
+        updatedEdges = updatedEdges.concat(
+          {
+            id: `e${sourceNodeId}-${newOpCompNodeId}`,
+            source: `${sourceNodeId}`,
+            target: `${newOpCompNodeId}`,
+            animated: true,
+            style: { stroke: 'black' },
+          },
+          {
+            id: `e${newOpCompNodeId}-${newAddNodeId}`,
+            source: `${newOpCompNodeId}`,
+            target: `${newAddNodeId}`,
+            animated: true,
+            style: { stroke: 'black' },
+          }
+        );
+
+        setSplitGroups((prev) => {
+          const existing = prev.find((g) => !g.isClosed && g.sourceNodeId === `${sourceNodeId}`);
+          if (existing) {
+            console.log('existing split group', existing);
+            return prev.map((g) =>
+              g.id === existing.id
+                ? { ...g, branches: [...g.branches, `${newOpCompNodeId}`] }
+                : g
+            );
+          }
+
+          return [
+            ...prev,
+            {
+              id: `split-${sourceNodeId}`,
+              sourceNodeId: `${sourceNodeId}`,
+              branches: [`${newOpCompNodeId}`],
+              isClosed: false
+            }
+          ];
+        });
+
+        setPresentNodes((prev) => [...prev, newOperationComponentNode.data.label]);
+        return updatedEdges;
+      });
+
+      return updatedNodes;
+    });
+  }
+
+  const mergeParallelNode = (currentNodeId) => {
+
+    setNodes((prevNodes) => {
+      let updatedNodes = [...prevNodes];
+
+      setEdges((prevEdges) => {
+
+        const activeGroup = resolveActiveGroupForNode(
+          currentNodeId,
+          prevEdges
+        );
+
+        if (!activeGroup) return prevEdges;
+
+        // Find last node of each branch
+        const effectiveBranches = activeGroup.branches.map((branchId) =>
+          getBranchEndNode(branchId, prevEdges, updatedNodes)
+        );
+
+        // Create merge edges
+        const mergeEdges = effectiveBranches
+          .filter((branchId) => `${branchId}` !== `${currentNodeId}`)
+          .map((branchId) => ({
+            id: `e${branchId}-${currentNodeId}`,
+            source: `${branchId}`,
+            target: `${currentNodeId}`,
+            animated: true,
+            style: { stroke: '#009688' },
+          }));
+
+        // Find nodes to remove
+        const targetedNodes = prevEdges.filter((edge) =>
+          effectiveBranches.includes(`${edge.source}`)
+        );
+
+        const targetedNodeIds = targetedNodes
+          .map((e) => e.target)
+          .filter((id) => id !== currentNodeId);
+
+        // Remove merged nodes
+        updatedNodes = updatedNodes.filter(
+          (node) => !targetedNodeIds.includes(node.id)
+        );
+
+        // Clean edges
+        const updatedEdges = prevEdges
+          .filter((edge) => !targetedNodeIds.includes(edge.target))
+          .filter((edge) => !effectiveBranches.includes(edge.target))
+          .concat(...mergeEdges);
+
+        // Close group
+        setSplitGroups((prev) =>
+          prev.map((g) =>
+            g.id === activeGroup.id
+              ? { ...g, isClosed: true }
+              : g
+          )
+        );
+
+        return updatedEdges;
+      });
+
+      return updatedNodes;
+    });
+  };
+
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -598,7 +849,9 @@ export default function ReactFlowBoard({ isUnlock }) {
             addToLeft: addNodeToLeft,
             addToRight: addNodeToRight,
             deleteNode,
-            handleBluePrintComponent
+            handleBluePrintComponent,
+            addParallelNode,
+            mergeParallelNode
           },
           bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
         },
@@ -702,7 +955,9 @@ export default function ReactFlowBoard({ isUnlock }) {
             addToLeft: addNodeToLeft,
             addToRight: addNodeToRight,
             deleteNode,
-            handleBluePrintComponent
+            handleBluePrintComponent,
+            addParallelNode,
+            mergeParallelNode
           },
           bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
         },
@@ -878,7 +1133,9 @@ export default function ReactFlowBoard({ isUnlock }) {
             addToLeft: addNodeToLeft,
             addToRight: addNodeToRight,
             deleteNode,
-            handleBluePrintComponent
+            handleBluePrintComponent,
+            addParallelNode,
+            mergeParallelNode
           },
           bluePrint: data?.bluePrint?.find((item) => item.nodeName === node.data.label)?.component,
         }
@@ -906,7 +1163,9 @@ export default function ReactFlowBoard({ isUnlock }) {
               addToLeft: addNodeToLeft,
               addToRight: addNodeToRight,
               deleteNode,
-              handleBluePrintComponent
+              handleBluePrintComponent,
+              addParallelNode,
+              mergeParallelNode
             },
             bluePrint: bluePrint.find((item) => item.nodeName === node.data.label)?.component,
           }

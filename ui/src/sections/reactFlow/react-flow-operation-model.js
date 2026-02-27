@@ -44,7 +44,8 @@ const operations = [
     title: 'External Data Sources',
     description: 'Link to third-party data.',
     icon: '/assets/icons/document-process/external-data-source.svg',
-    type: 'default',
+    type: 'externalDataSources',
+    color: '#4CAF50'
   },
   {
     id: 5,
@@ -64,24 +65,27 @@ const operations = [
   },
   {
     id: 7,
-    title: 'Index Document',
+    title: 'Document Index',
     description: 'Tag for quick access.',
-    icon: '/assets/icons/document-process/index-document.svg',
-    type: 'default'
+    icon: '/assets/icons/document-process/index-doocument.svg',
+    type: 'documentIndex',
+    color: '#00A86B'
   },
   {
     id: 8,
     title: 'Document Query',
     description: 'Search documents easily.',
     icon: '/assets/icons/document-process/document-query.svg',
-    type: 'default'
+    type: 'documentQuery',
+    color: '#1E88E5'
   },
   {
     id: 9,
-    title: 'Integration Step',
+    title: 'Integration',
     description: 'Connect external systems.',
     icon: '/assets/icons/document-process/integration-steps.svg',
-    type: 'default'
+    type: 'integration',
+    color: '#2E7D32'
   },
   {
     id: 10,
@@ -96,7 +100,8 @@ const operations = [
     description: 'Add multiple route.',
     icon: '/assets/icons/document-process/plan.svg',
     type: 'router',
-    color: '#1976D2'
+    color: '#1976D2',
+    isInternal: true
   },
   {
     id: 12,
@@ -104,7 +109,8 @@ const operations = [
     description: 'Merge split route.',
     icon: '/assets/icons/document-process/plan.svg',
     type: 'aggregator',
-    color: '#7B1FA2'
+    color: '#7B1FA2',
+    isInternal: true
   },
 ];
 
@@ -122,7 +128,7 @@ export default function OperationSelectorModal({
     }
 
     return operations.filter(
-      (opt) => !bluePrintNode.includes(opt.title)
+      (opt) => !opt.isInternal && !bluePrintNode.includes(opt.title)
     );
   }, [bluePrintNode]);
 

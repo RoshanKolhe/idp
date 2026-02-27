@@ -6,4 +6,8 @@ export { default as ReactFlowDeliver } from './react-flow-deliver';
 export { default as ReactFlowRouter } from './react-flow-router';
 export { default as ReactFlowAggregator } from './react-flow-aggregator';
 export { default as ReactFlowImageProcessing } from './react-flow-image-processing';
+export { default as ReactFlowDocumentIndex } from './react-flow-document-index';
+export { default as ReactFlowDocumentQuery } from './react-flow-document-query';
+export { default as ReactFlowIntegration } from './react-flow-integration';
+export { default as ReactFlowExternalDataSources } from './react-flow-external-data-sources';
 
