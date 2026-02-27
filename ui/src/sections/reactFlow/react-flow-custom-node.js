@@ -40,6 +40,8 @@ export default function ReactFlowCustomNodeStructure({ data }){
             data?.functions?.addToLeft(data.id, operation);
         }else if(direction === 'right'){
             data?.functions?.addToRight(data.id, operation);
+        }else if(direction === 'parallel'){
+            data?.functions?.addParallelNode?.(data.id, operation);
         }
         handleClose();
     }
@@ -50,6 +52,16 @@ export default function ReactFlowCustomNodeStructure({ data }){
 
     const handleDeleteNode = () => {
         data?.functions?.deleteNode(data.id, data.label);
+    }
+
+    const handleParallel = () => {
+        setIsOpen(true);
+        setDirection('parallel');
+    }
+
+    const handleMerge = () => {
+        data?.functions?.mergeParallelNode?.(data.id);
+        setAnchorEl(null);
     }
 
     const open = Boolean(anchorEl);
@@ -165,6 +177,18 @@ export default function ReactFlowCustomNodeStructure({ data }){
                 <Tooltip title="Delete" placement="top" arrow>
                     <IconButton color="error" onClick={() => handleDeleteNode()}>
                         <Iconify icon="mdi:delete" />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Parallel" placement="top" arrow>
+                    <IconButton color="primary" onClick={handleParallel}>
+                        <Iconify icon="mdi:source-fork" />
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Merge" placement="top" arrow>
+                    <IconButton color="secondary" onClick={handleMerge}>
+                        <Iconify icon="mdi:call-merge" />
                     </IconButton>
                 </Tooltip>
             </Popover>
