@@ -31,12 +31,10 @@ export default function ProcessTemplateSelection({ handleSubmitForm, isSubmittin
         handleSubmitForm();
     };
 
-    if (!processTemplates?.length) return null;
-
     return (
         <>
             <Grid container spacing={2}>
-                {processTemplates.map((template) => {
+                {processTemplates.length > 0 ? processTemplates?.map((template) => {
                     const isSelected = selectedTemplate?.id === template.id;
 
                     return (
@@ -87,7 +85,34 @@ export default function ProcessTemplateSelection({ handleSubmitForm, isSubmittin
                             </Card>
                         </Grid>
                     );
-                })}
+                }) : (
+
+                    <Grid item xs={12}>
+                        <Box
+                            sx={{
+                                py: 10,
+                                textAlign: 'center',
+                                border: '1px dashed',
+                                borderColor: 'divider',
+                                borderRadius: 2,
+                                bgcolor: 'background.neutral',
+                            }}
+                        >
+                            <Iconify
+                                icon="fluent:document-error-20-regular"
+                                width={48}
+                                sx={{ mb: 2, color: 'text.disabled' }}
+                            />
+                            <Typography variant="h6" sx={{ color: 'text.secondary' }}>
+                                No Templates Found
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: 'text.disabled' }}>
+                                You can still proceed by creating a process from scratch.
+                            </Typography>
+                        </Box>
+                    </Grid>
+
+                )}
             </Grid>
 
             {/* Bottom actions */}
