@@ -26,6 +26,7 @@ export default function ProcessTemplateSelection({ handleSubmitForm, isSubmittin
     };
 
     const handleSkipTemplate = () => {
+        console.log('skipped');
         setValue('isTemplateUsed', false);
         setValue('template', null);
         handleSubmitForm();

@@ -77,8 +77,7 @@ export class ProcessesController {
 
       throw new HttpErrors.BadRequest('Failed to create process');
     }
-
-    throw new HttpErrors.BadRequest('Failed to create process');
+    return process;
   }
 
   @authenticate({

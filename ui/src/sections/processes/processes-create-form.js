@@ -38,7 +38,7 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
     description: Yup.string(),
     processType: Yup.object().required('Customer Name is Required'),
     isTemplateUsed: Yup.boolean().required(),
-    template: Yup.number()
+    template: Yup.number().nullable()
   });
 
   const defaultValues = useMemo(
@@ -60,9 +60,10 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
   const {
     reset,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, errors },
   } = methods;
 
+  console.log('ERRORS', errors);
   const onSubmit = handleSubmit(async (formData) => {
     try {
       console.log('DATA', formData);
