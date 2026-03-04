@@ -95,6 +95,31 @@ export function useGetProcessInstancesWithFilter(filter) {
 
 // ----------------------------------------------------------------------
 
+export function useGetProcessInstanceExecutionLogs(outputId) {
+  const URL = outputId ? [endpoints.workflowInstance.executionLogs(outputId)] : null;
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+
+    const refreshWorkflowInstanceExecutionLogs = () => {
+    // Use the `mutate` function to trigger a revalidation
+    mutate();
+  };
+
+  const memoizedValue = useMemo(
+    () => ({
+      executionLogs: data || [],
+      executionLogsLoading: isLoading,
+      executionLogsError: error,
+      executionLogsValidating: isValidating,
+      executionLogsEmpty: !isLoading && !data?.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return {...memoizedValue, refreshWorkflowInstanceExecutionLogs};
+}
+
+// ----------------------------------------------------------------------
+
 export function useGetProcessInstanceLogs(processInstanceId) {
   const URL = processInstanceId ? [endpoints.processInstance.logs(processInstanceId)] : null;
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);

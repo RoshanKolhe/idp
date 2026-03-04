@@ -40,6 +40,7 @@ import {
 import axiosInstance from 'src/utils/axios';
 import { useGetWorkflowInstanceLogs } from 'src/api/workflow-instance';
 import { Box, Grid, Typography } from '@mui/material';
+import { useGetProcessInstanceLogs } from 'src/api/process-instance';
 import ProcessInstanceTableRow from '../processInstance-table-row';
 
 // ----------------------------------------------------------------------
@@ -76,7 +77,7 @@ export default function ProcessInstanceLogsListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { workflowInstanceLogs, workflowInstanceLogsEmpty, refreshWorkflowInstanceLogs } = useGetWorkflowInstanceLogs(id);
+  const { processInstanceLogs, refreshProcessInstanceLogs } = useGetProcessInstanceLogs(id);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -156,17 +157,17 @@ export default function ProcessInstanceLogsListView() {
   const handleProcessInstanceRunningStatus = async (row) => {
     try {
       await axiosInstance.patch(`/workflow-instances/${row?.id}`, { isInstanceRunning: !row?.isInstanceRunning });
-      refreshWorkflowInstanceLogs();
+      refreshProcessInstanceLogs();
     } catch (error) {
       console.error('Error while changing running status', error);
     }
   }
 
   useEffect(() => {
-    if (workflowInstanceLogs) {
-      setTableData(workflowInstanceLogs);
+    if (processInstanceLogs) {
+      setTableData(processInstanceLogs);
     }
-  }, [workflowInstanceLogs]);
+  }, [processInstanceLogs]);
 
   return (
     <>
