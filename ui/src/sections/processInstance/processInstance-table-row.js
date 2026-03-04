@@ -51,7 +51,7 @@ export default function ProcessTypeTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{processes?.name}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>0</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processes?.proccessInstanceTransactions?.length || 0}</TableCell>
 
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
           <Tooltip title={isInstanceRunning ? 'Pause' : 'Start'} placement="top" arrow>

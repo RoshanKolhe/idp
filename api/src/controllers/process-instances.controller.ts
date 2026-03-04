@@ -304,7 +304,10 @@ export class ProcessInstancesController {
               { isDeleted: false }
             ]
           },
-          include: [{ relation: 'processes' }]
+          include: [
+            { relation: 'processes' },
+            { relation: 'processInstanceTransactions', scope: { fields: { id: true } } }
+          ]
         }
       );
 
