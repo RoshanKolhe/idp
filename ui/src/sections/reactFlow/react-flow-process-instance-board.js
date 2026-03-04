@@ -30,6 +30,7 @@ import {
   ReactFlowValidate
 } from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
+import ReactFlowSummaryDrawer from './react-flow-summary-drawer';
 
 const nodeTypes = {
   custom: ReactFlowCustomNodeStructure,
@@ -627,7 +628,7 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
   }
 
   return (
-    <div style={{ width: '100%', height: '100vh' }}>
+    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
       <ReactFlowProvider >
         <ReactFlow
           nodeTypes={nodeTypes}
@@ -642,10 +643,11 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
         >
           <MiniMap />
           <Controls />
-          <Background />
-        </ReactFlow>
-        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode = {presentNodes}/>}
+        <Background />
+      </ReactFlow>
+      {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode = {presentNodes}/>}
       </ReactFlowProvider>
+      <ReactFlowSummaryDrawer bluePrint={bluePrint} />
     </div>
   );
 }

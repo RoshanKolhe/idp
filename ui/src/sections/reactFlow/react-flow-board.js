@@ -38,6 +38,7 @@ import {
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 import CustomEdgeWithSettings from './react-flow-custom-edge';
 import { ReactFlowEdgeSettingPopup } from './edge-setting-components';
+import ReactFlowSummaryDrawer from './react-flow-summary-drawer';
 
 const nodeTypes = {
   custom: ReactFlowCustomNodeStructure,
@@ -1205,7 +1206,7 @@ export default function ReactFlowBoard({ isUnlock }) {
   }, [nodes]);
 
   return (
-    <div style={{ width: '100%', height: '100vh' }}>
+    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
         <Button onClick={() => handleSubmitBluePrint()} variant='contained'>Save</Button>
       </Box>
@@ -1229,6 +1230,7 @@ export default function ReactFlowBoard({ isUnlock }) {
         {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode={presentNodes} />}
         <ReactFlowEdgeSettingPopup isOpen={edgePopup} data={activeEdgeData} handleCloseModal={() => handleCloseEdgePopup()} />
       </ReactFlowProvider>
+      <ReactFlowSummaryDrawer bluePrint={bluePrint} />
     </div>
   );
 }
