@@ -289,7 +289,7 @@ export class ProcessInstancesController {
             },
             include: [
               { relation: 'processes' },
-              { relation: 'processInstanceTransactions', scope: { fields: { id: true } } }
+              { relation: 'processInstanceTransactions' }
             ]
           }
         );
@@ -306,7 +306,7 @@ export class ProcessInstancesController {
           },
           include: [
             { relation: 'processes' },
-            { relation: 'processInstanceTransactions', scope: { fields: { id: true } } }
+            { relation: 'processInstanceTransactions' }
           ]
         }
       );

@@ -34,7 +34,7 @@ export default function ProcessInstanceTableRow({
   onStatusChange
 }) {
   const navigate = useNavigate();
-  const { id, processInstancesId, createdAt, status } = row;
+  const { id, processInstancesId, createdAt, currentStage } = row;
 
   const confirm = useBoolean();
 
@@ -65,26 +65,15 @@ export default function ProcessInstanceTableRow({
           <Label
             variant="soft"
             color={
-              status === 0
+              currentStage
                 ? 'warning' // Running
-                : status === 1
-                  ? 'success' // Completed
-                  : status === 2
-                    ? 'error'   // Failed
-                    : status === 3  // waiting
-                      ? 'info'
-                      : 'default'
+                : 'error'   // Failed
             }
           >
-            {status === 0
-              ? 'Running'
-              : status === 1
-                ? 'Completed'
-                : status === 2
-                  ? 'Failed'
-                  : status === 3  // waiting
-                    ? 'Waiting'
-                    : 'unknown'}
+            {currentStage
+              ? currentStage
+              : 'Failed'
+            }
           </Label>
         </TableCell>
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
