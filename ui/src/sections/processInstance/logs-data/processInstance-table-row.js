@@ -66,13 +66,17 @@ export default function ProcessInstanceTableRow({
             variant="soft"
             color={
               currentStage
-                ? 'warning' // Running
-                : 'error'   // Failed
+                ? currentStage?.toLowerCase() === 'completed'
+                  ? 'success' // Completed
+                  : currentStage?.toLowerCase() === 'error' // Error
+                    ? 'error' // Running
+                    : 'warning'   // Failed
+                : 'info'
             }
           >
             {currentStage
               ? currentStage
-              : 'Failed'
+              : 'Not Started'
             }
           </Label>
         </TableCell>
