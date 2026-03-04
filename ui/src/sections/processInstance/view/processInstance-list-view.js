@@ -48,7 +48,7 @@ const TABLE_HEAD = [
   { id: 'no', label: 'NO.', width: 180 },
   { id: 'instanceId', label: 'Instance Id' },
   { id: 'processName', label: 'Process Name' },
-  { id: 'runningTransactions', label: 'Running Transactions' },
+  // { id: 'runningTransactions', label: 'Running Transactions' },
   { id: '', label: 'Actions', width: 120},
 ];
 
