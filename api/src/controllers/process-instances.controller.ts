@@ -288,7 +288,8 @@ export class ProcessInstancesController {
               isDeleted: false
             },
             include: [
-              { relation: 'processes' }
+              { relation: 'processes' },
+              { relation: 'processInstanceTransactions', scope: { fields: { id: true } } }
             ]
           }
         );
@@ -520,7 +521,7 @@ export class ProcessInstancesController {
 
       // Extract all fields from all documents
       const allExtractedFields = processInstanceDocuments
-        .flatMap((doc : any) => doc.extractedFields || []);
+        .flatMap((doc: any) => doc.extractedFields || []);
 
       // Ensure fields exist
       if (!allExtractedFields || allExtractedFields.length === 0) {
