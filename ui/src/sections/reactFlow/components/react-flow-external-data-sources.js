@@ -89,7 +89,7 @@ const validationSchema = Yup.object().shape({
   dbPort: Yup.number().when(["sourceType", "dbType"], {
     is: (sourceType, dbType) => sourceType === "db" && ["postgresql", "mysql", "sqlserver"].includes(dbType),
     then: (schema) => schema.typeError("Port must be a number").required("Port is required"),
-    otherwise: (schema) => schema.notRequired(),
+    otherwise: (schema) => schema.notRequired().nullable(),
   }),
   dbName: Yup.string().when(["sourceType", "dbType"], {
     is: (sourceType, dbType) => sourceType === "db" && ["postgresql", "mysql", "sqlserver"].includes(dbType),
@@ -311,7 +311,7 @@ export default function ReactFlowExternalDataSources({ data }) {
       dbType: data?.bluePrint?.dbType || "",
       dbConnectionRef: data?.bluePrint?.dbConnectionRef || "",
       dbHost: data?.bluePrint?.dbHost || "",
-      dbPort: data?.bluePrint?.dbPort || "",
+      dbPort: data?.bluePrint?.dbPort || null,
       dbName: data?.bluePrint?.dbName || "",
       dbUser: data?.bluePrint?.dbUser || "",
       dbPassword: data?.bluePrint?.dbPassword || "",
@@ -360,10 +360,12 @@ export default function ReactFlowExternalDataSources({ data }) {
     defaultValues,
   });
 
-  const { reset, watch, handleSubmit, formState: { isSubmitting } } = methods;
+  const { reset, watch, handleSubmit, formState: { isSubmitting, errors } } = methods;
   const values = watch();
 
+  console.log('errors', errors);
   const onSubmit = handleSubmit(async (formData) => {
+    console.log("formData", formData);
     data?.functions?.handleBluePrintComponent(data?.label, {
       ...formData,
       bigDataLimit: Number(formData.bigDataLimit || 0),

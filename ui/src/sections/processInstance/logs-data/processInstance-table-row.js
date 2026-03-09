@@ -74,10 +74,7 @@ export default function ProcessInstanceTableRow({
                 : 'info'
             }
           >
-            {currentStage
-              ? currentStage
-              : 'Not Started'
-            }
+            {currentStage || 'Not Started'}
           </Label>
         </TableCell>
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>

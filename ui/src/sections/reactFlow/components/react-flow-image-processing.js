@@ -114,10 +114,12 @@ export default function ReactFlowImageProcessing({ data }) {
     const values = watch();
 
     const onSubmit = handleSubmit(async (formData) => {
+        console.log("formData", formData);
         data?.functions?.handleBluePrintComponent(data?.label, {
             ...formData,
             ai_cleanup: formData.ai_cleanup === "true",
         });
+        setIsOpen(false);
     });
 
     useEffect(() => {
