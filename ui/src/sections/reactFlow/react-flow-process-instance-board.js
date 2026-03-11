@@ -28,7 +28,8 @@ import {
   ReactFlowDocumentQuery,
   ReactFlowExtract,
   ReactFlowIngestion,
-  ReactFlowValidate
+  ReactFlowValidate,
+  ReactFlowImageProcessing
 } from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 import ReactFlowSummaryDrawer from './react-flow-summary-drawer';
@@ -45,6 +46,7 @@ const nodeTypes = {
   documentIndex: ReactFlowDocumentIndex,
   documentQuery: ReactFlowDocumentQuery,
   integration: ReactFlowIntegration,
+  imageProcessing: ReactFlowImageProcessing,
 }
 
 const initialNodes = [
@@ -97,7 +99,7 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
 
   useEffect(() => {
     if (currentProcessInstance) {
-        setData(currentProcessInstance?.processes?.bluePrint);
+      setData(currentProcessInstance?.processes?.bluePrint);
     }
   }, [currentProcessInstance]);
 
@@ -112,22 +114,22 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
       // setting nodes
       const filteredNewNodes = data?.nodes?.length > 0 && data?.nodes.filter((node) => node.type !== 'customAddNode');
       const newNodes = filteredNewNodes?.length > 0 && filteredNewNodes.map((node) => ({
-          ...node,
-          data : {
-            ...node.data,
-            isProcessInstance: true,
-            isCurrentProcess: node.data.label?.toLowerCase() === currentProcessInstance?.currentStage?.toLowerCase(),
-            processInstanceId: currentProcessInstance?.id,
-            processInstanceTransactionId,
-            functions: {
-              addToLeft: addNodeToLeft,
-              addToRight: addNodeToRight,
-              deleteNode,
-              handleBluePrintComponent
-            },
-            bluePrint: data?.bluePrint?.find((item) => item.nodeName === node.data.label)?.component,
-          }
-        }));
+        ...node,
+        data: {
+          ...node.data,
+          isProcessInstance: true,
+          isCurrentProcess: node.data.label?.toLowerCase() === currentProcessInstance?.currentStage?.toLowerCase(),
+          processInstanceId: currentProcessInstance?.id,
+          processInstanceTransactionId,
+          functions: {
+            addToLeft: addNodeToLeft,
+            addToRight: addNodeToRight,
+            deleteNode,
+            handleBluePrintComponent
+          },
+          bluePrint: data?.bluePrint?.find((item) => item.nodeName === node.data.label)?.component,
+        }
+      }));
 
       setNodes(newNodes || initialNodes);
 
@@ -523,7 +525,7 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
 
   // delete node
   const deleteNode = (id, label) => {
-    const deleteId = Number(id);    
+    const deleteId = Number(id);
     const gapX = 370;
 
     let prevNodeId = null;
@@ -648,9 +650,9 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
         >
           <MiniMap />
           <Controls />
-        <Background />
-      </ReactFlow>
-      {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode = {presentNodes}/>}
+          <Background />
+        </ReactFlow>
+        {showModal && <OperationSelectorModal open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode={presentNodes} />}
       </ReactFlowProvider>
       <ReactFlowSummaryDrawer bluePrint={bluePrint} />
     </div>
