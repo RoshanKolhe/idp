@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import Iconify from "src/components/iconify";
 import axiosInstance from "src/utils/axios";
 
-export default function LogsProcessDialogue({ isOpen, handleCloseModal, processInstanceId, nodeName }) {
+export default function LogsProcessDialogue({ isOpen, handleCloseModal, processInstanceTransactionId, processInstanceId, nodeName }) {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(0);
@@ -24,6 +24,7 @@ export default function LogsProcessDialogue({ isOpen, handleCloseModal, processI
         setLoading(true);
         try {
             const res = await axiosInstance.post('/log-entries/logs-by-node', {
+                processInstanceTransactionId,
                 processInstanceId,
                 nodeName,
                 skip: page * limit,
@@ -138,6 +139,7 @@ export default function LogsProcessDialogue({ isOpen, handleCloseModal, processI
 LogsProcessDialogue.propTypes = {
     isOpen: PropTypes.bool,
     handleCloseModal: PropTypes.func,
+    processInstanceTransactionId: PropTypes.number,
     processInstanceId: PropTypes.number,
     nodeName: PropTypes.string
 };

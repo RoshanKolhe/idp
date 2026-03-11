@@ -106,7 +106,7 @@ export default function ReactFlowValidate({ data }) {
             {(data?.isProcessInstance === true) && <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenLogsModal()}>View Logs</Button>}
 
             {/* logs modal */}
-            <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceId={14} nodeName={data.label} />
+            <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceTransactionId={data?.processInstanceTransactionId} processInstanceId={data?.processInstanceId} nodeName={data.label} />
         </Stack>
     )
 }

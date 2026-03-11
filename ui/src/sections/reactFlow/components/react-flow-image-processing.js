@@ -241,6 +241,7 @@ export default function ReactFlowImageProcessing({ data }) {
             <LogsProcessDialogue
                 isOpen={logsOpen}
                 handleCloseModal={handleCloseLogsModal}
+                processInstanceTransactionId={data?.processInstanceTransactionId}
                 processInstanceId={data?.processInstanceId}
                 nodeName={data.label}
             />

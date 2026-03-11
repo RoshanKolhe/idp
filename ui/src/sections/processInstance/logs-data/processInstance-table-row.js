@@ -87,7 +87,7 @@ export default function ProcessInstanceTableRow({
                 borderRadius: '12px',
                 color: '#4182EB',
               }}
-              onClick={() => navigate(paths.dashboard.processesInstance.reactFlow(processInstancesId))}
+              onClick={() => navigate(`${paths.dashboard.processesInstance.reactFlow(processInstancesId)}?transactionId=${id}`)}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>

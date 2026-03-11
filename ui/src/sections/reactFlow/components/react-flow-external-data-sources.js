@@ -717,6 +717,7 @@ export default function ReactFlowExternalDataSources({ data }) {
       <LogsProcessDialogue
         isOpen={logsOpen}
         handleCloseModal={() => setLogsOpen(false)}
+        processInstanceTransactionId={data?.processInstanceTransactionId}
         processInstanceId={data?.processInstanceId}
         nodeName={data?.label}
       />

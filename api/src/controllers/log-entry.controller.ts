@@ -18,13 +18,34 @@ import {
   response,
 } from '@loopback/rest';
 import { LogEntry } from '../models';
-import { LogEntryRepository } from '../repositories';
+import { LogEntryRepository, ProcessInstanceTransactionsRepository } from '../repositories';
 
 export class LogEntryController {
   constructor(
     @repository(LogEntryRepository)
     public logEntryRepository: LogEntryRepository,
+    @repository(ProcessInstanceTransactionsRepository)
+    public processInstanceTransactionsRepository: ProcessInstanceTransactionsRepository,
   ) { }
+
+  private buildLegacyProcessInstanceFilter(
+    processInstanceId: number,
+    nodeName: string,
+    limit: number,
+    skip: number,
+  ): Filter<LogEntry> {
+    return {
+      where: {
+        and: [
+          {processInstanceId} as never,
+          {nodeName},
+        ],
+      } as never,
+      limit,
+      skip,
+      order: ['createdAt DESC'],
+    };
+  }
 
   @post('/log-entries')
   @response(200, {
@@ -153,42 +174,62 @@ export class LogEntryController {
     @requestBody({
       content: {
         'application/json': {
-          schema: {
-            type: 'object',
-            properties: {
-              processInstanceTransactionId: { type: 'number' },
-              nodeName: { type: 'string' },
-              limit: { type: 'number', default: 10 }, 
-              skip: { type: 'number', default: 0 },    
-            },
-            required: ['processInstanceTransactionId', 'nodeName']
+              schema: {
+                type: 'object',
+                properties: {
+                  processInstanceTransactionId: { type: 'number' },
+                  processInstanceId: { type: 'number' },
+                  nodeName: { type: 'string' },
+                  limit: { type: 'number', default: 10 }, 
+                  skip: { type: 'number', default: 0 },    
+                },
+                required: ['nodeName']
+              }
+            }
           }
-        }
-      }
-    })
+        })
     requestBody: {
-      processInstanceTransactionId: number;
+      processInstanceTransactionId?: number;
+      processInstanceId?: number;
       nodeName: string;
       limit?: number;
       skip?: number;
     }
   ): Promise<LogEntry[]> {
     try {
-      const { processInstanceTransactionId, nodeName, limit = 10, skip = 0 } = requestBody;
+      const { processInstanceTransactionId, processInstanceId, nodeName, limit = 10, skip = 0 } = requestBody;
 
-      const logs = await this.logEntryRepository.find({
-        where: {
-          and: [
-            { processInstanceTransactionId },
-            { nodeName }
-          ]
-        },
-        limit,
-        skip,
-        order: ['createdAt DESC'],
-      });
+      if (!processInstanceTransactionId && !processInstanceId) {
+        throw new Error('Either processInstanceTransactionId or processInstanceId is required');
+      }
 
-      return logs;
+      if (processInstanceTransactionId) {
+        const transactionLogs = await this.logEntryRepository.find({
+          where: {
+            and: [
+              { processInstanceTransactionId },
+              { nodeName }
+            ]
+          },
+          limit,
+          skip,
+          order: ['createdAt DESC'],
+        });
+
+        if (transactionLogs.length > 0) {
+          return transactionLogs;
+        }
+
+        const transaction = await this.processInstanceTransactionsRepository.findById(processInstanceTransactionId);
+
+        return this.logEntryRepository.find(
+          this.buildLegacyProcessInstanceFilter(transaction.processInstancesId, nodeName, limit, skip),
+        );
+      }
+
+      return this.logEntryRepository.find(
+        this.buildLegacyProcessInstanceFilter(processInstanceId!, nodeName, limit, skip),
+      );
     } catch (error) {
       throw error;
     }

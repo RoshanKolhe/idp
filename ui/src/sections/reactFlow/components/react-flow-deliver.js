@@ -240,7 +240,7 @@ export default function ReactFlowDeliver({ data }) {
             </CustomProcessDialogue>
 
             {/* logs modal */}
-            <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceId={14} nodeName={data.label} />
+            <LogsProcessDialogue isOpen={logsOpen} handleCloseModal={handleCloseLogsModal} processInstanceTransactionId={data?.processInstanceTransactionId} processInstanceId={data?.processInstanceId} nodeName={data.label} />
         </Stack>
     )
 }

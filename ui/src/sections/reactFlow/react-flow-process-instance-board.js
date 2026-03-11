@@ -16,6 +16,7 @@ import ReactFlow, {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'reactflow/dist/style.css';
 import axiosInstance from 'src/utils/axios';
+import { useSearchParams } from 'src/routes/hook';
 import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
 import {
@@ -80,8 +81,10 @@ const initialNodes = [
 
 export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcessInstance }) {
   const params = useParams();
+  const searchParams = useSearchParams();
   const { enqueueSnackbar } = useSnackbar();
   const { id } = params;
+  const processInstanceTransactionId = Number(searchParams.get('transactionId')) || null;
   const [data, setData] = useState(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState();
@@ -114,6 +117,8 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
             ...node.data,
             isProcessInstance: true,
             isCurrentProcess: node.data.label?.toLowerCase() === currentProcessInstance?.currentStage?.toLowerCase(),
+            processInstanceId: currentProcessInstance?.id,
+            processInstanceTransactionId,
             functions: {
               addToLeft: addNodeToLeft,
               addToRight: addNodeToRight,
@@ -157,7 +162,7 @@ export default function ReactFlowProcessInstanceBoard({ isUnlock, currentProcess
       }])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data])
+  }, [data, currentProcessInstance?.currentStage, currentProcessInstance?.id, processInstanceTransactionId])
 
   useEffect(() => {
     if (nodes && nodes.length > 0) {
