@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils
-import { endpoints, workflowFetcher } from 'src/utils/axios';
+import { endpoints, workflowAxiosInstance, workflowFetcher } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -118,4 +118,14 @@ export function useGetWorkflowInstanceExecutionLogs(outputId) {
   );
 
   return {...memoizedValue, refreshWorkflowInstanceExecutionLogs};
+}
+
+export async function getWorkflowGroupedLogs(outputId, params = {}) {
+  if (!outputId) return [];
+
+  const res = await workflowAxiosInstance.get(endpoints.workflowInstance.groupedLogs(outputId), {
+    params,
+  });
+
+  return res.data || [];
 }

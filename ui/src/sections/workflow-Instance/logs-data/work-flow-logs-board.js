@@ -15,7 +15,7 @@ import ReactFlow, {
 } from 'reactflow';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'reactflow/dist/style.css';
-import { Box, FormControlLabel, Switch } from '@mui/material';
+import { Box, Button, FormControlLabel, Switch } from '@mui/material';
 import { workflowAxiosInstance } from 'src/utils/axios';
 import { useGetWorkflowBluePrint } from 'src/api/blue-print';
 import { useGetWorkflowInstanceExecutionLogs } from 'src/api/workflow-instance';
@@ -27,6 +27,7 @@ import {
     ExecutionLogPopup,
     getLayoutedElements,
 } from './components';
+import LogsProcessDialogue from './components/logs-dialogue';
 
 const nodeTypes = {
     customNode: CustomWorkflowNode,
@@ -86,6 +87,7 @@ export default function WorkFlowLogsBoard() {
     const [bluePrint, setBluePrint] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [logs, SetLogs] = useState(null);
+    const [showLogsDialogue, setShowLogsDialogue] = useState(false);
 
     const applyLayout = useCallback(() => {
         const { nodes: layouted, edges: layoutedE } = getLayoutedElements(nodes, edges, workflowDirection);
@@ -196,6 +198,13 @@ export default function WorkFlowLogsBoard() {
     return (
         <div style={{ width: '100%', height: '100vh' }}>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'end', alignItems: 'center' }}>
+                <Button
+                    variant="outlined"
+                    sx={{ mr: 2 }}
+                    onClick={() => setShowLogsDialogue(true)}
+                >
+                    View Logs
+                </Button>
                 <FormControlLabel
                     control={
                         <Switch
@@ -247,6 +256,11 @@ export default function WorkFlowLogsBoard() {
                         }
                     />
                 }
+                <LogsProcessDialogue
+                    isOpen={showLogsDialogue}
+                    handleCloseModal={() => setShowLogsDialogue(false)}
+                    outputId={outputId}
+                />
             </Box>
         </div>
     );

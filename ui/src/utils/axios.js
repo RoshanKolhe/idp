@@ -106,7 +106,8 @@ export const endpoints = {
     filterList: (filter) => `/workflow-instances?filter=${filter}`,
     details: (id) => `/workflow-instances/${id}`,
     logs: (instanceId) => `/workflow-instances/logs/${instanceId}`,
-    executionLogs: (outputId) => `/workflow-instances/execution-logs/${outputId}`
+    executionLogs: (outputId) => `/workflow-instances/execution-logs/${outputId}`,
+    groupedLogs: (outputId) => `/workflow-log-entries/workflow-output/${outputId}`,
   },
   mail: {
     list: '/api/mail/list',
