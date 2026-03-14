@@ -38,11 +38,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
       }}
       {...other}
     >
-      <img
-        src="/logo/idp-logo.png"
-        alt="Custom Logo"
-        style={{ cursor: 'pointer', width: '200px' }}
-      />
+      <img src="/logo/idp-mini-logo.png" alt="Custom Logo" style={{ cursor: 'pointer' }} />
     </Box>
   );
 

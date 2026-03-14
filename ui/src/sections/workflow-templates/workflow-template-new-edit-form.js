@@ -1,35 +1,37 @@
 /* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {useForm} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import {MenuItem} from '@mui/material';
-import {paths} from 'src/routes/paths';
-import {useRouter} from 'src/routes/hook';
-import {useSnackbar} from 'src/components/snackbar';
+import { Box, MenuItem } from '@mui/material';
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hook';
+import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFAutocomplete,
   RHFSelect,
   RHFTextField,
   RHFUpload,
+  RHFUploadBox,
 } from 'src/components/hook-form';
-import axiosInstance, {workflowAxiosInstance} from 'src/utils/axios';
+import axiosInstance, { workflowAxiosInstance } from 'src/utils/axios';
+import { MultiFilePreview } from 'src/components/upload';
 
-export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
+export default function WorkflowTemplateNewEditForm({ currentWorkflowTemplate }) {
   const router = useRouter();
-  const {enqueueSnackbar} = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   const [workflowsData, setWorkflowsData] = useState([]);
 
   const statusOptions = [
-    {label: 'Draft', value: 'draft'},
-    {label: 'Published', value: 'published'},
-    {label: 'Unpublished', value: 'unpublished'},
+    { label: 'Draft', value: 'draft' },
+    { label: 'Published', value: 'published' },
+    { label: 'Unpublished', value: 'unpublished' },
   ];
 
   const schema = Yup.object().shape({
@@ -49,9 +51,9 @@ export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
       requirements: currentWorkflowTemplate?.requirements || '',
       image: currentWorkflowTemplate?.image
         ? {
-            ...currentWorkflowTemplate.image,
-            preview: currentWorkflowTemplate?.image?.fileUrl,
-          }
+          ...currentWorkflowTemplate.image,
+          preview: currentWorkflowTemplate?.image?.fileUrl,
+        }
         : null,
       version: currentWorkflowTemplate?.version || '',
       status: currentWorkflowTemplate?.status || 'draft',
@@ -66,11 +68,14 @@ export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
   });
 
   const {
+    watch,
     reset,
     setValue,
     handleSubmit,
-    formState: {isSubmitting},
+    formState: { isSubmitting },
   } = methods;
+
+  const values = watch();
 
   const onSubmit = handleSubmit(async formData => {
     try {
@@ -109,12 +114,12 @@ export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
 
       const filter = {
         where: {
-          and: [{name: {regexp: `${searchTerm}`, options: "i"}}, {isActive: true}],
+          and: [{ name: { regexp: `${searchTerm}`, options: "i" } }, { isActive: true }],
         },
       };
 
       const filterString = encodeURIComponent(JSON.stringify(filter));
-      const {data} = await workflowAxiosInstance.get(`/workflows?filter=${filterString}`);
+      const { data } = await workflowAxiosInstance.get(`/workflows?filter=${filterString}`);
       setWorkflowsData(data);
     } catch (error) {
       console.error('error while fetching workflows', error);
@@ -129,7 +134,7 @@ export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
       const formData = new FormData();
       formData.append('file', file);
       const response = await axiosInstance.post('/files', formData);
-      const {data} = response;
+      const { data } = response;
       setValue('image', {
         fileUrl: data.files[0].fileUrl,
         fileName: data.files[0].fileName,
@@ -160,7 +165,7 @@ export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
         <Grid xs={12} md={12}>
-          <Card sx={{p: 3}}>
+          <Card sx={{ p: 3 }}>
             <Grid container spacing={2}>
               <Grid xs={12} sm={6}>
                 <RHFTextField name="name" label="Template Name" />
@@ -178,7 +183,7 @@ export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
                   onInputChange={(event, value) => fetchWorkflows(value)}
                   getOptionLabel={option => `${option?.name || ''}`}
                   isOptionEqualToValue={(option, value) => option?.id === value?.id}
-                  filterOptions={(options, {inputValue}) =>
+                  filterOptions={(options, { inputValue }) =>
                     options?.filter(option =>
                       option?.name?.toLowerCase().includes(inputValue?.toLowerCase()),
                     )
@@ -218,20 +223,30 @@ export default function WorkflowTemplateNewEditForm({currentWorkflowTemplate}) {
                 <RHFTextField name="requirements" label="Requirements" multiline rows={3} />
               </Grid>
 
-              <Grid xs={12}>
-                <Typography variant="subtitle2" sx={{mb: 1.5}}>
-                  Template Image
-                </Typography>
-                <RHFUpload
-                  name="image"
-                  maxSize={3145728}
-                  onDrop={handleDrop}
-                  onDelete={handleRemoveFile}
-                />
+              <Grid item xs={12} md={12}>
+                <Typography variant='subtitle2'>Upload thumbnail image</Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}
+                >
+                  <RHFUploadBox
+                    accept={{
+                      'image/*': [],
+                    }}
+                    name="image"
+                    maxSize={3145728}
+                    onDrop={handleDrop}
+                    onDelete={handleRemoveFile}
+                  />
+                  {values.image && <MultiFilePreview thumbnail files={[values.image]} onRemove={handleRemoveFile} />}
+                </Box>
               </Grid>
             </Grid>
 
-            <Stack alignItems="flex-end" sx={{mt: 3}}>
+            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 {currentWorkflowTemplate ? 'Save Changes' : 'Create Workflow Template'}
               </LoadingButton>

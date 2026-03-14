@@ -18,11 +18,12 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
   RHFAutocomplete,
-  RHFUpload,
   RHFSelect,
+  RHFUploadBox,
 } from 'src/components/hook-form';
 import axiosInstance from 'src/utils/axios';
-import { MenuItem } from '@mui/material';
+import { Box, MenuItem } from '@mui/material';
+import { MultiFilePreview, SingleFilePreview } from 'src/components/upload';
 
 // ----------------------------------------------------------------------
 
@@ -68,11 +69,14 @@ export default function ProcessTemplateNewEditForm({ currentProcessTemplate }) {
   });
 
   const {
+    watch,
     reset,
     setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  const values = watch();
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
@@ -207,8 +211,25 @@ export default function ProcessTemplateNewEditForm({ currentProcessTemplate }) {
                 </RHFSelect>
               </Grid>
 
-              <Grid item xs={12} md={12}>
-                <RHFUpload
+              <Grid item xs={12} sm={12}>
+                <RHFTextField multiline rows={3} name="description" label="Description" />
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
+                <RHFTextField multiline rows={3} name="requirements" label="Requirements" />
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12} md={12}>
+              <Typography variant='subtitle2'>Upload thumbnail image</Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+              >
+                <RHFUploadBox
                   accept={{
                     'image/*': [],
                   }}
@@ -217,15 +238,8 @@ export default function ProcessTemplateNewEditForm({ currentProcessTemplate }) {
                   onDrop={handleDrop}
                   onDelete={handleRemoveFile}
                 />
-              </Grid>
-
-              <Grid item xs={12} sm={12}>
-                <RHFTextField multiline rows={3} name="description" label="Description" />
-              </Grid>
-
-              <Grid item xs={12} sm={12}>
-                <RHFTextField multiline rows={3} name="requirements" label="Requirements" />
-              </Grid>
+                {values.image && <MultiFilePreview thumbnail files={[values.image]} onRemove={handleRemoveFile} />}
+              </Box>
             </Grid>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

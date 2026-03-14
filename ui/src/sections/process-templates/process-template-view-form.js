@@ -17,9 +17,10 @@ import Grid from '@mui/material/Unstable_Grid2';
 
 // components
 
-import FormProvider, { RHFTextField, RHFSelect, RHFUpload, RHFAutocomplete } from 'src/components/hook-form';
-import { MenuItem, Typography } from '@mui/material';
+import FormProvider, { RHFTextField, RHFSelect, RHFUpload, RHFAutocomplete, RHFUploadBox } from 'src/components/hook-form';
+import { Box, MenuItem, Typography } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
+import { MultiFilePreview } from 'src/components/upload';
 
 // ----------------------------------------------------------------------
 
@@ -62,10 +63,13 @@ export default function ProcessTemplateViewForm({ currentProcessTemplate }) {
   });
 
   const {
+    watch,
     reset,
     formState: { isSubmitting },
     handleSubmit
   } = methods;
+
+  const values = watch();
 
   const onSubmit = handleSubmit((formData) => {
     console.log('formData');
@@ -124,17 +128,6 @@ export default function ProcessTemplateViewForm({ currentProcessTemplate }) {
                 </RHFSelect>
               </Grid>
 
-              <Grid item xs={12} md={12}>
-                <RHFUpload
-                  disabled
-                  accept={{
-                    'image/*': [],
-                  }}
-                  name="image"
-                  maxSize={3145728}
-                />
-              </Grid>
-
               <Grid item xs={12} sm={12}>
                 <RHFTextField disabled multiline rows={3} name="description" label="Description" />
               </Grid>
@@ -142,6 +135,20 @@ export default function ProcessTemplateViewForm({ currentProcessTemplate }) {
               <Grid item xs={12} sm={12}>
                 <RHFTextField disabled multiline rows={3} name="requirements" label="Requirements" />
               </Grid>
+
+              <Grid item xs={12} md={12}>
+                <Typography variant='subtitle2' sx={{color: 'text.disabled'}}>Thumbnail image</Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}
+                >
+                  {values.image && <MultiFilePreview thumbnail files={[values.image]} />}
+                </Box>
+              </Grid>
+
             </Grid>
           </Card>
         </Grid>

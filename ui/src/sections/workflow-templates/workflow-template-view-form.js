@@ -1,14 +1,15 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import {useEffect, useMemo} from 'react';
-import {useForm} from 'react-hook-form';
-import {yupResolver} from '@hookform/resolvers/yup';
+import { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import Card from '@mui/material/Card';
 import Grid from '@mui/material/Unstable_Grid2';
-import {MenuItem} from '@mui/material';
-import FormProvider, {RHFSelect, RHFTextField} from 'src/components/hook-form';
+import { Box, MenuItem, Typography } from '@mui/material';
+import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
+import { MultiFilePreview } from 'src/components/upload';
 
-export default function WorkflowTemplateViewForm({currentWorkflowTemplate}) {
+export default function WorkflowTemplateViewForm({ currentWorkflowTemplate }) {
   const schema = Yup.object().shape({
     name: Yup.string().required('Template name is required'),
     description: Yup.string(),
@@ -26,6 +27,12 @@ export default function WorkflowTemplateViewForm({currentWorkflowTemplate}) {
       version: currentWorkflowTemplate?.version || '',
       status: currentWorkflowTemplate?.status || 'draft',
       workflowName: currentWorkflowTemplate?.workflow?.name || '',
+      image: currentWorkflowTemplate?.image
+        ? {
+          ...currentWorkflowTemplate.image,
+          preview: currentWorkflowTemplate?.image?.fileUrl,
+        }
+        : null,
     }),
     [currentWorkflowTemplate],
   );
@@ -35,7 +42,9 @@ export default function WorkflowTemplateViewForm({currentWorkflowTemplate}) {
     defaultValues,
   });
 
-  const {reset} = methods;
+  const { reset, watch } = methods;
+
+  const values= watch();
 
   useEffect(() => {
     if (currentWorkflowTemplate) {
@@ -47,7 +56,7 @@ export default function WorkflowTemplateViewForm({currentWorkflowTemplate}) {
     <FormProvider methods={methods}>
       <Grid container spacing={3}>
         <Grid xs={12}>
-          <Card sx={{p: 3}}>
+          <Card sx={{ p: 3 }}>
             <Grid container spacing={2}>
               <Grid xs={12} sm={6}>
                 <RHFTextField name="name" label="Template Name" disabled />
@@ -72,6 +81,18 @@ export default function WorkflowTemplateViewForm({currentWorkflowTemplate}) {
               </Grid>
               <Grid xs={12}>
                 <RHFTextField name="requirements" label="Requirements" multiline rows={3} disabled />
+              </Grid>
+              <Grid item xs={12} md={12}>
+                <Typography variant='subtitle2' sx={{ color: 'text.disabled' }}>Thumbnail image</Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                  }}
+                >
+                  {values.image && <MultiFilePreview thumbnail files={[values.image]} />}
+                </Box>
               </Grid>
             </Grid>
           </Card>
