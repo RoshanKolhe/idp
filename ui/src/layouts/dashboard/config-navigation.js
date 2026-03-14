@@ -64,6 +64,7 @@ export function useNavData() {
           { title: t('Process Instance'), path: paths.dashboard.processesInstance.root, icon: ICONS.processInstance },
           { title: t('Process Template'), path: paths.dashboard.processTemplates.root, icon: ICONS.processInstance },
           { title: t('workflow'), path: paths.dashboard.workflow.root, icon: ICONS.processInstance },
+          { title: t('Workflow Template'), path: paths.dashboard.workflowTemplates.root, icon: ICONS.processInstance },
           { title: t('Workflow Instance'), path: paths.dashboard.workflowInstance.root, icon: ICONS.processInstance },
           {
             title: t('Settings'),

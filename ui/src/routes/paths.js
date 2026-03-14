@@ -122,6 +122,13 @@ export const paths = {
       documentProcess: `${ROOTS.DASHBOARD}/workflow/document-process`,
       reactFlow: (id) => `${ROOTS.DASHBOARD}/workflow/${id}/blueprint`,
     },
+    workflowTemplates: {
+      root: `${ROOTS.DASHBOARD}/workflow-template`,
+      new: `${ROOTS.DASHBOARD}/workflow-template/new`,
+      list: `${ROOTS.DASHBOARD}/workflow-template/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/workflow-template/${id}/edit`,
+      view: (id) => `${ROOTS.DASHBOARD}/workflow-template/${id}/view`,
+    },
     workflowInstance: {
       root: `${ROOTS.DASHBOARD}/workflowInstance`,
       new: `${ROOTS.DASHBOARD}/workflowInstance/new`,

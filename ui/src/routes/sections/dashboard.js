@@ -66,6 +66,10 @@ const WorkflowCreatePage = lazy(() => import('src/pages/dashboard/workflow/new')
 const WorkflowEditPage = lazy(() => import('src/pages/dashboard/workflow/edit'));
 const WorkflowViewPage = lazy(() => import('src/pages/dashboard/workflow/view'));
 const WorkFlowBoardPage = lazy(() => import('src/pages/dashboard/workflow/board'));
+const WorkflowTemplateCreatePage = lazy(() => import('src/pages/dashboard/workflowTemplates/new'));
+const WorkflowTemplateEditPage = lazy(() => import('src/pages/dashboard/workflowTemplates/edit'));
+const WorkflowTemplateListPage = lazy(() => import('src/pages/dashboard/workflowTemplates/list'));
+const WorkflowTemplateViewPage = lazy(() => import('src/pages/dashboard/workflowTemplates/view'));
 // PROCESSES-INSTANCES
 const WorkflowInstanceCreatePage = lazy(() => import('src/pages/dashboard/workflowInstance/new'));
 const WorkflowInstanceEditPage = lazy(() => import('src/pages/dashboard/workflowInstance/edit'));
@@ -239,6 +243,21 @@ export const dashboardRoutes = [
           { path: ':id/view', element: <WorkflowViewPage /> },
           { path: ':id/blueprint', element: <WorkFlowBoardPage /> }
         ]
+      },
+      {
+        path: 'workflow-template',
+        element: (
+          <RoleBasedGuard roles={['super_admin', 'admin', 'company']}>
+            <Outlet />
+          </RoleBasedGuard>
+        ),
+        children: [
+          { element: <WorkflowTemplateListPage />, index: true },
+          { path: 'list', element: <WorkflowTemplateListPage /> },
+          { path: 'new', element: <WorkflowTemplateCreatePage /> },
+          { path: ':id/edit', element: <WorkflowTemplateEditPage /> },
+          { path: ':id/view', element: <WorkflowTemplateViewPage /> },
+        ],
       },
       {
         path: 'workflowInstance',

@@ -101,6 +101,11 @@ export const endpoints = {
     details: (id) => `/workflows/${id}`,
     bluePrint: (id) => `/workflow-blueprints/workflow/${id}`
   },
+  workflowTemplates: {
+    list: '/workflow-templates',
+    filterList: (filter) => `/workflow-templates?filter=${filter}`,
+    details: (id) => `/workflow-templates/${id}`,
+  },
   workflowInstance: {
     list: '/workflow-instances',
     filterList: (filter) => `/workflow-instances?filter=${filter}`,
