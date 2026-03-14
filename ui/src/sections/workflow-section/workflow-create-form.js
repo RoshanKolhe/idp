@@ -1,10 +1,9 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useEffect, useMemo, useState } from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -14,28 +13,33 @@ import DialogContent from '@mui/material/DialogContent';
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-import { IconButton, Typography } from '@mui/material';
-import { useGetProcessTypes } from 'src/api/processType';
+import FormProvider, {RHFTextField} from 'src/components/hook-form';
+import { IconButton } from '@mui/material';
 import { workflowAxiosInstance } from 'src/utils/axios';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
+import WorkflowTemplateSelection from './workflow-template-selection';
 
 // ----------------------------------------------------------------------
 
 export default function WorkflowCreateForm({ currentWorkflow, open, onClose }) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
+  const [step, setStep] = useState(1);
 
   const NewUserSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     description: Yup.string(),
+    isTemplateUsed: Yup.boolean().required(),
+    template: Yup.string().nullable(),
   });
 
   const defaultValues = useMemo(
     () => ({
       name: currentWorkflow?.name || '',
       description: currentWorkflow?.description || '',
+      isTemplateUsed: currentWorkflow?.isTemplateUsed || false,
+      template: currentWorkflow?.workflowTemplatesId || null,
     }),
     [currentWorkflow]
   );
@@ -58,7 +62,12 @@ export default function WorkflowCreateForm({ currentWorkflow, open, onClose }) {
         name: formData.name,
         description: formData.description,
         isActive: true,
+        isTemplateUsed: formData.isTemplateUsed,
       };
+
+      if (formData.isTemplateUsed === true && formData.template) {
+        inputData.workflowTemplatesId = formData.template;
+      }
 
       if (!currentWorkflow) {
         const response = await workflowAxiosInstance.post('/workflows', inputData);
@@ -78,6 +87,21 @@ export default function WorkflowCreateForm({ currentWorkflow, open, onClose }) {
       console.error(error);
     }
   });
+
+  const handleNext = async () => {
+    const isValid = await methods.trigger(['name']);
+
+    if (isValid) {
+      setStep(2);
+    }
+  };
+
+  useEffect(() => {
+    if (!open) {
+      setStep(1);
+      reset(defaultValues);
+    }
+  }, [defaultValues, open, reset]);
 
   return (
     <Dialog
@@ -108,30 +132,38 @@ export default function WorkflowCreateForm({ currentWorkflow, open, onClose }) {
         </DialogTitle>
 
         <DialogContent>
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(1, 1fr)',
-            }}
-            mt={2}
-          >
-            <RHFTextField name="name" label="Workflow Name" />
-            <RHFTextField name="description" label="Description" />
-          </Box>
+          {step === 1 && (
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(1, 1fr)',
+              }}
+              mt={2}
+            >
+              <RHFTextField name="name" label="Workflow Name" />
+              <RHFTextField name="description" label="Description" />
+            </Box>
+          )}
+
+          {step === 2 && (
+            <WorkflowTemplateSelection handleSubmitForm={onSubmit} isSubmitting={isSubmitting} />
+          )}
         </DialogContent>
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+        {step === 1 && (
+          <DialogActions>
+            <Button variant="outlined" onClick={onClose}>
+              Cancel
+            </Button>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-            Save & Next
-          </LoadingButton>
-        </DialogActions>
+            <Button type="button" variant="contained" onClick={handleNext}>
+              Save & Next
+            </Button>
+          </DialogActions>
+        )}
       </FormProvider>
     </Dialog>
   );
