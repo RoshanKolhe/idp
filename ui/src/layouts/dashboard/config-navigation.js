@@ -63,12 +63,12 @@ export function useNavData() {
         subheader: t('overview'),
         items: [
           { title: t('Dashboard'), path: paths.dashboard.root, icon: ICONS.dashboard },
-          { title: t('Process Template'), path: paths.dashboard.processTemplates.root, icon: ICONS.templates },
+          { title: t('Process Templates'), path: paths.dashboard.processTemplates.root, icon: ICONS.templates },
           { title: t('Processes'), path: paths.dashboard.processes.root, icon: ICONS.processes },
-          { title: t('Process Instance'), path: paths.dashboard.processesInstance.root, icon: ICONS.processInstance },
-          { title: t('Workflow Template'), path: paths.dashboard.workflowTemplates.root, icon: ICONS.templates },
-          { title: t('workflow'), path: paths.dashboard.workflow.root, icon: ICONS.workflows },
-          { title: t('Workflow Instance'), path: paths.dashboard.workflowInstance.root, icon: ICONS.workflowInstance },
+          { title: t('Process Instances'), path: paths.dashboard.processesInstance.root, icon: ICONS.processInstance },
+          { title: t('Workflow Templates'), path: paths.dashboard.workflowTemplates.root, icon: ICONS.templates },
+          { title: t('Workflow'), path: paths.dashboard.workflow.root, icon: ICONS.workflows },
+          { title: t('Workflow Instances'), path: paths.dashboard.workflowInstance.root, icon: ICONS.workflowInstance },
           {
             title: t('Settings'),
             path: paths.dashboard.processType.list,
@@ -96,7 +96,7 @@ export function useNavData() {
                 roles: ['super_admin', 'company', 'admin'],
               },
               {
-                title: t(' Mail Server '),
+                title: t('Mail Server'),
                 path: paths.dashboard.mailServer.root,
                 roles: ['super_admin'],
               },

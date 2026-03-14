@@ -19,8 +19,16 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
+import { alpha } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
+const ACTION_ICON_BUTTON_SX = {
+  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.24)}`,
+  p: 1,
+  borderRadius: 1.5,
+  color: 'primary.main',
+};
 
 export default function ProcessTypeTableRow({
   row,
@@ -56,13 +64,7 @@ export default function ProcessTypeTableRow({
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'end' }}>
           <Tooltip title={isInstanceRunning ? 'Pause' : 'Start'} placement="top" arrow>
             <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB',
-              }}
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => {
                 onStatusChange();
               }}
@@ -76,13 +78,7 @@ export default function ProcessTypeTableRow({
           </Tooltip>
           <Tooltip title="Documents" placement="top" arrow>
             <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB', // icon color
-              }}
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => console.log('documents clicked')}
             >
               <Iconify icon="ic:baseline-insert-drive-file" width={20} height={20} />
@@ -91,13 +87,7 @@ export default function ProcessTypeTableRow({
 
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB', // icon color
-              }}
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => onEditRow()}
             >
               <Iconify icon="solar:pen-bold" width={20} height={20} />
@@ -106,13 +96,7 @@ export default function ProcessTypeTableRow({
 
           <Tooltip title="View transactions" placement="top" arrow>
             <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB',
-              }}
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => navigate(paths.dashboard.processesInstance.logsList(row.id))}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />

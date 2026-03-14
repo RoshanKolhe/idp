@@ -25,7 +25,7 @@ export default function ProcessesView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Edit"
+        heading="View Process"
         links={[
           {
             name: 'Dashboard',

@@ -7,7 +7,7 @@ import { useParams } from 'src/routes/hook';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
-import { useGetProcessType } from 'src/api/processType';
+import { useGetProcessInstance } from 'src/api/process-instance';
 
 import ProcessTypeViewForm from '../processInstance-view-form';
 
@@ -20,23 +20,23 @@ export default function ProcessInstanceView() {
 
   const { id } = params;
 
-  const { processType: currentProcessType } = useGetProcessType(id);
+  const { processInstance: currentProcessInstance } = useGetProcessInstance(id);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Edit"
+        heading="View Process Instance"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Process Type',
-            href: paths.dashboard.processType.root,
+            name: 'Process Instance',
+            href: paths.dashboard.processesInstance.root,
           },
           {
-            name: currentProcessType?.processType,
+            name: currentProcessInstance?.processInstanceName,
           },
         ]}
         sx={{
@@ -44,7 +44,7 @@ export default function ProcessInstanceView() {
         }}
       />
 
-      <ProcessTypeViewForm currentProcessType={currentProcessType} />
+      <ProcessTypeViewForm currentProcessType={currentProcessInstance} />
     </Container>
   );
 }

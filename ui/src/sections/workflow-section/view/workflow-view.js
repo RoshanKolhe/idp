@@ -25,7 +25,7 @@ export default function WorkflowView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Edit"
+        heading="View Workflow"
         links={[
           {
             name: 'Dashboard',

@@ -2,14 +2,11 @@
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -17,20 +14,24 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { format } from 'date-fns';
 import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
+import {alpha} from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
+const ACTION_ICON_BUTTON_SX = {
+  backgroundColor: theme => alpha(theme.palette.primary.main, 0.08),
+  border: theme => `1px solid ${alpha(theme.palette.primary.main, 0.24)}`,
+  p: 1,
+  borderRadius: 1.5,
+  color: 'primary.main',
+};
 
 export default function ProcessTemplateTableRow({
   row,
   selected,
   onEditRow,
-  onViewRow,
-  onSelectRow,
   onDeleteRow,
-  onStatusChange
 }) {
   const navigate = useNavigate();
   const { name, version, processes, status } = row;
@@ -62,13 +63,7 @@ export default function ProcessTemplateTableRow({
         <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB', // icon color
-              }}
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => navigate(paths.dashboard.processTemplates.edit(row.id))}
             >
               <Iconify icon="solar:pen-bold" width={20} height={20} />
@@ -77,13 +72,7 @@ export default function ProcessTemplateTableRow({
 
           <Tooltip title="View" placement="top" arrow>
             <IconButton
-              sx={{
-                backgroundColor: 'rgba(65, 130, 235, 0.1)',
-                border: '1px solid rgba(65, 130, 235, 0.3)',
-                p: 1,
-                borderRadius: '12px',
-                color: '#4182EB',
-              }}
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => navigate(paths.dashboard.processTemplates.view(row.id))}
             >
               <Iconify icon="carbon:view-filled" width={20} height={20} />
@@ -138,9 +127,6 @@ export default function ProcessTemplateTableRow({
 ProcessTemplateTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
-  onViewRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
-  onStatusChange: PropTypes.func,
 };

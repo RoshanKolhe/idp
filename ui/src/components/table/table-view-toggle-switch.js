@@ -28,12 +28,12 @@ export default function TableViewToggleSwitch({ view = 'grid', setView }) {
           width: 60,
           height: 40,
           borderRadius: '24px',
-          backgroundColor: view === 'grid' ? '#4182EB' : 'transparent',
+          backgroundColor: view === 'grid' ? 'primary.main' : 'transparent',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           '&:hover': {
-            backgroundColor: view === 'grid' ? '#4182EB' : '#f0f0f0',
+            backgroundColor: view === 'grid' ? 'primary.main' : '#f0f0f0',
           },
         }}
       >
@@ -56,12 +56,12 @@ export default function TableViewToggleSwitch({ view = 'grid', setView }) {
           width: 60,
           height: 40,
           borderRadius: '24px',
-          backgroundColor: view === 'list' ? '#4182EB' : 'transparent',
+          backgroundColor: view === 'list' ? 'primary.main' : 'transparent',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           '&:hover': {
-            backgroundColor: view === 'list' ? '#4182EB' : '#f0f0f0',
+            backgroundColor: view === 'list' ? 'primary.main' : '#f0f0f0',
           },
         }}
       >

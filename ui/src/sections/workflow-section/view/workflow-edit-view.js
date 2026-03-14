@@ -34,7 +34,7 @@ export default function WorkflowEditView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'WorkFlow',
+            name: 'Workflow',
             href: paths.dashboard.workflow.root,
           },
           {

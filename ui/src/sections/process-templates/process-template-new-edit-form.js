@@ -243,7 +243,7 @@ export default function ProcessTemplateNewEditForm({ currentProcessTemplate }) {
             </Grid>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton type="submit" variant="contained" loading={isSubmitting} color="primary">
                 {!currentProcessTemplate ? 'Create Process Template' : 'Save Changes'}
               </LoadingButton>
             </Stack>

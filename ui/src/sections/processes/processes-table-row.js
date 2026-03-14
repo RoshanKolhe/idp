@@ -19,8 +19,16 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
+import { alpha } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
+const ACTION_ICON_BUTTON_SX = {
+  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.24)}`,
+  p: 1,
+  borderRadius: 1.5,
+  color: 'primary.main',
+};
 
 export default function ProcessesTableRow({
   row,
@@ -85,32 +93,35 @@ export default function ProcessesTableRow({
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+
           <Tooltip title="blueprint" placement="top" arrow>
             <IconButton
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => {
                 navigate(paths.dashboard.processes.reactFlow(row.id));
-              }}
-            >
-              <Iconify icon="carbon:flow-modeler" />
+              }}            >
+              <Iconify icon="carbon:flow-modeler" color="primary.dark" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
               color="default"
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => {
                 onEditRow();
               }}
             >
-              <Iconify icon="solar:pen-bold" />
+              <Iconify icon="solar:pen-bold" color="primary.dark" />
             </IconButton>
           </Tooltip>
           <Tooltip title="View" placement="top" arrow>
             <IconButton
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => {
                 onViewRow();
               }}
             >
-              <Iconify icon="carbon:view-filled" />
+              <Iconify icon="carbon:view-filled" color="primary.dark" />
             </IconButton>
           </Tooltip>
         </TableCell>

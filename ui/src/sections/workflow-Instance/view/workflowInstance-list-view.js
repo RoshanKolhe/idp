@@ -25,6 +25,7 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
@@ -169,45 +170,32 @@ export default function WorkflowInstanceListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Box
-          sx={{
-            mb: 2,
-            px: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          {/* Left Side: Heading */}
-          <Typography variant="h6" component="div">
-            Workflow Instances
-          </Typography>
-
-          {/* Right Side: Icons + Create Button */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* <TableViewToggleSwitch view={view} setView={setView} /> */}
-
+        <CustomBreadcrumbs
+          heading="Workflow Instances"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Workflow Instances' },
+          ]}
+          action={
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
               component={RouterLink}
               href={paths.dashboard.workflowInstance.new}
+              color="primary"
               sx={{
-                borderRadius: '30px',
-                backgroundColor: '#4182EB',
+                borderRadius: 99,
                 textTransform: 'none',
                 fontWeight: 600,
                 px: 3,
                 height: 40,
-                '&:hover': {
-                  backgroundColor: '#3069c6',
-                },
               }}
             >
               Create Instance
             </Button>
-          </Box>
-        </Box>
+          }
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
         {view === 'list' ? (
           <Card>
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>

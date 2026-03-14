@@ -23,7 +23,7 @@ export default function WorkflowInstanceCreateView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'Process Instance',
+            name: 'Workflow Instance',
             href: paths.dashboard.workflowInstance.root,
           },
           { name: 'New Workflow Instance' },

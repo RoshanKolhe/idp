@@ -19,8 +19,16 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router';
 import { paths } from 'src/routes/paths';
+import { alpha } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
+const ACTION_ICON_BUTTON_SX = {
+  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.24)}`,
+  p: 1,
+  borderRadius: 1.5,
+  color: 'primary.main',
+};
 
 export default function WorkflowTableRow({
   row,
@@ -88,6 +96,7 @@ export default function WorkflowTableRow({
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="blueprint" placement="top" arrow>
             <IconButton
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => {
                 navigate(paths.dashboard.workflow.reactFlow(row.id));
               }}
@@ -98,6 +107,7 @@ export default function WorkflowTableRow({
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
               color="default"
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => {
                 onEditRow();
               }}
@@ -107,6 +117,7 @@ export default function WorkflowTableRow({
           </Tooltip>
           <Tooltip title="View" placement="top" arrow>
             <IconButton
+              sx={ACTION_ICON_BUTTON_SX}
               onClick={() => {
                 onViewRow();
               }}

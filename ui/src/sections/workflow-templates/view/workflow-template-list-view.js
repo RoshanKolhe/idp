@@ -12,6 +12,7 @@ import {RouterLink} from 'src/routes/components';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import {useSettingsContext} from 'src/components/settings';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   TableEmptyRows,
   TableHeadCustom,
@@ -59,29 +60,32 @@ export default function WorkflowTemplateListView() {
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-      <Box sx={{mb: 2, px: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-        <Typography variant="h6" component="div">
-          Workflow Templates
-        </Typography>
-
-        <Button
-          variant="contained"
-          startIcon={<Iconify icon="eva:plus-fill" />}
-          component={RouterLink}
-          href={paths.dashboard.workflowTemplates.new}
-          sx={{
-            borderRadius: '30px',
-            backgroundColor: '#4182EB',
-            textTransform: 'none',
-            fontWeight: 600,
-            px: 3,
-            height: 40,
-            '&:hover': {backgroundColor: '#3069c6'},
-          }}
-        >
-          Create Template
-        </Button>
-      </Box>
+      <CustomBreadcrumbs
+        heading="Workflow Templates"
+        links={[
+          {name: 'Dashboard', href: paths.dashboard.root},
+          {name: 'Workflow Templates'},
+        ]}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<Iconify icon="eva:plus-fill" />}
+            component={RouterLink}
+            href={paths.dashboard.workflowTemplates.new}
+            color="primary"
+            sx={{
+              borderRadius: 99,
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 3,
+              height: 40,
+            }}
+          >
+            Create Template
+          </Button>
+        }
+        sx={{mb: {xs: 3, md: 5}}}
+      />
 
       <Card>
         <TableContainer sx={{position: 'relative', overflow: 'unset'}}>

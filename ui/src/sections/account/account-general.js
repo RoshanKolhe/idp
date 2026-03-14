@@ -201,36 +201,6 @@ export default function AccountGeneral() {
                   </MenuItem>
                 ))}
               </RHFSelect>
-
-              <Controller
-                name="dob"
-                control={control}
-                render={({ field, fieldState: { error } }) => (
-                  <DatePicker
-                    label="DOB"
-                    value={new Date(field.value)}
-                    onChange={(newValue) => {
-                      field.onChange(newValue);
-                    }}
-                    slotProps={{
-                      textField: {
-                        fullWidth: true,
-                        error: !!error,
-                        helperText: error?.message,
-                      },
-                    }}
-                  />
-                )}
-              />
-              <RHFTextField name="fullAddress" label="Full Address" />
-              <RHFSelect fullWidth name="state" label="State">
-                {states.map((option) => (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.name}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-              <RHFTextField name="city" label="City" />
             </Box>
 
             <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
@@ -238,8 +208,8 @@ export default function AccountGeneral() {
                 type="submit"
                 variant="contained"
                 loading={isSubmitting}
+                color="primary"
                 style={{
-                  backgroundColor: '#00554E',
                   width: '250px',
                   height: '40px',
                   marginTop: '20px',

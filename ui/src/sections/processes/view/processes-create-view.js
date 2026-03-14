@@ -16,17 +16,17 @@ export default function ProcessesCreateView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Create a new Process Type"
+        heading="Create a new Process"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Process Type',
+            name: 'Processes',
             href: paths.dashboard.processes.root,
           },
-          { name: 'New Process Type' },
+          { name: 'New Process' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

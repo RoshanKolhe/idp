@@ -25,6 +25,7 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
@@ -164,45 +165,36 @@ export default function WorkflowListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Box
-          sx={{
-            mb: 2,
-            px: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          {/* Left Side: Heading */}
-          <Typography variant="h6" component="div">
-            Workflow
-          </Typography>
-
-          {/* Right Side: Icons + Create Button */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TableViewToggleSwitch view={view} setView={setView} />
-            {view === 'list' ? (
-              <Button
-                variant="contained"
-                startIcon={<Iconify icon="eva:plus-fill" />}
-                onClick={createWorkflow.onTrue}
-                sx={{
-                  borderRadius: '30px',
-                  backgroundColor: '#4182EB',
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  px: 3,
-                  height: 40,
-                  '&:hover': {
-                    backgroundColor: '#3069c6',
-                  },
-                }}
-              >
-                Create
-              </Button>
-            ) : null}
-          </Box>
-        </Box>
+        <CustomBreadcrumbs
+          heading="Workflows"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Workflows' },
+          ]}
+          action={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TableViewToggleSwitch view={view} setView={setView} />
+              {view === 'list' ? (
+                <Button
+                  variant="contained"
+                  startIcon={<Iconify icon="eva:plus-fill" />}
+                  onClick={createWorkflow.onTrue}
+                  color="primary"
+                  sx={{
+                    borderRadius: 99,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    px: 3,
+                    height: 40,
+                  }}
+                >
+                  Create Workflow
+                </Button>
+              ) : null}
+            </Box>
+          }
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
         {view === 'list' ? (
           <Card>
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -289,8 +281,9 @@ export default function WorkflowListView() {
               <Card
                 sx={{
                   p: 2,
-                  borderRadius: 2,
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+                  borderRadius: 3,
+                  border: (theme) => `1px dashed ${theme.palette.divider}`,
+                  boxShadow: (theme) => theme.shadows[4],
                   display: 'flex',
                   flexDirection: 'column',
                   cursor: 'pointer',
@@ -316,18 +309,18 @@ export default function WorkflowListView() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: 'rgba(66, 133, 244, 0.1)', // light blue bg
-                      color: '#4285F4', // Google blue
-                      borderRadius: '12px',
+                      backgroundColor: 'primary.lighter',
+                      color: 'primary.main',
+                      borderRadius: 2,
                       width: 48,
                       height: 48,
-                      margin: '0 auto 10px',
+                      mb: 1.25,
                     }}
                   >
                     <Iconify icon="eva:plus-fill" width={24} height={24} />
                   </Box>
 
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#4285F4' }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
                     Create Workflow
                   </Typography>
                 </CardContent>

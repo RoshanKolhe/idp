@@ -141,8 +141,8 @@ export default function ProcessesNewEditForm({ currentProcesses, refreshProcesse
             </Grid>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentProcesses ? 'Create Process Type' : 'Save Changes'}
+              <LoadingButton type="submit" variant="contained" loading={isSubmitting} color="primary">
+                {!currentProcesses ? 'Create Process' : 'Save Changes'}
               </LoadingButton>
             </Stack>
           </Card>
