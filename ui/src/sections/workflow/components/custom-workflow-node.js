@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { Handle, Position } from "reactflow";
 import Iconify from "src/components/iconify";
 import { useWorkflowContext } from "../hooks";
@@ -45,12 +45,27 @@ export default function CustomWorkflowNode({ data }) {
 
             {/* Title + subtitle */}
             <Box sx={{ flexGrow: 1, textAlign: "left" }}>
-                <Typography sx={{ fontSize: "20px", fontWeight: 600, color: "#222" }}>
-                    {data.label}
-                </Typography>
-                <Typography sx={{ fontSize: "16px", color: "gray" }}>
-                    {data.description}
-                </Typography>
+                <Tooltip title={data.label} placement="top" arrow>
+                    <Typography sx={{ fontSize: "20px", fontWeight: 600, color: "#222", whiteSpace: 'nowrap', maxWidth: 260, textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                        {data.label}
+                    </Typography>
+                </Tooltip>
+                <Tooltip title={data.description} placement="top-start" arrow>
+                    <Typography
+                        sx={{
+                            fontSize: "16px",
+                            color: "gray",
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'normal',
+                        }}
+                    >
+                        {data.description}
+                    </Typography>
+                </Tooltip>
             </Box>
 
 

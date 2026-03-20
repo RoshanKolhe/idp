@@ -29,9 +29,13 @@ export default function WorkflowTemplateTableRow({row, onEditRow, onViewRow}) {
 
   return (
     <TableRow hover>
-      <TableCell sx={{whiteSpace: 'nowrap'}}>{name}</TableCell>
+      <Tooltip title={name} placement="top" arrow>
+        <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</TableCell>
+      </Tooltip>
       <TableCell sx={{whiteSpace: 'nowrap'}}>{version}</TableCell>
-      <TableCell sx={{whiteSpace: 'nowrap'}}>{workflow?.name || '-'}</TableCell>
+      <Tooltip title={workflow?.name || '-'} placement="top" arrow>
+        <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{workflow?.name || '-'}</TableCell>
+      </Tooltip>
       <TableCell>
         <ListItemText
           primary={createdAt ? format(new Date(createdAt), 'dd MMM yyyy') : '-'}

@@ -47,7 +47,9 @@ export default function ProcessInstanceTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
+        <Tooltip title={id} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{id}</TableCell>
+        </Tooltip>
 
         <TableCell>
           <ListItemText

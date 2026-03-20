@@ -53,11 +53,17 @@ export default function ProcessTypeTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
+        <Tooltip title={id} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{id}</TableCell>
+        </Tooltip>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processInstanceName}</TableCell>
+        <Tooltip title={processInstanceName} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{processInstanceName}</TableCell>
+        </Tooltip>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processes?.name}</TableCell>
+        <Tooltip title={processes?.name || '-'} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{processes?.name || '-'}</TableCell>
+        </Tooltip>
 
         {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{row?.proccessInstanceTransactions?.length || 0}</TableCell> */}
 

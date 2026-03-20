@@ -39,7 +39,9 @@ export default function FileTypeTableRow({
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{fileType}</TableCell>
+        <Tooltip title={fileType} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{fileType}</TableCell>
+        </Tooltip>
 
         <TableCell sx={{ maxWidth: 300 }}>
           <Tooltip title={description || '-'} placement="top-start" arrow>

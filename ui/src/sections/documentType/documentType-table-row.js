@@ -39,7 +39,9 @@ export default function DocumentTypeTableRow({
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{documentType}</TableCell>
+        <Tooltip title={documentType} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{documentType}</TableCell>
+        </Tooltip>
 
         <TableCell sx={{ maxWidth: 300 }}>
           <Tooltip title={description || '-'} placement="top-start" arrow>

@@ -40,7 +40,9 @@ export default function EscalationMatrixTableRow({
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escalationName}</TableCell>
+        <Tooltip title={escalationName} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{escalationName}</TableCell>
+        </Tooltip>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{levels?.length || 0}</TableCell>
 

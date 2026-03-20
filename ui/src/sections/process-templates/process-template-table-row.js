@@ -47,11 +47,15 @@ export default function ProcessTemplateTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{name}</TableCell>
+        <Tooltip title={name} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</TableCell>
+        </Tooltip>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{version}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{processes?.name}</TableCell>
+        <Tooltip title={processes?.name || '-'} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{processes?.name || '-'}</TableCell>
+        </Tooltip>
 
 
         <TableCell sx={{ whiteSpace: 'nowrap', }}>

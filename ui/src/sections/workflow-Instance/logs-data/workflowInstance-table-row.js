@@ -47,9 +47,13 @@ export default function WorkflowInstanceTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
+        <Tooltip title={id} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{id}</TableCell>
+        </Tooltip>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{workflowInstances.workflowInstanceName}</TableCell>
+        <Tooltip title={workflowInstances.workflowInstanceName} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{workflowInstances.workflowInstanceName}</TableCell>
+        </Tooltip>
 
         <TableCell>
           <ListItemText
