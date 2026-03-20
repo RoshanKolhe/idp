@@ -13,6 +13,7 @@ import {
   Typography,
   Button,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 // routes
@@ -217,16 +218,14 @@ export default function MailServerForm({ currentMailServer }) {
             color="primary"
             sx={{
               borderRadius: '30px',
-              border: '2px solid #4182EB',
-              color: '#4182EB',
               textTransform: 'none',
               fontWeight: 600,
               px: 3,
               height: 40,
+              borderWidth: 2,
               '&:hover': {
-                border: '2px solid #3069c6',
-                color: '#3069c6',
-                backgroundColor: 'transparent',
+                borderWidth: 2,
+                backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
               },
             }}
           >
@@ -236,16 +235,13 @@ export default function MailServerForm({ currentMailServer }) {
             type="submit"
             variant="contained"
             loading={isSubmitting}
+            color="primary"
             sx={{
               borderRadius: '30px',
-              backgroundColor: '#4182EB',
               textTransform: 'none',
               fontWeight: 600,
               px: 3,
               height: 40,
-              '&:hover': {
-                backgroundColor: '#3069c6',
-              },
             }}
           >
             Save Configuration

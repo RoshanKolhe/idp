@@ -1,25 +1,26 @@
 import PropTypes from 'prop-types';
-// @mui
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
-// hooks
+import { alpha } from '@mui/material/styles';
+import { format } from 'date-fns';
 import { useBoolean } from 'src/hooks/use-boolean';
-// components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { format } from 'date-fns';
-import { useNavigate } from 'react-router';
 
-// ----------------------------------------------------------------------
+const ACTION_ICON_BUTTON_SX = {
+  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+  border: (theme) => `1px solid ${alpha(theme.palette.primary.main, 0.24)}`,
+  p: 1,
+  borderRadius: 1.5,
+  color: 'primary.main',
+};
 
 export default function ProcessTypeTableRow({
   row,
@@ -29,7 +30,6 @@ export default function ProcessTypeTableRow({
   onSelectRow,
   onDeleteRow,
 }) {
-  const navigate = useNavigate();
   const { processType, description, isActive, createdAt } = row;
 
   const confirm = useBoolean();
@@ -39,14 +39,10 @@ export default function ProcessTypeTableRow({
   return (
     <>
       <TableRow hover selected={selected}>
-        {/* <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell> */}
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{processType}</TableCell>
 
         <TableCell sx={{ maxWidth: 300 }}>
-          <Tooltip title={description} placement="top-start" arrow>
+          <Tooltip title={description || '-'} placement="top-start" arrow>
             <span
               style={{
                 display: '-webkit-box',
@@ -58,11 +54,11 @@ export default function ProcessTypeTableRow({
                 cursor: 'pointer',
               }}
             >
-              {description}
+              {description || '-'}
             </span>
           </Tooltip>
         </TableCell>
-        
+
         <TableCell>
           <ListItemText
             primary={format(new Date(createdAt), 'dd MMM yyyy')}
@@ -84,23 +80,24 @@ export default function ProcessTypeTableRow({
           </Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        <TableCell
+          align="right"
+          sx={{
+            px: 1,
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            gap: 1,
+          }}
+        >
           <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton
-              color="default"
-              onClick={() => {
-                onEditRow();
-              }}
-            >
+            <IconButton sx={ACTION_ICON_BUTTON_SX} onClick={onEditRow}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
           <Tooltip title="View" placement="top" arrow>
-            <IconButton
-              onClick={() => {
-                onViewRow();
-              }}
-            >
+            <IconButton sx={ACTION_ICON_BUTTON_SX} onClick={onViewRow}>
               <Iconify icon="carbon:view-filled" />
             </IconButton>
           </Tooltip>
@@ -113,17 +110,6 @@ export default function ProcessTypeTableRow({
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        {/* <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem> */}
-
         <MenuItem
           onClick={() => {
             onEditRow();

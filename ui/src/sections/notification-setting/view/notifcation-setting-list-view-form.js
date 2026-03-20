@@ -1,15 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import {
   Box,
   Button,
   Container,
-  Typography,
-  Stack,
-  CircularProgress,
 } from '@mui/material';
-import { useGetFilteredLevels, useGetLevels } from 'src/api/levels';
+import { useGetFilteredLevels } from 'src/api/levels';
 import { useSettingsContext } from 'src/components/settings';
 import Iconify from 'src/components/iconify';
 import axiosInstance from 'src/utils/axios';
@@ -37,7 +34,6 @@ export default function NotificationSettingListView() {
   const [openLevelDialog, setOpenLevelDialog] = useState(false);
   const [openMemberDialog, setOpenMemberDialog] = useState(false);
 
-  const handleOpenLevel = () => setOpenLevelDialog(true);
   const handleCloseLevel = () => setOpenLevelDialog(false);
 
   const [isAddingLevel, setIsAddingLevel] = useState(false);
@@ -83,11 +79,11 @@ const handleEditMember = (member) => {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Escalation Matrix Details"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Escalation Matrix', href: paths.dashboard.notificationSetting.list },
-            { name: 'List' },
+            { name: 'Details' },
           ]}
           sx={{
             mb: 3,
@@ -103,20 +99,16 @@ const handleEditMember = (member) => {
               }}
             >
               <LoadingButton
-                variant="outlined"
+                variant="contained"
                 loading={isAddingLevel}
                 onClick={handleAddLevel}
+                color='primary'
                 sx={{
                   borderRadius: '30px',
-                  backgroundColor: '#4182EB',
-                  color: '#fff',
                   textTransform: 'none',
                   fontWeight: 600,
                   px: 3,
                   height: 40,
-                  '&:hover': {
-                    backgroundColor: '#3069c6',
-                  },
                 }}
                 startIcon={<Iconify icon="eva:plus-fill" />}
               >
@@ -124,19 +116,15 @@ const handleEditMember = (member) => {
               </LoadingButton>
 
               <Button
-                variant="outlined"
+                variant="contained"
                 onClick={handleOpenMember}
+                color='primary'
                 sx={{
                   borderRadius: '30px',
-                  backgroundColor: '#4182EB',
-                  color: '#fff',
                   textTransform: 'none',
                   fontWeight: 600,
                   px: 3,
                   height: 40,
-                  '&:hover': {
-                    backgroundColor: '#3069c6',
-                  },
                 }}
                 startIcon={<Iconify icon="eva:person-add-fill" />}
               >
@@ -148,7 +136,11 @@ const handleEditMember = (member) => {
 
 
         {/* Content */}
-        <EscalationMatrixLayout levels={levels} refreshLevels={refreshLevels}  onEditMember={handleEditMember}/>
+        <EscalationMatrixLayout
+          levels={levels}
+          refreshLevels={refreshLevels}
+          onEditMember={handleEditMember}
+        />
       </Container>
 
 

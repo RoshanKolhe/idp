@@ -53,10 +53,10 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'All' },];
 
 const TABLE_HEAD = [
   { id: 'escalationName', label: 'Escalation Matrix' },
-  { id: '', label: 'Levels Count ' },
-  { id: '', label: 'Members Count' },
+  { id: 'levelCount', label: 'Levels Count ' },
+  { id: 'memberCount', label: 'Members Count' },
   { id: 'description', label: 'Description' },
-  { id: '', label: 'Actions', width: 88 },
+  { id: 'actions', label: 'Actions', width: 88 },
 ];
 
 const defaultFilters = {
@@ -183,11 +183,12 @@ const handleEditRow = useCallback(
           ]}
           action={
             <Button
+              color='primary'
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               onClick={handleOpenForm}
             >
-              Add
+              Add Escalation
             </Button>
           }
           sx={{

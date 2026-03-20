@@ -1,10 +1,6 @@
 /* eslint-disable no-nested-ternary */
 import isEqual from 'lodash/isEqual';
 import { useState, useCallback, useEffect } from 'react';
-// @mui
-import { alpha } from '@mui/material/styles';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -13,18 +9,16 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-// routes
+import { Box, Grid } from '@mui/material';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
-// _mock
-// hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-// components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
@@ -35,21 +29,17 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-//
 import { useGetDocumentTypes } from 'src/api/documentType';
-import { Box, Grid, Typography } from '@mui/material';
 import TableViewToggleSwitch from 'src/components/table/table-view-toggle-switch';
 import DocumentTypeTableRow from '../documentType-table-row';
 import DocumentTypeTableGrid from '../documentType-table-grid';
-
-// ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'documentType', label: 'Document Type', width: 180 },
   { id: 'description', label: 'Description' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
+  { id: 'actions', label: 'Actions', width: 88 },
 ];
 
 const defaultFilters = {
@@ -57,8 +47,6 @@ const defaultFilters = {
   role: [],
   status: 'all',
 };
-
-// ----------------------------------------------------------------------
 
 export default function DocumentTypeListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
@@ -72,10 +60,9 @@ export default function DocumentTypeListView() {
 
   const [tableData, setTableData] = useState([]);
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters] = useState(defaultFilters);
 
-  const { documentTypes, documentTypesLoading, documentTypesEmpty, refreshDocumentTypes } =
-    useGetDocumentTypes();
+  const { documentTypes } = useGetDocumentTypes();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -94,16 +81,16 @@ export default function DocumentTypeListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  const handleFilters = useCallback(
-    (name, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [name]: value,
-      }));
-    },
-    [table]
-  );
+  // const handleFilters = useCallback(
+  //   (name, value) => {
+  //     table.onResetPage();
+  //     setFilters((prevState) => ({
+  //       ...prevState,
+  //       [name]: value,
+  //     }));
+  //   },
+  //   [table]
+  // );
 
   const handleDeleteRow = useCallback(
     (id) => {
@@ -140,18 +127,6 @@ export default function DocumentTypeListView() {
     [router]
   );
 
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
-  );
-
-  const handleViewChange = useCallback(() => {
-    console.log('here');
-    // setFilters(defaultFilters);
-  }, []);
-
   useEffect(() => {
     if (documentTypes) {
       setTableData(documentTypes);
@@ -161,45 +136,39 @@ export default function DocumentTypeListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Box
+        <CustomBreadcrumbs
+          heading="Document Types"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Document Type', href: paths.dashboard.documentType.root },
+            { name: 'List' },
+          ]}
+          action={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TableViewToggleSwitch view={view} setView={setView} />
+
+              <Button
+                variant="contained"
+                startIcon={<Iconify icon="eva:plus-fill" />}
+                component={RouterLink}
+                color="primary"
+                href={paths.dashboard.documentType.new}
+                sx={{
+                  borderRadius: '30px',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  px: 3,
+                  height: 40,
+                }}
+              >
+                Create
+              </Button>
+            </Box>
+          }
           sx={{
-            mb: 2,
-            px: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            mb: { xs: 3, md: 5 },
           }}
-        >
-          {/* Left Side: Heading */}
-          <Typography variant="h6" component="div">
-            Document Types
-          </Typography>
-
-          {/* Right Side: Icons + Create Button */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TableViewToggleSwitch view={view} setView={setView} />
-
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
-              component={RouterLink}
-              href={paths.dashboard.documentType.new}
-              sx={{
-                borderRadius: '30px',
-                backgroundColor: '#4182EB',
-                textTransform: 'none',
-                fontWeight: 600,
-                px: 3,
-                height: 40,
-                '&:hover': {
-                  backgroundColor: '#3069c6',
-                },
-              }}
-            >
-              Create
-            </Button>
-          </Box>
-        </Box>
+        />
         {view === 'list' ? (
           <Card>
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -275,7 +244,6 @@ export default function DocumentTypeListView() {
               rowsPerPage={table.rowsPerPage}
               onPageChange={table.onChangePage}
               onRowsPerPageChange={table.onChangeRowsPerPage}
-              //
               dense={table.dense}
               onChangeDense={table.onChangeDense}
             />
@@ -327,16 +295,10 @@ export default function DocumentTypeListView() {
   );
 }
 
-// ----------------------------------------------------------------------
-
 function applyFilter({ inputData, comparator, filters }) {
   const { name, status, role } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
-  const roleMapping = {
-    production_head: 'Production Head',
-    initiator: 'Initiator',
-    validator: 'Validator',
-  };
+
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
@@ -360,16 +322,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (role.length) {
-    inputData = inputData.filter(
-      (documentType) =>
-        documentType.permissions &&
-        documentType.permissions.some((documentTypeRole) => {
-          console.log(documentTypeRole);
-          const mappedRole = roleMapping[documentTypeRole];
-          console.log('Mapped Role:', mappedRole); // Check the mapped role
-          return mappedRole && role.includes(mappedRole);
-        })
-    );
+    inputData = inputData.filter((documentType) => role.includes(documentType.role));
   }
 
   return inputData;

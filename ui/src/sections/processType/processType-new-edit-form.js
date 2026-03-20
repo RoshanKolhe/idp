@@ -138,7 +138,7 @@ export default function ProcessTypeNewEditForm({ currentProcessType }) {
             </Grid>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
                 {!currentProcessType ? 'Create Process Type' : 'Save Changes'}
               </LoadingButton>
             </Stack>

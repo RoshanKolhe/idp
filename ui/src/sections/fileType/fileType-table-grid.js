@@ -1,41 +1,40 @@
 import PropTypes from 'prop-types';
-import { Card, Box, Typography, Stack, Button, Divider } from '@mui/material';
+import { Card, Box, Typography, Stack, Button, Divider, Tooltip } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import Iconify from 'src/components/iconify';
 import { format } from 'date-fns';
 
-export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
-  const { fileType, description, createdAt, documents } = row;
+const ICON_WRAPPER_SX = {
+  width: 36,
+  height: 36,
+  borderRadius: '50%',
+  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+  color: 'primary.main',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+};
 
-  const hasDocuments = documents && documents.length > 0;
+export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
+  const { fileType, description, createdAt, isActive } = row;
 
   return (
     <Card
       sx={{
         p: 2,
         borderRadius: 2,
-        boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
+        boxShadow: (theme) => theme.customShadows?.z8 || theme.shadows[8],
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         height: '100%',
       }}
     >
-      {/* Top Section */}
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+      <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
         <Box>
           <Stack direction="row" alignItems="center" spacing={1}>
-            <Box
-              sx={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                backgroundColor: '#e0e0e0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Iconify icon="mdi:file-document-outline" width={20} color="#2e5aac" />
+            <Box sx={ICON_WRAPPER_SX}>
+              <Iconify icon="mdi:file-document-outline" width={20} />
             </Box>
             <Box>
               <Typography variant="subtitle2" color="text.secondary">
@@ -51,36 +50,29 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
             px: 2,
             py: 1,
             borderRadius: 1,
-            border: '1px solid #ccc',
-            bgcolor: '#f9f9f9',
+            border: (theme) => `1px solid ${alpha(theme.palette.divider, 0.8)}`,
+            backgroundColor: (theme) =>
+              alpha(
+                isActive ? theme.palette.success.main : theme.palette.error.main,
+                0.08
+              ),
             fontSize: 14,
-            color: 'text.secondary',
-            minWidth: 100,
+            color: isActive ? 'success.dark' : 'error.dark',
+            minWidth: 90,
             textAlign: 'center',
+            fontWeight: 600,
           }}
         >
-          {hasDocuments ? `${documents.length} Documents` : 'No Documents'}
+          {isActive ? 'Active' : 'In-active'}
         </Box>
       </Stack>
 
-      {/* Divider */}
       <Divider sx={{ my: 2 }} />
 
-      {/* Middle Info Section */}
       <Stack spacing={2}>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Box
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '50%',
-              backgroundColor: '#e0e0e0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Iconify icon="mdi:calendar-month-outline" width={20} color="#5ac267" />
+          <Box sx={ICON_WRAPPER_SX}>
+            <Iconify icon="mdi:calendar-month-outline" width={20} />
           </Box>
 
           <Box>
@@ -94,37 +86,39 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
         </Stack>
 
         <Stack direction="row" spacing={1} alignItems="center">
-          <Box
-            sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '50%',
-              backgroundColor: '#e0e0e0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Iconify icon="mdi:file-document-outline" width={20} color="#2e5aac" />
+          <Box sx={ICON_WRAPPER_SX}>
+            <Iconify icon="mdi:file-document-outline" width={20} />
           </Box>
 
-          <Box>
-            <Typography variant="caption" color="text.secondary">
+          <Box sx={{ maxWidth: 250 }}>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>
               File Description
             </Typography>
-            <Typography variant="body2">{description}</Typography>
+            <Tooltip title={description || '-'} placement="top" arrow>
+              <Typography
+                variant="body2"
+                sx={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'normal',
+                }}
+              >
+                {description || '-'}
+              </Typography>
+            </Tooltip>
           </Box>
         </Stack>
       </Stack>
 
-      {/* Bottom Buttons */}
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 3 }}>
         <Button
           fullWidth
           variant="contained"
+          color="primary"
           sx={{
-            backgroundColor: '#9da7b3',
-            color: 'white',
             borderRadius: '20px',
             textTransform: 'none',
             fontWeight: 500,
@@ -137,9 +131,8 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
         <Button
           fullWidth
           variant="contained"
+          color="primary"
           sx={{
-            backgroundColor: '#9da7b3',
-            color: 'white',
             borderRadius: '20px',
             textTransform: 'none',
             fontWeight: 500,
@@ -160,6 +153,6 @@ FileTypeTableGrid.propTypes = {
     fileType: PropTypes.string,
     description: PropTypes.string,
     createdAt: PropTypes.string,
-    documents: PropTypes.array,
+    isActive: PropTypes.bool,
   }),
 };

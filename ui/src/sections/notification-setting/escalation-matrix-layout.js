@@ -1,25 +1,18 @@
 import { Box, Stack, useMediaQuery } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import SingleHexagon from 'src/components/level-cards/hexagon-level-card';
-
-import { useRouter } from 'src/routes/hook';
-import { useCallback } from 'react';
-import { paths } from 'src/routes/paths';
 import MemberItemHorizontal from './member-details-horizontal';
 
-
-const LEVEL_COLORS = ['#853cc2ff', '#F5B800', '#33B679', '#00B8D9'];
-
-export default function EscalationMatrixPage({ levels, refreshLevels, onEditMember }) {
+export default function EscalationMatrixPage({ levels, onEditMember }) {
   const theme = useTheme();
-  const { router } = useRouter();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const handleEditRow = useCallback((id) => {
-    router.push(paths.dashboard.notificationSetting.edit(id));
-  }, [router]);
-
+  const levelColors = [
+    theme.palette.primary.main,
+    theme.palette.warning.main,
+    theme.palette.success.main,
+    theme.palette.info.main,
+  ];
 
   return (
     <Stack
@@ -51,7 +44,7 @@ export default function EscalationMatrixPage({ levels, refreshLevels, onEditMemb
           {/* Hexagon */}
           <SingleHexagon
             level={level.name}
-            color={LEVEL_COLORS[index % LEVEL_COLORS.length]}
+            color={levelColors[index % levelColors.length]}
           />
 
           {/* Members list fills remaining height */}
@@ -70,7 +63,15 @@ export default function EscalationMatrixPage({ levels, refreshLevels, onEditMemb
             }}
           >
             {(level.members || []).map((member) => (
-              <Box key={member.id} sx={{ minWidth: isSmallScreen ? '100%' : 300 }}>
+              <Box
+                key={member.id}
+                sx={{
+                  minWidth: isSmallScreen ? '100%' : 300,
+                  borderRadius: 2,
+                  backgroundColor: (currentTheme) =>
+                    alpha(currentTheme.palette.background.paper, 0.72),
+                }}
+              >
                 <MemberItemHorizontal
                   levelName={level.name}
                   member={member}
@@ -104,6 +105,5 @@ EscalationMatrixPage.propTypes = {
       ),
     })
   ),
-  refreshLevels: PropTypes.func,
-  onEditMember: PropTypes.func
+  onEditMember: PropTypes.func,
 };

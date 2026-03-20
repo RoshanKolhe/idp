@@ -159,7 +159,15 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
                     onDrop={handleDrop}
                     onDelete={handleRemoveFile}
                   /> : (
-                      <Box sx={{ px: 2, py: 2, border: '1px dashed #ccc', borderRadius: 2, mb: '10px' }}>
+                      <Box
+                        sx={{
+                          px: 2,
+                          py: 2,
+                          border: (theme) => `1px dashed ${theme.palette.divider}`,
+                          borderRadius: 2,
+                          mb: '10px',
+                        }}
+                      >
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                     <Iconify icon="material-symbols:insert-drive-file" width={24} />
                     <Typography variant="body2">
@@ -189,7 +197,7 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
             </Grid>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
                 {!currentDocumentType ? 'Create Document Type' : 'Save Changes'}
               </LoadingButton>
             </Stack>
