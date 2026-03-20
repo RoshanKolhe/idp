@@ -227,7 +227,7 @@ export default function WorkflowInstanceNewEditForm({ currentWorkflowInstance })
               </Grid>
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                {((!currentWorkflowInstance && channelType === '') || (currentWorkflowInstance)) && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                {((!currentWorkflowInstance && channelType === '') || (currentWorkflowInstance)) && <LoadingButton type="submit" variant="contained" color='primary' loading={isSubmitting}>
                   {!currentWorkflowInstance ? 'Create Workflow Instance' : 'Save Changes'}
                 </LoadingButton>}
               </Stack>

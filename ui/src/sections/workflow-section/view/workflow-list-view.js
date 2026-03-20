@@ -52,7 +52,7 @@ const TABLE_HEAD = [
   { id: 'description', label: 'Description' },
   { id: 'createdAt', label: 'Created At' },
   { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
+  { id: 'actions', label: 'Actions', width: 88 },
 ];
 
 const defaultFilters = {

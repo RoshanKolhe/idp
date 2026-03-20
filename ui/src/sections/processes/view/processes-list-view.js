@@ -46,8 +46,8 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Process Name', width: 180 },
   { id: 'description', label: 'Description' },
   { id: 'createdAt', label: 'Created At' },
-  { id: 'status', label: 'Status', width: 100 },
-  { id: '', width: 88 },
+  { id: 'status', label: 'Status'},
+  { id: 'actions', label: 'Actions', width: 88 },
 ];
 
 const defaultFilters = {

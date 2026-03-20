@@ -19,7 +19,11 @@ import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import Iconify from "src/components/iconify";
 // eslint-disable-next-line import/no-extraneous-dependencies
-// import { centralizedTools } from "@workflow/central-nodes";
+import { getAgents } from "@repo/idp-agents";
+
+const agents = getAgents();
+
+console.log('agents', agents);
 
 const customOperations = [
   // 🔹 TRIGGER NODES
@@ -196,13 +200,17 @@ const customOperations = [
   },
 
   // 🔹 MONOREPO NODES
-  // {
-  //   category: "Monorepo nodes",
-  //   items: [
-  //     ...centralizedTools
-  //   ]
-
-  // }
+  {
+    category: "Agents",
+    items: agents.length > 0 ? agents.map((agent) => ({
+      ...agent,
+      type: 'monorepo',
+      bgColor: "#111827",       // Dark slate background
+      borderColor: "#4182EB",   // Your primary blue
+      color: "#E5E7EB",         // Light gray text
+      icon: "/assets/icons/workflow/software-agent.svg",
+    })) : []
+  }
 ];
 
 export default function CustomWorkflowNodesPanel({

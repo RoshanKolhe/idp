@@ -111,7 +111,8 @@
     "swr": "^2.1.5",
     "worker-loader": "^3.0.8",
     "yet-another-react-lightbox": "^3.11.1",
-    "yup": "^1.2.0"
+    "yup": "^1.2.0",
+    "@repo/idp-agents": "../../workflow-monorepo/my-turborepo/packages/idp-agents"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",

@@ -247,7 +247,7 @@ export default function WorkflowTemplateNewEditForm({ currentWorkflowTemplate })
             </Grid>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton type="submit" variant="contained" color='primary' loading={isSubmitting}>
                 {currentWorkflowTemplate ? 'Save Changes' : 'Create Workflow Template'}
               </LoadingButton>
             </Stack>

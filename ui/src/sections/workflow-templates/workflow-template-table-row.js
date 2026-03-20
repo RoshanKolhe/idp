@@ -45,7 +45,7 @@ export default function WorkflowTemplateTableRow({row, onEditRow, onViewRow}) {
           {status ? status.charAt(0).toUpperCase() + status.slice(1) : '-'}
         </Label>
       </TableCell>
-      <TableCell align="right" sx={{px: 1, whiteSpace: 'nowrap'}}>
+      <TableCell align="right" sx={{px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
         <Tooltip title="Quick Edit" placement="top" arrow>
           <IconButton color="default" sx={ACTION_ICON_BUTTON_SX} onClick={onEditRow}>
             <Iconify icon="solar:pen-bold" />

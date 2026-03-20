@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
-import {Card, Box, Typography, Stack, IconButton, alpha, useTheme} from '@mui/material';
+import { Card, Box, Typography, Stack, IconButton, alpha, useTheme, Tooltip } from '@mui/material';
 import Iconify from 'src/components/iconify';
-import {useNavigate} from 'react-router';
-import {paths} from 'src/routes/paths';
+import { useNavigate } from 'react-router';
+import { paths } from 'src/routes/paths';
 
-export default function ProcessesTableGrid({row, onViewRow, onQueryRow, onEdit, onDelete}) {
+export default function ProcessesTableGrid({ row, onViewRow, onQueryRow, onEdit, onDelete }) {
   const theme = useTheme();
-  const {name, description} = row;
+  const { name, description } = row;
   const navigate = useNavigate();
 
   return (
@@ -78,13 +78,25 @@ export default function ProcessesTableGrid({row, onViewRow, onQueryRow, onEdit, 
         >
           <Iconify icon="mdi:clipboard-text-outline" width={22} color="warning.main" />
         </Box>
-        <Box>
+        <Box sx={{maxWidth: '200px'}}>
           <Typography variant="caption" color="text.secondary" fontWeight={500}>
             Process Description
           </Typography>
-          <Typography variant="body2" mt={0.5}>
-            {description || '-'}
-          </Typography>
+          <Tooltip title={description} placement="top" arrow>
+            <Typography
+              variant="body2"
+              sx={{
+                display: '-webkit-box',
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'normal',
+              }}
+            >
+              {description || '-'}
+            </Typography>
+          </Tooltip>
         </Box>
       </Stack>
     </Card>

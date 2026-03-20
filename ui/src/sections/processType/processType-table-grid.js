@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { Card, Box, Typography, Stack, Button, Divider } from '@mui/material';
+import { Card, Box, Typography, Stack, Button, Divider, Tooltip } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import { format } from 'date-fns';
 
@@ -52,9 +52,9 @@ export default function ProcessTypeTableGrid({ row, onViewRow, onQueryRow }) {
             py: 1,
             borderRadius: 1,
             border: '1px solid #ccc',
-           
+
             fontSize: 14,
-            color: isActive ? '#2E7D32' : '#C62828',   
+            color: isActive ? '#2E7D32' : '#C62828',
             minWidth: 60,
             textAlign: 'center',
             fontWeight: 600,
@@ -110,11 +110,25 @@ export default function ProcessTypeTableGrid({ row, onViewRow, onQueryRow }) {
             <Iconify icon="mdi:file-document-outline" width={20} color="#2e5aac" />
           </Box>
 
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Process Description
+          <Box sx={{ maxWidth: '250px' }}>
+            <Typography variant="caption" color="text.secondary" fontWeight={500}>
+              Description
             </Typography>
-            <Typography variant="body2">{description}</Typography>
+            <Tooltip title={description} placement="top" arrow>
+              <Typography
+                variant="body2"
+                sx={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'normal',
+                }}
+              >
+                {description || '-'}
+              </Typography>
+            </Tooltip>
           </Box>
         </Stack>
       </Stack>

@@ -93,7 +93,7 @@ export default function WorkflowTableRow({
           </Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1  }}>
           <Tooltip title="blueprint" placement="top" arrow>
             <IconButton
               sx={ACTION_ICON_BUTTON_SX}

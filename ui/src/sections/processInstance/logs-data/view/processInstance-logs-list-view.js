@@ -41,6 +41,7 @@ import axiosInstance from 'src/utils/axios';
 import { useGetWorkflowInstanceLogs } from 'src/api/workflow-instance';
 import { Box, Grid, Typography } from '@mui/material';
 import { useGetProcessInstanceLogs } from 'src/api/process-instance';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import ProcessInstanceTableRow from '../processInstance-table-row';
 
 // ----------------------------------------------------------------------
@@ -172,45 +173,15 @@ export default function ProcessInstanceLogsListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Box
-          sx={{
-            mb: 2,
-            px: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          {/* Left Side: Heading */}
-          <Typography variant="h6" component="div">
-            Process Instance Transactions
-          </Typography>
-
-          {/* Right Side: Icons + Create Button */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* <TableViewToggleSwitch view={view} setView={setView} /> */}
-
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
-              component={RouterLink}
-              href={paths.dashboard.workflowInstance.new}
-              sx={{
-                borderRadius: '30px',
-                backgroundColor: '#4182EB',
-                textTransform: 'none',
-                fontWeight: 600,
-                px: 3,
-                height: 40,
-                '&:hover': {
-                  backgroundColor: '#3069c6',
-                },
-              }}
-            >
-              Create Instance
-            </Button>
-          </Box>
-        </Box>
+        <CustomBreadcrumbs
+          heading="Process Instance Transactions"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Process Instance', href: paths.dashboard.processesInstance.list },
+            tableData.length > 0 && { name: tableData[0].processInstances.name }
+          ].filter(Boolean)}
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
         {view === 'list' ? (
           <Card>
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>

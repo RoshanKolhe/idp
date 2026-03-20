@@ -227,7 +227,7 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
               </Grid>
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                {((!currentProcessInstance && channelType === '') || (currentProcessInstance)) && <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                {((!currentProcessInstance && channelType === '') || (currentProcessInstance)) && <LoadingButton type="submit" variant="contained" color='primary' loading={isSubmitting}>
                   {!currentProcessInstance ? 'Create Process Instance' : 'Save Changes'}
                 </LoadingButton>}
               </Stack>

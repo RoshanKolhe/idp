@@ -132,10 +132,10 @@ export default function WorkflowInstanceUploadDoc({ handleClose, data }) {
                 </Grid>
             </Grid>
             <Stack direction='row' spacing={1} sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
                     Upload
                 </LoadingButton>
-                <Button onClick={handleClose} variant="contained">Close</Button>
+                <Button onClick={handleClose} variant="outlined" color="primary">Close</Button>
             </Stack>
         </FormProvider>
     )

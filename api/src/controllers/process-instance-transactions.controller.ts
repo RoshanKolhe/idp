@@ -108,7 +108,7 @@ export class ProcessInstanceTransactionsController {
     @param.path.number('processInstanceId') processInstanceId: number,
     @param.filter(ProcessInstanceTransactions, { exclude: 'where' }) filter?: FilterExcludingWhere<ProcessInstanceTransactions>
   ): Promise<ProcessInstanceTransactions[]> {
-    return this.processInstanceTransactionsRepository.find({...filter, where: {processInstancesId: processInstanceId}});
+    return this.processInstanceTransactionsRepository.find({...filter, where: {processInstancesId: processInstanceId}, include: [{relation: 'processInstances', scope: {fields: {id: true, name: true }}}]});
   }
 
   @patch('/process-instance-transactions/{id}')
