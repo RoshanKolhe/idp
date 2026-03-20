@@ -52,7 +52,9 @@ export default function ProcessesTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{name}</TableCell>
+        <Tooltip title={name} placement="top" arrow>
+          <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{name}</TableCell>
+        </Tooltip>
 
         <TableCell sx={{ maxWidth: 300 }}>
           <Tooltip title={description} placement="top-start" arrow>

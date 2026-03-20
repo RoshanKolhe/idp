@@ -163,24 +163,36 @@ export default function WorkflowInstanceNewEditForm({ currentWorkflowInstance })
         );
       }
     }
+
+    fetchWorkflows('');
   }, [currentWorkflowInstance, handleClose])
 
   const fetchWorkflows = async (searchTerm) => {
     try {
-      console.log(searchTerm);
+      let filter = {
+        where: {
+          and: [
+            { isActive: true },
+            { isDeleted: false }
+          ]
+        },
+        limit: 10
+      }
       if (searchTerm.length > 0) {
-        const filter = {
+        filter = {
           where: {
-            and:[
-           { name: { regexp: `/${searchTerm}/i` }},
-           {isActive: true}
+            and: [
+              { name: { regexp: `/${searchTerm}/i` } },
+              { isActive: true },
+              { isDeleted: false }
             ]
           }
         }
-        const filterString = encodeURIComponent(JSON.stringify(filter));
-        const { data } = await workflowAxiosInstance.get(`/workflows?filter=${filterString}`);
-        setWorkflowsData(data);
       };
+
+      const filterString = encodeURIComponent(JSON.stringify(filter));
+      const { data } = await workflowAxiosInstance.get(`/workflows?filter=${filterString}`);
+      setWorkflowsData(data || []);
     } catch (error) {
       console.error('error while fetching processes', error);
     }

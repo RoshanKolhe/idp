@@ -52,7 +52,7 @@ export default function ProcessTemplateViewForm({ currentProcessTemplate }) {
       } : null,
       version: currentProcessTemplate?.version || '',
       status: currentProcessTemplate?.status || 'draft',
-      process: null,
+      process: currentProcessTemplate?.processes || null,
     }),
     [currentProcessTemplate]
   );

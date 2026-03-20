@@ -32,7 +32,7 @@ function SwitchComponent({ channelType, extraDetails }) {
       return <ProcessInstanceUploadDoc handleClose={extraDetails?.handleClose} data={extraDetails?.processInstanceData} />;
 
     case 'api':
-      return <ProcessInstanceCredentials handleClose={extraDetails?.handleClose} data={extraDetails?.processInstanceData}/>;
+      return <ProcessInstanceCredentials handleClose={extraDetails?.handleClose} data={extraDetails?.processInstanceData} />;
 
     default:
       return null;
@@ -146,6 +146,7 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
       setValue('processes', currentProcessInstance?.processes ? currentProcessInstance?.processes : null);
       setProcessesData((prev) => [...prev, currentProcessInstance?.processes]);
     }
+    fetchProcesses('');
   }, [currentProcessInstance, defaultValues, reset, setValue]);
 
   useEffect(() => {
@@ -167,20 +168,30 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
 
   const fetchProcesses = async (searchTerm) => {
     try {
-      console.log(searchTerm);
+      let filter = {
+        where: {
+          and: [
+            { isDeleted: false },
+            { isActive: true }
+          ]
+        },
+        limit: 10
+      }
       if (searchTerm.length > 0) {
-        const filter = {
+        filter = {
           where: {
-            and:[
-             { name: { like: `%${searchTerm || ''}%` } },
-            {isActive:true} 
+            and: [
+              { name: { like: `%${searchTerm || ''}%` } },
+              { isDeleted: false },
+              { isActive: true }
             ]
           }
         }
-        const filterString = encodeURIComponent(JSON.stringify(filter));
-        const { data } = await axiosInstance.get(`/processes?filter=${filterString}`);
-        setProcessesData(data);
       };
+
+      const filterString = encodeURIComponent(JSON.stringify(filter));
+      const { data } = await axiosInstance.get(`/processes?filter=${filterString}`);
+      setProcessesData(data || []);
     } catch (error) {
       console.error('error while fetching processes', error);
     }

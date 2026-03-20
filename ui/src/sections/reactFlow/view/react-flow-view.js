@@ -3,9 +3,11 @@ import { settings } from "nprogress";
 import { Box, Container, IconButton, Typography } from "@mui/material";
 import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import Iconify from "src/components/iconify";
+import { useRouter } from "src/routes/hook";
 import ReactFlowBoard from "../react-flow-board";
 
 export default function ReactFlowView(){
+    const router = useRouter();
     const [isUnlock, setIsUnlock] = useState(false);
     return(
         <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -18,7 +20,7 @@ export default function ReactFlowView(){
             />
             <Box component='div' sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
                 <Box component='div' sx={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                    <IconButton sx={{paddingLeft: '0px'}}>
+                    <IconButton onClick={() => router.back()} sx={{paddingLeft: '0px'}}>
                         <Iconify color='#292D32' icon="mdi:keyboard-backspace" width={24} />
                     </IconButton>
                     <Typography sx={{fontWeight: 'normal'}} variant="h5">Define Process Flow</Typography>
