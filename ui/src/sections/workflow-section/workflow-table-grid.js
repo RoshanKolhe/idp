@@ -37,13 +37,15 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
           >
             <Iconify icon="mdi:file-document-outline" width={22} color="primary.dark" />
           </Box>
-          <Box>
+          <Box sx={{ maxWidth: '200px' }}>
             <Typography variant="caption" color="text.secondary" fontWeight={500}>
               Workflow Name
             </Typography>
-            <Typography variant="subtitle1" fontWeight={600}>
-              {name}
-            </Typography>
+            <Tooltip title={name} placement="top" arrow>
+              <Typography sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} variant="subtitle1" fontWeight={600}>
+                {name}
+              </Typography>
+            </Tooltip>
           </Box>
         </Stack>
 
@@ -78,7 +80,7 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
         >
           <Iconify icon="mdi:clipboard-text-outline" width={22} color="warning.main" />
         </Box>
-        <Box sx={{maxWidth: '200px'}}>
+        <Box sx={{ maxWidth: '200px' }}>
           <Typography variant="caption" color="text.secondary" fontWeight={500}>
             Workflow Description
           </Typography>

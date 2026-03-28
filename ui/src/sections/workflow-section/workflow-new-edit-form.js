@@ -1,38 +1,21 @@
 /* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useEffect, useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
-import Box from '@mui/material/Box';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-// utils
-import { fData } from 'src/utils/format-number';
-// routes
-
-// assets
-import { countries } from 'src/assets/data';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
-  RHFSwitch,
   RHFTextField,
-  RHFUploadAvatar,
-  RHFAutocomplete,
   RHFSelect,
 } from 'src/components/hook-form';
-import { IconButton, InputAdornment, MenuItem } from '@mui/material';
+import { MenuItem } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import { workflowAxiosInstance } from 'src/utils/axios';
 import { useRouter } from 'src/routes/hook';
@@ -40,13 +23,16 @@ import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
-export default function WorkflowNewEditForm({ currentWorkflow , refreshWorkFlow}) {
+export default function WorkflowNewEditForm({ currentWorkflow, refreshWorkFlow }) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProcessesSchema = Yup.object().shape({
-    name: Yup.string().required('Workflow name is required'),
+    name: Yup.string()
+      .required('Workflow name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });
@@ -67,14 +53,9 @@ export default function WorkflowNewEditForm({ currentWorkflow , refreshWorkFlow}
 
   const {
     reset,
-    watch,
-    control,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
-
-  const values = watch();
 
   const onSubmit = handleSubmit(async (formData) => {
     try {
