@@ -25,7 +25,7 @@ export default function DocumentTypeView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Edit"
+        heading="View"
         links={[
           {
             name: 'Dashboard',

@@ -8,9 +8,6 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import { useGetWorkflow } from 'src/api/workflow';
-import Iconify from 'src/components/iconify';
-import { Tab, Tabs } from '@mui/material';
-import { useCallback, useState } from 'react';
 import WorkflowNewEditForm from '../workflow-new-edit-form';
 
 // ----------------------------------------------------------------------
@@ -23,7 +20,7 @@ export default function WorkflowEditView() {
   const { id } = params;
 
   const { workflow: currentWorkflow , refreshWorkFlow} = useGetWorkflow(id);
-
+  console.log('currentWorkflow', currentWorkflow);
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs

@@ -32,7 +32,10 @@ export default function DocumentTypeNewEditForm({ currentDocumentType }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewDocumentTypeSchema = Yup.object().shape({
-    documentType: Yup.string().required('Document Type is required'),
+    documentType: Yup.string()
+      .required('Document Type is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     sampleDocument: Yup.object().required('Sample Document is required'),
     description: Yup.string(),
     isActive: Yup.boolean(),

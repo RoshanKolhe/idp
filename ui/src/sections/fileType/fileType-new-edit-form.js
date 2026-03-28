@@ -45,7 +45,10 @@ export default function FileTypeNewEditForm({ currentFileType }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewFileTypeSchema = Yup.object().shape({
-    fileType: Yup.string().required('File Type is required'),
+    fileType: Yup.string()
+      .required('File Type is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });

@@ -35,7 +35,10 @@ export default function WorkflowTemplateNewEditForm({ currentWorkflowTemplate })
   ];
 
   const schema = Yup.object().shape({
-    name: Yup.string().required('Template name is required'),
+    name: Yup.string()
+      .required('Template name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
     requirements: Yup.string(),
     image: Yup.mixed().required('Please upload image'),

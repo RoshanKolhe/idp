@@ -21,7 +21,10 @@ export default function EscalationMatrixNewEditForm({ currentMatrix, open, onClo
   const { enqueueSnackbar } = useSnackbar();
 
   const MemberSchema = Yup.object().shape({
-    escalationName: Yup.string().required('Full name is required'),
+    escalationName: Yup.string()
+      .required('Escalation name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
   });
 

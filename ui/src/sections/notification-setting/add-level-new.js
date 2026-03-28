@@ -40,7 +40,10 @@ export default function AddLevelNewForm({ open, onClose, currentLevel, refreshLe
   const {enqueueSnackbar} = useSnackbar();
 
   const AddLevelSchema = Yup.object().shape({
-    name: Yup.string().required('Level is required'),
+    name: Yup.string()
+      .required('Level name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
   })
 

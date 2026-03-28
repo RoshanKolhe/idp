@@ -38,7 +38,10 @@ export default function ProcessTemplateNewEditForm({ currentProcessTemplate }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProcessTemplateSchema = Yup.object().shape({
-    name: Yup.string().required('Process Type is required'),
+    name: Yup.string()
+      .required('Template name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
     requirements: Yup.string(),
     image: Yup.mixed().required('Please upload image'),

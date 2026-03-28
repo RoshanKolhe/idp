@@ -140,7 +140,7 @@ export default function WorkflowNewEditForm({ currentWorkflow , refreshWorkFlow}
             </Grid>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton color="primary" type="submit" variant="contained" loading={isSubmitting}>
                 {!currentWorkflow ? 'Create Process Type' : 'Save Changes'}
               </LoadingButton>
             </Stack>

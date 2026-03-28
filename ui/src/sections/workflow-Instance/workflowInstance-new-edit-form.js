@@ -52,7 +52,10 @@ export default function WorkflowInstanceNewEditForm({ currentWorkflowInstance })
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProcessTypeSchema = Yup.object().shape({
-    workflowInstanceName: Yup.string().required('Workflow Type is required'),
+    workflowInstanceName: Yup.string()
+      .required('Instance name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     workflowInstanceDescription: Yup.string(),
     workflow: Yup.object().required("Please select workflow"),
   });

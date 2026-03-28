@@ -45,7 +45,10 @@ export default function ProcessTypeNewEditForm({ currentProcessType }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProcessTypeSchema = Yup.object().shape({
-    processType: Yup.string().required('Process Type is required'),
+    processType: Yup.string()
+      .required('Process Type is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
     isActive: Yup.boolean(),
   });

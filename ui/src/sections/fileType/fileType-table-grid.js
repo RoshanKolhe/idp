@@ -112,7 +112,7 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
           </Box>
         </Stack>
       </Stack>
-
+{/* 
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 3 }}>
         <Button
           fullWidth
@@ -141,7 +141,7 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
         >
           Query Documents
         </Button>
-      </Stack>
+      </Stack> */}
     </Card>
   );
 }

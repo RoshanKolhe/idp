@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import {useEffect, useMemo, useState} from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -13,7 +13,7 @@ import DialogContent from '@mui/material/DialogContent';
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, {RHFTextField} from 'src/components/hook-form';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
 import { IconButton } from '@mui/material';
 import { workflowAxiosInstance } from 'src/utils/axios';
 import { useRouter } from 'src/routes/hook';
@@ -28,7 +28,10 @@ export default function WorkflowCreateForm({ currentWorkflow, open, onClose }) {
   const [step, setStep] = useState(1);
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string()
+      .required('Workflow name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
     isTemplateUsed: Yup.boolean().required(),
     template: Yup.string().nullable(),

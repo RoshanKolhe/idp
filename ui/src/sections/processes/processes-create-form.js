@@ -34,7 +34,10 @@ export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
     useGetProcessTypes();
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
+    name: Yup.string()
+      .required('Process name is required')
+      .max(50, 'Maximum 50 characters allowed')
+      .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     description: Yup.string(),
     processType: Yup.object().required('Customer Name is Required'),
     isTemplateUsed: Yup.boolean().required(),

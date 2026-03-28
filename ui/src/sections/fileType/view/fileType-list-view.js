@@ -50,7 +50,7 @@ const defaultFilters = {
 
 export default function FileTypeListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
-  const [view, setView] = useState('list');
+  const [view, setView] = useState('grid');
 
   const settings = useSettingsContext();
 
