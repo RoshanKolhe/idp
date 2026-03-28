@@ -53,9 +53,9 @@ export default function ProcessTypeTableRow({
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell> */}
 
-        <Tooltip title={id} placement="top" arrow>
+        {/* <Tooltip title={id} placement="top" arrow>
           <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{id}</TableCell>
-        </Tooltip>
+        </Tooltip> */}
 
         <Tooltip title={processInstanceName} placement="top" arrow>
           <TableCell sx={{ whiteSpace: 'nowrap', maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden' }}>{processInstanceName}</TableCell>

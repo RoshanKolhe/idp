@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -18,18 +18,20 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
   RHFSelect,
+  RHFAutocomplete,
 } from 'src/components/hook-form';
-import { MenuItem } from '@mui/material';
+import { MenuItem, Typography } from '@mui/material';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import axiosInstance from 'src/utils/axios';
+import { useGetProcessTypes } from 'src/api/processType';
 
 // ----------------------------------------------------------------------
 
 export default function ProcessesNewEditForm({ currentProcesses, refreshProcesses }) {
   const router = useRouter();
-
-
   const { enqueueSnackbar } = useSnackbar();
+  const { processTypes } = useGetProcessTypes();
+  const [processTypeOptions, setProcessTypeOptions] = useState([]);
 
   const NewProcessesSchema = Yup.object().shape({
     name: Yup.string()
@@ -45,6 +47,7 @@ export default function ProcessesNewEditForm({ currentProcesses, refreshProcesse
       name: currentProcesses?.name || '',
       description: currentProcesses?.description || '',
       isActive: currentProcesses ? (currentProcesses?.isActive ? '1' : '0') : '1',
+      processType: currentProcesses?.processType || '',
     }),
     [currentProcesses]
   );
@@ -69,6 +72,7 @@ export default function ProcessesNewEditForm({ currentProcesses, refreshProcesse
         name: formData.name,
         description: formData.description,
         isActive: currentProcesses ? formData.isActive : true,
+        processTypeId: formData.processType?.id,
       };
 
       if (!currentProcesses) {
@@ -94,6 +98,15 @@ export default function ProcessesNewEditForm({ currentProcesses, refreshProcesse
     }
   }, [currentProcesses, defaultValues, reset]);
 
+  useEffect(() => {
+    if (processTypes) {
+      const activeProcessTypes = processTypes.filter(
+        (item) => item.isActive === true
+      );
+      setProcessTypeOptions(activeProcessTypes);
+    }
+  }, [processTypes]);
+
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
@@ -116,10 +129,29 @@ export default function ProcessesNewEditForm({ currentProcesses, refreshProcesse
               )}
 
               <Grid item xs={12} sm={6}>
-                <RHFTextField name="name" label="Process Type" />
+                <RHFTextField name="name" label="Process Name" />
               </Grid>
 
               <Grid item xs={12} sm={6}>
+                <RHFAutocomplete
+                  name="processType"
+                  label="Process Type"
+                  options={processTypeOptions}
+                  getOptionLabel={(option) => `${option?.processType}` || ''}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <div>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          {`${option?.processType}`}
+                        </Typography>
+                      </div>
+                    </li>
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
                 <RHFTextField name="description" label="Description" />
               </Grid>
             </Grid>

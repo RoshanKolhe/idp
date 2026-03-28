@@ -161,7 +161,7 @@ export class ProcessesController {
     filter?: FilterExcludingWhere<Processes>,
   ): Promise<Processes> {
     const user = await this.userRepository.findById(currentUser.id);
-    const process = await this.processesRepository.findById(id, { ...filter, include: [{ relation: 'bluePrint' }] });
+    const process = await this.processesRepository.findById(id, { ...filter, include: [{ relation: 'bluePrint' }, {relation: 'processType'}] });
 
     if (user && (user.permissions.includes('super_admin') || user.id === process.userId)) {
       return process;

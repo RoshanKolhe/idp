@@ -27,11 +27,9 @@ import ProcessTemplateSelection from './processes-template-selection';
 export default function ProcessesCreateForm({ currentProcess, open, onClose }) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
+  const { processTypes } = useGetProcessTypes();
   const [processTypeOptions, setProcessTypeOptions] = useState([]);
   const [step, setStep] = useState(1);
-
-  const { processTypes } =
-    useGetProcessTypes();
 
   const NewUserSchema = Yup.object().shape({
     name: Yup.string()
