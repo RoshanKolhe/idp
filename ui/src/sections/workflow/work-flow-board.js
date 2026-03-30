@@ -1,6 +1,5 @@
 /* eslint-disable no-shadow */
 import React, { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useParams } from 'react-router';
 import { useSnackbar } from 'notistack';
 // eslint-disable-next-line import/no-extraneous-dependencies

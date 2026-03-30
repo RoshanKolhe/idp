@@ -111,7 +111,7 @@ export default function DocumentTypeViewForm({ currentDocumentType }) {
 
                     {/* Optional Preview Link */}
                     <Typography variant="body2">
-                      <a href={values.sampleDocument.fileUrl} target="_blank" rel="noopener noreferrer">
+                      <a href={values?.sampleDocument?.fileUrl} target="_blank" rel="noopener noreferrer">
                         View / Download File
                       </a>
                     </Typography>
