@@ -5,9 +5,11 @@ import { Box, Container, IconButton, Typography } from "@mui/material";
 import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import Iconify from "src/components/iconify";
 import { paths } from "src/routes/paths";
+import { useRouter } from "src/routes/hook";
 import DocumentProcess from "../proccesses-document-processing";
 
 export default function IntelligentDocumentProcessing(){
+    const router = useRouter();
     return(
         <Container maxWidth={settings.themeStretch ? false : 'lg'}>
             <CustomBreadcrumbs
@@ -18,7 +20,7 @@ export default function IntelligentDocumentProcessing(){
                 // }}
             />
             <Box component='div' sx={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <IconButton sx={{paddingLeft: '0px'}}>
+                <IconButton onClick={() => router.back()} sx={{paddingLeft: '0px'}}>
                     <Iconify color='#292D32' icon="mdi:keyboard-backspace" width={24} />
                 </IconButton>
                 <Typography sx={{fontWeight: 'normal'}} variant="h5">Define Process Flow</Typography>

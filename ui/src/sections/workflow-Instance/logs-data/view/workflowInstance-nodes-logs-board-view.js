@@ -3,9 +3,11 @@ import { settings } from "nprogress";
 import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import Iconify from "src/components/iconify";
 import { WorkflowProvider } from "src/sections/workflow/context";
+import { useRouter } from "src/routes/hook";
 import WorkFlowLogsBoard from "../work-flow-logs-board";
 
 export default function WorkflowInstanceNodesLogs() {
+    const router = useRouter();
     return (
         <Container maxWidth={settings.themeStretch ? false : 'lg'}>
             <CustomBreadcrumbs
@@ -14,7 +16,7 @@ export default function WorkflowInstanceNodesLogs() {
             />
             <Box component='div' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                 <Box component='div' sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <IconButton sx={{ paddingLeft: '0px' }}>
+                    <IconButton onClick={() => router.back()} sx={{ paddingLeft: '0px' }}>
                         <Iconify color='#292D32' icon="mdi:keyboard-backspace" width={24} />
                     </IconButton>
                     <Typography sx={{ fontWeight: 'normal' }} variant="h5">Work Flow Execution Flow</Typography>
