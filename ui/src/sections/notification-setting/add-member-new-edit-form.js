@@ -116,12 +116,12 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
         fullName: formData.fullName,
         email: formData.email,
         phoneNumber: formData.phoneNumber,
-        avatarUrl: formData.avatarUrl
-          ? { fileUrl: formData.avatarUrl }
-          : null,
         levelsId: Number(formData.levelsId),
       };
 
+      if (formData.avatarUrl) {
+        inputData.avatarUrl = { fileUrl: formData.avatarUrl }
+      }
 
       if (!currentMember) {
         await axiosInstance.post('/members', inputData);
