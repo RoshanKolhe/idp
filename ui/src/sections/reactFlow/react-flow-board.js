@@ -121,11 +121,11 @@ export default function ReactFlowBoard({ isUnlock }) {
   };
 
   const getConnectedSourceId = (nodeId) => {
-    const edge = edges.find((edge) => edge.target === nodeId);
+    const connectedEdges = edges.filter((edge) => edge.target === nodeId);
 
-    if (!edge) return null;
+    if (!connectedEdges.length) return null;
 
-    return edge.source;
+    return connectedEdges.map((edge) => edge.source);
   };
 
   const isDescendantNode = (startId, targetId, edgeList) => {
@@ -145,19 +145,16 @@ export default function ReactFlowBoard({ isUnlock }) {
         }
       }
     }
-
     return false;
   };
-
-  const resolveActiveGroupForNode = (nodeId, edgeList) =>
-    splitGroups.find((g) =>
-      !g.isClosed &&
-      g.branches.some(
-        (branchId) =>
-          branchId === `${nodeId}` ||
-          isDescendantNode(branchId, nodeId, edgeList)
-      )
-    );
+  const resolveActiveGroupForNode = (nodeId, edgeList, groups) => groups.find((g) => {
+    if (g.isClosed) return false;
+    return g.branches.some((branchId) => {
+      const directMatch = `${branchId}` === `${nodeId}`;
+      const isDesc = isDescendantNode(branchId, nodeId, edgeList);
+      return directMatch || isDesc;
+    });
+  });
 
   const getBranchEndNode = (branchStartId, edgeList, nodeList) => {
     let currentId = String(branchStartId);
@@ -261,8 +258,6 @@ export default function ReactFlowBoard({ isUnlock }) {
     }
   };
 
-  console.log('splitgroups', splitGroups);
-
   const addNewNode = (operation) => {
     if (operation?.type === 'aggregator') {
       handleAggregatorNode(operation);
@@ -361,11 +356,11 @@ export default function ReactFlowBoard({ isUnlock }) {
           style: { stroke: 'black' },
         };
 
-        const getSourceId = getConnectedSourceId(selectedNodeId);
+        const sourceIds = getConnectedSourceId(selectedNodeId);
 
-        const lastEdge = {
-          id: `e${getSourceId}-${newOpCompNodeId}`,
-          source: `${getSourceId}`,
+        const lastEdges = sourceIds.map((sourceId) => ({
+          id: `e${sourceId}-${newOpCompNodeId}`,
+          source: `${sourceId}`,
           target: `${newOpCompNodeId}`,
           animated: true,
           style: { stroke: 'black' },
@@ -375,20 +370,21 @@ export default function ReactFlowBoard({ isUnlock }) {
               handleEdgePopup
             }
           })
-        }
+        }));
 
         if (operation?.type !== 'router') {
           setPresentNodes((prev) => [...prev, newOperationComponentNode?.data?.label]);
         }
 
         updatedNodes = updatedNodes.filter((n) => n?.id !== selectedNodeId).concat(newOperationComponentNode, newAddNode);
-        const updatedEdges = prevEdges.filter((e) => e?.target !== selectedNodeId).concat(lastEdge, addNewEdge);
-
+        const updatedEdges = [
+          ...prevEdges.filter((e) => e?.target !== selectedNodeId),
+          ...lastEdges,
+          ...(addNewEdge ? [addNewEdge] : [])
+        ];
         setSplitGroups((prev) => {
-          console.log('sourceId', getSourceId);
-          const existing = prev.find((g) => !g.isClosed && g.sourceNodeId === `${getSourceId}`);
+          const existing = prev.find((g) => !g.isClosed && sourceIds?.includes(g.sourceNodeId));
           if (existing) {
-            console.log('existing split group', existing);
             return prev.map((g) =>
               g.id === existing.id
                 ? { ...g, branches: [...g.branches, `${newOpCompNodeId}`] }
@@ -488,7 +484,7 @@ export default function ReactFlowBoard({ isUnlock }) {
 
   // handle merge node...
   const handleAggregatorNode = (operation) => {
-    const sourceNodeId = getConnectedSourceId(selectedNodeId);
+    const sourceNodeIds = getConnectedSourceId(selectedNodeId);
 
     setNodes((prevNodes) => {
       let updatedNodes = [...prevNodes];
@@ -567,7 +563,7 @@ export default function ReactFlowBoard({ isUnlock }) {
           style: { stroke: 'black' },
         };
 
-        const splitGroup = splitGroups.find((g) => !g.isClosed && g.branches.includes(`${sourceNodeId}`));
+        const splitGroup = splitGroups.find((g) => !g.isClosed && g.branches.some((branchId) => sourceNodeIds.includes(branchId)));
 
         const mergeEdges = splitGroup?.branches?.map((branchId) => ({
           id: `e${branchId}-${newOpCompNodeId}`,
@@ -684,7 +680,6 @@ export default function ReactFlowBoard({ isUnlock }) {
         setSplitGroups((prev) => {
           const existing = prev.find((g) => !g.isClosed && g.sourceNodeId === `${sourceNodeId}`);
           if (existing) {
-            console.log('existing split group', existing);
             return prev.map((g) =>
               g.id === existing.id
                 ? { ...g, branches: [...g.branches, `${newOpCompNodeId}`] }
@@ -712,16 +707,20 @@ export default function ReactFlowBoard({ isUnlock }) {
   }
 
   const mergeParallelNode = (currentNodeId) => {
-
     setNodes((prevNodes) => {
       let updatedNodes = [...prevNodes];
 
       setEdges((prevEdges) => {
+        let activeGroup;
+        setSplitGroups((prev) => {
+          activeGroup = resolveActiveGroupForNode(
+            currentNodeId,
+            prevEdges,
+            prev
+          );
 
-        const activeGroup = resolveActiveGroupForNode(
-          currentNodeId,
-          prevEdges
-        );
+          return prev;
+        })
 
         if (!activeGroup) return prevEdges;
 
@@ -730,35 +729,79 @@ export default function ReactFlowBoard({ isUnlock }) {
           getBranchEndNode(branchId, prevEdges, updatedNodes)
         );
 
+        const newAddNodeId = getNextNodeId([...updatedNodes]);
+        const baseX = 350;
+        const baseY = 0;
+
+        const newAddNode = {
+          id: newAddNodeId,
+          type: 'customAddNode',
+          data: {
+            id: newAddNodeId,
+            label: '➕ New Node',
+            icon: '/assets/icons/document-process/add.svg',
+            style: borderDirection === 'down' ? { // reverse opration added
+              border: '5px solid #2DCA73',
+              borderBottom: '5px solid white',
+              borderRight: '5px solid white',
+            } : {
+              border: '5px solid #2DCA73',
+              borderTop: '5px solid white',
+              borderLeft: '5px solid white',
+            },
+          },
+          position: { x: baseX + 165 * 2, y: baseY },
+        };
+
+        const nodesToRemove = [];
+        const edgesToRemove = [];
+
+        effectiveBranches.map((branchId) => {
+          const edge = prevEdges.find((edge) => edge.source === branchId);
+
+          if (edge) {
+            const nodeToRemove = updatedNodes.find((node) => node.id === edge.target && node.type === 'customAddNode');
+
+            if (nodeToRemove) {
+              nodesToRemove.push(nodeToRemove.id);
+              edgesToRemove.push(edge.id);
+            }
+          }
+
+          return branchId;
+        })
+
         // Create merge edges
         const mergeEdges = effectiveBranches
-          .filter((branchId) => `${branchId}` !== `${currentNodeId}`)
           .map((branchId) => ({
-            id: `e${branchId}-${currentNodeId}`,
+            id: `e${branchId}-${newAddNodeId}`,
             source: `${branchId}`,
-            target: `${currentNodeId}`,
+            target: `${newAddNodeId}`,
             animated: true,
             style: { stroke: '#009688' },
           }));
 
-        // Find nodes to remove
-        const targetedNodes = prevEdges.filter((edge) =>
-          effectiveBranches.includes(`${edge.source}`)
-        );
+        // // Find nodes to remove
+        // const targetedNodes = prevEdges.filter((edge) =>
+        //   effectiveBranches.includes(`${edge.source}`)
+        // );
 
-        const targetedNodeIds = targetedNodes
-          .map((e) => e.target)
-          .filter((id) => id !== currentNodeId);
+        // const targetedNodeIds = targetedNodes
+        //   .map((e) => e.target)
+        //   .filter((id) => id !== currentNodeId);
 
-        // Remove merged nodes
-        updatedNodes = updatedNodes.filter(
-          (node) => !targetedNodeIds.includes(node.id)
-        );
+        // // Remove merged nodes
+        // updatedNodes = updatedNodes.filter(
+        //   (node) => !targetedNodeIds.includes(node.id)
+        // );
+
+        updatedNodes = updatedNodes.filter((node) => !nodesToRemove.includes(node.id)).concat(newAddNode);
+        prevEdges = prevEdges.filter((edge) => !edgesToRemove.includes(edge.id));
 
         // Clean edges
         const updatedEdges = prevEdges
-          .filter((edge) => !targetedNodeIds.includes(edge.target))
-          .filter((edge) => !effectiveBranches.includes(edge.target))
+          // .filter((edge) => !targetedNodeIds.includes(edge.target))
+          // .filter((edge) => !effectiveBranches.includes(edge.target))
           .concat(...mergeEdges);
 
         // Close group
