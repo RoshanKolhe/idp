@@ -249,23 +249,35 @@ export default function DocumentTypeListView() {
             />
           </Card>
         ) : view === 'grid' ? (
-          <Grid container spacing={2}>
-            {dataFiltered
-              .slice(
-                table.page * table.rowsPerPage,
-                table.page * table.rowsPerPage + table.rowsPerPage
-              )
-              .map((row) => (
-                <Grid item xs={12} sm={6} md={4} key={row.id}>
-                  <DocumentTypeTableGrid
-                    row={row}
-                    onDeleteRow={() => handleDeleteRow(row.id)}
-                    onEditRow={() => handleEditRow(row.id)}
-                    onViewRow={() => handleViewRow(row.id)}
-                  />
-                </Grid>
-              ))}
-          </Grid>
+          <>
+            <Grid container spacing={2}>
+              {dataFiltered
+                .slice(
+                  table.page * table.rowsPerPage,
+                  table.page * table.rowsPerPage + table.rowsPerPage
+                )
+                .map((row) => (
+                  <Grid item xs={12} sm={6} md={4} key={row.id}>
+                    <DocumentTypeTableGrid
+                      row={row}
+                      onDeleteRow={() => handleDeleteRow(row.id)}
+                      onEditRow={() => handleEditRow(row.id)}
+                      onViewRow={() => handleViewRow(row.id)}
+                    />
+                  </Grid>
+                ))}
+            </Grid>
+            <TablePaginationCustom
+              count={dataFiltered.length}
+              page={table.page}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+              dense={table.dense}
+              onChangeDense={table.onChangeDense}
+              sx={{ mt: 2 }}
+            />
+          </>
         ) : null}
       </Container>
 

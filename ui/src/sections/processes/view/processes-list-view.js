@@ -46,7 +46,7 @@ const TABLE_HEAD = [
   { id: 'name', label: 'Process Name', width: 180 },
   { id: 'description', label: 'Description' },
   { id: 'createdAt', label: 'Created At' },
-  { id: 'status', label: 'Status'},
+  { id: 'status', label: 'Status' },
   { id: 'actions', label: 'Actions', width: 88 },
 ];
 
@@ -271,72 +271,84 @@ export default function ProcessesListView() {
             />
           </Card>
         ) : view === 'grid' ? (
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={4}>
-              <Card
-                sx={{
-                  p: 2,
-                  borderRadius: 3,
-                  border: (theme) => `1px dashed ${theme.palette.divider}`,
-                  boxShadow: (theme) => theme.shadows[4],
-                  display: 'flex',
-                  flexDirection: 'column',
-                  cursor: 'pointer',
-                  justifyContent: 'space-between',
-                  height: '100%',
-                }}
-                onClick={() => {
-                  createProcess.onTrue();
-                }}
-              >
-                <CardContent
+          <>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <Card
                   sx={{
-                    textAlign: 'center',
+                    p: 2,
+                    borderRadius: 3,
+                    border: (theme) => `1px dashed ${theme.palette.divider}`,
+                    boxShadow: (theme) => theme.shadows[4],
                     display: 'flex',
                     flexDirection: 'column',
+                    cursor: 'pointer',
+                    justifyContent: 'space-between',
                     height: '100%',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                  }}
+                  onClick={() => {
+                    createProcess.onTrue();
                   }}
                 >
-                  <Box
+                  <CardContent
                     sx={{
-                      display: 'inline-flex',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      height: '100%',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: 'primary.lighter', // light blue bg
-                      color: 'primary.main', // Google blue
-                      borderRadius: 2,
-                      width: 48,
-                      height: 48,
-                      mb: 1.25,
                     }}
                   >
-                    <Iconify icon="eva:plus-fill" width={24} height={24} />
-                  </Box>
+                    <Box
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: 'primary.lighter', // light blue bg
+                        color: 'primary.main', // Google blue
+                        borderRadius: 2,
+                        width: 48,
+                        height: 48,
+                        mb: 1.25,
+                      }}
+                    >
+                      <Iconify icon="eva:plus-fill" width={24} height={24} />
+                    </Box>
 
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                    Create Process
-                  </Typography>
-                </CardContent>
-              </Card>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                      Create Process
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+              {dataFiltered
+                .slice(
+                  table.page * table.rowsPerPage,
+                  table.page * table.rowsPerPage + table.rowsPerPage
+                )
+                .map((row) => (
+                  <Grid item xs={12} sm={6} md={4} key={row.id}>
+                    <ProcessesTableGrid
+                      row={row}
+                      onDeleteRow={() => handleDeleteRow(row.id)}
+                      onEdit={() => handleEditRow(row.id)}
+                      onViewRow={() => handleViewRow(row.id)}
+                    />
+                  </Grid>
+                ))}
             </Grid>
-            {dataFiltered
-              .slice(
-                table.page * table.rowsPerPage,
-                table.page * table.rowsPerPage + table.rowsPerPage
-              )
-              .map((row) => (
-                <Grid item xs={12} sm={6} md={4} key={row.id}>
-                  <ProcessesTableGrid
-                    row={row}
-                    onDeleteRow={() => handleDeleteRow(row.id)}
-                    onEdit={() => handleEditRow(row.id)}
-                    onViewRow={() => handleViewRow(row.id)}
-                  />
-                </Grid>
-              ))}
-          </Grid>
+            <TablePaginationCustom
+              count={dataFiltered.length}
+              page={table.page}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+              dense={table.dense}
+              onChangeDense={table.onChangeDense}
+              sx={{ mt: 2 }}
+            />
+          </>
         ) : null}
       </Container>
 

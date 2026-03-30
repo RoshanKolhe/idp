@@ -50,7 +50,7 @@ const TABLE_HEAD = [
   { id: 'instanceId', label: 'Instance Id' },
   { id: 'processName', label: 'Process Name' },
   // { id: 'runningTransactions', label: 'Running Transactions' },
-  { id: '', label: 'Actions', width: 120},
+  { id: '', label: 'Actions', width: 120 },
 ];
 
 const defaultFilters = {
@@ -152,11 +152,11 @@ export default function ProcessInstanceListView() {
     // setFilters(defaultFilters);
   }, []);
 
-  const handleProcessInstanceRunningStatus = async(row) => {
-    try{
-      await axiosInstance.patch(`/process-instances/${row?.id}`, {isInstanceRunning: !row?.isInstanceRunning});
+  const handleProcessInstanceRunningStatus = async (row) => {
+    try {
+      await axiosInstance.patch(`/process-instances/${row?.id}`, { isInstanceRunning: !row?.isInstanceRunning });
       refreshProcessInstances();
-    }catch(error){
+    } catch (error) {
       console.error('Error while changing running status', error);
     }
   }
@@ -278,23 +278,35 @@ export default function ProcessInstanceListView() {
             />
           </Card>
         ) : view === 'grid' ? (
-          <Grid container spacing={2}>
-            {dataFiltered
-              .slice(
-                table.page * table.rowsPerPage,
-                table.page * table.rowsPerPage + table.rowsPerPage
-              )
-              .map((row) => (
-                <Grid item xs={12} sm={6} md={4} key={row.id}>
-                  <ProcessTypeTableGrid
-                    row={row}
-                    onDeleteRow={() => handleDeleteRow(row.id)}
-                    onEditRow={() => handleEditRow(row.id)}
-                    onViewRow={() => handleViewRow(row.id)}
-                  />
-                </Grid>
-              ))}
-          </Grid>
+          <>
+            <Grid container spacing={2}>
+              {dataFiltered
+                .slice(
+                  table.page * table.rowsPerPage,
+                  table.page * table.rowsPerPage + table.rowsPerPage
+                )
+                .map((row) => (
+                  <Grid item xs={12} sm={6} md={4} key={row.id}>
+                    <ProcessTypeTableGrid
+                      row={row}
+                      onDeleteRow={() => handleDeleteRow(row.id)}
+                      onEditRow={() => handleEditRow(row.id)}
+                      onViewRow={() => handleViewRow(row.id)}
+                    />
+                  </Grid>
+                ))}
+            </Grid>
+            <TablePaginationCustom
+              count={dataFiltered.length}
+              page={table.page}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+              dense={table.dense}
+              onChangeDense={table.onChangeDense}
+              sx={{ mt: 2 }}
+            />
+          </>
         ) : null}
       </Container>
 
