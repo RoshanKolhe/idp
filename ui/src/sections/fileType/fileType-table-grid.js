@@ -36,11 +36,15 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
             <Box sx={ICON_WRAPPER_SX}>
               <Iconify icon="mdi:file-document-outline" width={20} />
             </Box>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary">
-                File Name
+            <Box sx={{ maxWidth: '200px' }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                File Type
               </Typography>
-              <Typography variant="subtitle1">{fileType}</Typography>
+              <Tooltip title={fileType} placement="top" arrow>
+                <Typography sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} variant="subtitle1" fontWeight={600}>
+                  {fileType}
+                </Typography>
+              </Tooltip>
             </Box>
           </Stack>
         </Box>
@@ -112,7 +116,7 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
           </Box>
         </Stack>
       </Stack>
-{/* 
+      {/* 
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 3 }}>
         <Button
           fullWidth

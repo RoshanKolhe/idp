@@ -36,11 +36,15 @@ export default function ProcessTypeTableGrid({ row }) {
             <Box sx={ICON_WRAPPER_SX}>
               <Iconify icon="mdi:file-document-outline" width={20} />
             </Box>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary">
-                Process Name
+            <Box sx={{ maxWidth: '200px' }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                Process Type
               </Typography>
-              <Typography variant="subtitle1">{processType}</Typography>
+              <Tooltip title={processType} placement="top" arrow>
+                <Typography sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} variant="subtitle1" fontWeight={600}>
+                  {processType}
+                </Typography>
+              </Tooltip>
             </Box>
           </Stack>
         </Box>

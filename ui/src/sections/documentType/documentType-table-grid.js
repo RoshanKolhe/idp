@@ -36,11 +36,15 @@ export default function DocumentTypeTableGrid({ row, onViewRow }) {
             <Box sx={ICON_WRAPPER_SX}>
               <Iconify icon="mdi:file-document-outline" width={20} />
             </Box>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary">
-                Document Name
+            <Box sx={{ maxWidth: '200px' }}>
+              <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                Document Type
               </Typography>
-              <Typography variant="subtitle1">{documentType}</Typography>
+              <Tooltip title={documentType} placement="top" arrow>
+                <Typography sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} variant="subtitle1" fontWeight={600}>
+                  {documentType}
+                </Typography>
+              </Tooltip>
             </Box>
           </Stack>
         </Box>
