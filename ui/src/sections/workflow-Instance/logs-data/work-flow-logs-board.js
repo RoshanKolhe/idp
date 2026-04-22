@@ -46,6 +46,7 @@ const nodeTypes = {
     iterator: CustomWorkflowNode,
     iteratorEnd: CustomWorkflowNode,
     crm: CustomWorkflowNode,
+    monorepo: CustomWorkflowNode,
 }
 
 const edgeTypes = {

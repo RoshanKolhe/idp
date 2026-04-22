@@ -95,6 +95,14 @@ const operations = [
     type: 'default'
   },
   {
+    id: 13,
+    title: 'Code',
+    description: 'Run custom JavaScript logic.',
+    icon: '/assets/icons/document-process/code.svg',
+    type: 'code',
+    color: '#263238'
+  },
+  {
     id: 11,
     title: 'Router',
     description: 'Add multiple route.',

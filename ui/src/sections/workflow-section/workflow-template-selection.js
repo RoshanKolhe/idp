@@ -1,5 +1,5 @@
-import {useState} from 'react';
-import {useFormContext} from 'react-hook-form';
+import { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 import {
   Box,
   Card,
@@ -8,14 +8,23 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import {LoadingButton} from '@mui/lab';
+import { LoadingButton } from '@mui/lab';
 import PropTypes from 'prop-types';
 import Iconify from 'src/components/iconify';
-import {useGetWorkflowTemplates} from 'src/api/workflow-templates';
+import { useGetWorkflowTemplatesWithFilters } from 'src/api/workflow-templates';
 
-export default function WorkflowTemplateSelection({handleSubmitForm, isSubmitting}) {
-  const {workflowTemplates} = useGetWorkflowTemplates();
-  const {setValue} = useFormContext();
+export default function WorkflowTemplateSelection({ handleSubmitForm, isSubmitting }) {
+  const filter = {
+    where: {
+      and: [
+        { status: 'published' },
+        { isDeleted: false }
+      ]
+    }
+  };
+  const filterString = encodeURIComponent(JSON.stringify(filter));
+  const { workflowTemplates } = useGetWorkflowTemplatesWithFilters(filterString);
+  const { setValue } = useFormContext();
   const [selectedTemplate, setSelectedTemplate] = useState(null);
 
   const handleUseTemplate = () => {
@@ -39,7 +48,7 @@ export default function WorkflowTemplateSelection({handleSubmitForm, isSubmittin
             const isSelected = selectedTemplate?.id === template.id;
 
             return (
-              <Grid item xs={12} sm={6} md={4} key={template.id} sx={{my: 2}}>
+              <Grid item xs={12} sm={6} md={4} key={template.id} sx={{ my: 2 }}>
                 <Card
                   onClick={() => setSelectedTemplate(template)}
                   sx={{
@@ -87,12 +96,12 @@ export default function WorkflowTemplateSelection({handleSubmitForm, isSubmittin
               <Iconify
                 icon="fluent:document-error-20-regular"
                 width={48}
-                sx={{mb: 2, color: 'text.disabled'}}
+                sx={{ mb: 2, color: 'text.disabled' }}
               />
-              <Typography variant="h6" sx={{color: 'text.secondary'}}>
+              <Typography variant="h6" sx={{ color: 'text.secondary' }}>
                 No Workflow Templates Found
               </Typography>
-              <Typography variant="body2" sx={{color: 'text.disabled'}}>
+              <Typography variant="body2" sx={{ color: 'text.disabled' }}>
                 You can still continue by creating a workflow from scratch.
               </Typography>
             </Box>

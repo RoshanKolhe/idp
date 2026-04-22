@@ -24,6 +24,7 @@ import ReactFlowCustomNodeStructure from './react-flow-custom-node';
 import {
   ReactFlowAggregator,
   ReactFlowClassify,
+  ReactFlowCode,
   ReactFlowDeliver,
   ReactFlowExternalDataSources,
   ReactFlowIntegration,
@@ -33,7 +34,8 @@ import {
   ReactFlowImageProcessing,
   ReactFlowIngestion,
   ReactFlowRouter,
-  ReactFlowValidate
+  ReactFlowValidate,
+  getLayoutedElements
 } from './components';
 import ReactFlowCustomAddNodeStructure from './react-flow-custom-add-node';
 import CustomEdgeWithSettings from './react-flow-custom-edge';
@@ -55,6 +57,7 @@ const nodeTypes = {
   documentIndex: ReactFlowDocumentIndex,
   documentQuery: ReactFlowDocumentQuery,
   integration: ReactFlowIntegration,
+  code: ReactFlowCode,
 }
 
 const edgeTypes = {
@@ -640,7 +643,7 @@ export default function ReactFlowBoard({ isUnlock }) {
             },
             bluePrint: bluePrint.find((item) => item.nodeName === operation?.title)?.component
           },
-          position: { x: baseX, y: baseY },
+          position: { x: baseX, y: baseY + 500 },
         };
 
         const newAddNode = {
@@ -656,7 +659,7 @@ export default function ReactFlowBoard({ isUnlock }) {
               borderLeft: '5px solid white',
             },
           },
-          position: { x: baseX + 300, y: baseY },
+          position: { x: baseX + 300, y: baseY + 500 },
         };
 
         updatedNodes = updatedNodes.concat(newOperationComponentNode, newAddNode);
@@ -699,7 +702,9 @@ export default function ReactFlowBoard({ isUnlock }) {
         });
 
         setPresentNodes((prev) => [...prev, newOperationComponentNode.data.label]);
-        return updatedEdges;
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(updatedNodes, updatedEdges, 'LR');
+        updatedNodes = layoutedNodes;
+        return layoutedEdges;
       });
 
       return updatedNodes;
@@ -812,8 +817,9 @@ export default function ReactFlowBoard({ isUnlock }) {
               : g
           )
         );
-
-        return updatedEdges;
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(updatedNodes, updatedEdges, 'LR');
+        updatedNodes = layoutedNodes;
+        return layoutedEdges;
       });
 
       return updatedNodes;

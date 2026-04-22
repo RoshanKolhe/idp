@@ -1,24 +1,108 @@
-import PropTypes from "prop-types";
-import { Box, Stack, Typography, TextField } from "@mui/material";
-import { useState } from "react";
+import PropTypes from 'prop-types';
+import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Box, Stack, Typography } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 // eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies
-import { getAgents, getAgentById } from "@repo/idp-agents";
-import { LoadingButton } from "@mui/lab";
-import { CustomWorkflowDialogue, CustomWorkflowNode } from "../components";
+import { getAgentById } from '@repo/idp-agents';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import { AuthenticatorField } from 'src/sections/authenticator';
+import { CustomWorkflowDialogue, CustomWorkflowNode } from '../components';
 
-// Import our new agents package
+function buildValidationSchema(configFields = [], authenticator) {
+  const configShape = configFields.reduce((accumulator, field) => {
+    let validator = Yup.string();
 
-export default function WorkFlowMonorepo({ data, id }) {
+    if (field.required) {
+      validator = validator.required(`${field.label || field.name} is required`);
+    }
+
+    accumulator[field.name] = validator;
+    return accumulator;
+  }, {});
+
+  const tokenField = authenticator?.output?.tokenField;
+  const authShape = authenticator?.required && tokenField
+    ? {
+        [tokenField]: Yup.string().required('Google authentication is required'),
+      }
+    : {};
+
+  return Yup.object().shape({
+    config: Yup.object().shape(configShape),
+    auth: Yup.object().shape(authShape),
+  });
+}
+
+export default function WorkFlowMonorepo({ data }) {
   const [open, setOpen] = useState(false);
 
-  // The data prop should ideally contain the agent ID this node represents
-  // Fallback to the first agent if not specified for demonstration
-  const allAgents = getAgents();
-  const agentId = data?.agentId || (allAgents.length > 0 ? allAgents[0].id : null);
+  const agentId = data?.agentId || data?.bluePrint?.agentId || null;
   const agentData = agentId ? getAgentById(agentId) : null;
+  const authenticator = agentData?.authenticator;
+
+  const validationSchema = useMemo(
+    () => buildValidationSchema(agentData?.configFields || [], authenticator),
+    [agentData?.configFields, authenticator]
+  );
+
+  const defaultValues = useMemo(
+    () => ({
+      config: (agentData?.configFields || []).reduce((accumulator, field) => {
+        accumulator[field.name] =
+          data?.bluePrint?.config?.[field.name] ??
+          agentData?.defaultValues?.[field.name] ??
+          '';
+        return accumulator;
+      }, {}),
+      auth: data?.bluePrint?.auth || {},
+    }),
+    [agentData?.configFields, agentData?.defaultValues, data?.bluePrint]
+  );
+
+  const methods = useForm({
+    resolver: yupResolver(validationSchema),
+    defaultValues,
+  });
+
+  const {
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { isSubmitting },
+  } = methods;
+
+  const authValue = watch('auth');
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const handleAuthenticatorChange = (nextAuthValue) => {
+    setValue('auth', nextAuthValue, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  const onSubmit = handleSubmit(async (formData) => {
+    data.functions.handleBluePrintComponent(data.label, data.id, {
+      agentId,
+      config: formData.config,
+      auth: formData.auth,
+      execution: agentData.execution,
+    });
+
+    handleClose();
+  });
+
+  useEffect(() => {
+    if (open) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, open, reset]);
 
   if (!agentData) {
     return (
@@ -31,45 +115,64 @@ export default function WorkFlowMonorepo({ data, id }) {
   return (
     <Box component="div">
       <Stack spacing={1} direction="column" alignItems="center">
-
-        {/* NODE ICON — click to open configuration */}
-        <Box
-          component="div"
-          onClick={handleOpen}
-          sx={{ cursor: "pointer" }}
-        >
-          {/* Passing modified data to CustomWorkflowNode to display the agent's actual name */}
+        <Box component="div" onClick={handleOpen} sx={{ cursor: 'pointer' }}>
           <CustomWorkflowNode data={{ ...data, label: agentData.name }} />
         </Box>
 
-        {/* CONFIGURATION POPUP */}
-        <CustomWorkflowDialogue isOpen={open} handleCloseModal={handleClose} title={data?.label || 'Agent'} color={data.bgColor}>
-          <Stack spacing={2}>
-            {agentData.configFields?.map((field) => (
-              <TextField
-                key={field.name}
-                label={field.label}
-                placeholder={field.placeholder || ""}
-                required={field.required}
-                fullWidth
-                defaultValue={agentData.defaultValues?.[field.name] || ""}
-                variant="outlined"
-                size="small"
+        <CustomWorkflowDialogue
+          isOpen={open}
+          handleCloseModal={handleClose}
+          title={agentData.title || agentData.name || 'Agent'}
+          color={data.bgColor}
+        >
+          <FormProvider methods={methods} onSubmit={onSubmit}>
+            <Stack spacing={2}>
+              {agentData.description ? (
+                <Typography variant="body2" color="text.secondary">
+                  {agentData.description}
+                </Typography>
+              ) : null}
+
+              {agentData.configFields?.map((field) => (
+                <RHFTextField
+                  key={field.name}
+                  name={`config.${field.name}`}
+                  label={field.label}
+                  placeholder={field.placeholder || ''}
+                  required={field.required}
+                  fullWidth
+                  multiline={field.type === 'textarea'}
+                  rows={field.type === 'textarea' ? 4 : 1}
+                  type={field.type === 'password' ? 'password' : 'text'}
+                />
+              ))}
+
+              <AuthenticatorField
+                authenticator={authenticator}
+                value={authValue}
+                onChange={handleAuthenticatorChange}
+                agentName={agentData.name}
               />
-            ))}
-          </Stack>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: '10px',
-              mt: 2,
-            }}
-          >
-            <LoadingButton sx={{ backgroundColor: data.bgColor, borderColor: data.borderColor }} type="submit" variant="contained">
-              Add
-            </LoadingButton>
-          </Box>
+            </Stack>
+
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px',
+                mt: 2,
+              }}
+            >
+              <LoadingButton
+                sx={{ backgroundColor: data.bgColor, borderColor: data.borderColor }}
+                type="submit"
+                variant="contained"
+                loading={isSubmitting}
+              >
+                Save
+              </LoadingButton>
+            </Box>
+          </FormProvider>
         </CustomWorkflowDialogue>
       </Stack>
     </Box>
@@ -78,5 +181,4 @@ export default function WorkFlowMonorepo({ data, id }) {
 
 WorkFlowMonorepo.propTypes = {
   data: PropTypes.object.isRequired,
-  id: PropTypes.string,
 };

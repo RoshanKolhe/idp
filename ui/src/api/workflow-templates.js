@@ -16,6 +16,20 @@ export function useGetWorkflowTemplates() {
   };
 }
 
+export function useGetWorkflowTemplatesWithFilters(filter) {
+  const URL = filter ? endpoints.workflowTemplates.filterList(filter) : endpoints.workflowTemplates.list;
+  const {data, isLoading, error, isValidating, mutate} = useSWR(URL, workflowFetcher);
+
+  return {
+    workflowTemplates: data || [],
+    workflowTemplatesLoading: isLoading,
+    workflowTemplatesError: error,
+    workflowTemplatesValidating: isValidating,
+    workflowTemplatesEmpty: !isLoading && !data?.length,
+    refreshWorkflowTemplates: mutate,
+  };
+}
+
 export function useGetWorkflowTemplate(workflowTemplateId) {
   const URL = workflowTemplateId ? [endpoints.workflowTemplates.details(workflowTemplateId)] : null;
   const {data, isLoading, error, isValidating, mutate} = useSWR(URL, workflowFetcher);

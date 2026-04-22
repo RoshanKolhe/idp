@@ -5,6 +5,7 @@ import { paths } from 'src/routes/paths';
 import { useLocales } from 'src/locales';
 // components
 import SvgColor from 'src/components/svg-color';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -53,6 +54,7 @@ const ICONS = {
 // ----------------------------------------------------------------------
 
 export function useNavData() {
+  const { user: currentUser } = useAuthContext();
   const { t } = useLocales();
 
   const data = useMemo(
@@ -69,70 +71,81 @@ export function useNavData() {
           { title: t('Workflow Templates'), path: paths.dashboard.workflowTemplates.root, icon: ICONS.templates },
           { title: t('Workflow'), path: paths.dashboard.workflow.root, icon: ICONS.workflows },
           { title: t('Workflow Instances'), path: paths.dashboard.workflowInstance.root, icon: ICONS.workflowInstance },
-          {
-            title: t('Settings'),
-            path: paths.dashboard.processType.list,
-            icon: ICONS.settings,
-            roles: ['super_admin', 'admin', 'company'],
-            children: [
-              {
-                title: t('Process Types'),
-                path: paths.dashboard.processType.list,
-                roles: ['super_admin'],
-              },
-              {
-                title: t('Document Types'),
-                path: paths.dashboard.documentType.list,
-                roles: ['super_admin'],
-              },
-              {
-                title: t('File Types'),
-                path: paths.dashboard.fileType.list,
-                roles: ['super_admin'],
-              },
-              {
-                title: t('Notification Setting'),
-                path: paths.dashboard.notificationSetting.list,
-                roles: ['super_admin', 'company', 'admin'],
-              },
-              {
-                title: t('Mail Server'),
-                path: paths.dashboard.mailServer.root,
-                roles: ['super_admin'],
-              },
-            ],
-          },
+          // {
+          //   title: t('Settings'),
+          //   path: paths.dashboard.processType.list,
+          //   icon: ICONS.settings,
+          //   roles: ['super_admin', 'admin', 'company'],
+          //   children: [
+          //     {
+          //       title: t('Process Types'),
+          //       path: paths.dashboard.processType.list,
+          //       roles: ['super_admin'],
+          //     },
+          //     {
+          //       title: t('Document Types'),
+          //       path: paths.dashboard.documentType.list,
+          //       roles: ['super_admin'],
+          //     },
+          //     {
+          //       title: t('File Types'),
+          //       path: paths.dashboard.fileType.list,
+          //       roles: ['super_admin'],
+          //     },
+          //     {
+          //       title: t('Escalation Matrix'),
+          //       path: paths.dashboard.notificationSetting.list,
+          //       roles: ['super_admin', 'company', 'admin'],
+          //     },
+          //     {
+          //       title: t('Mail Server'),
+          //       path: paths.dashboard.mailServer.root,
+          //       roles: ['super_admin'],
+          //     },
+          //   ],
+          // },
         ],
       },
 
       // SETTINGS
       // ----------------------------------------------------------------------
-      // {
-      //   subheader: t('settings'),
-      //   items: [
-      //     // PROCESS TYPE
-      //     {
-      //       title: t('Process Types'),
-      //       path: paths.dashboard.processType.root,
-      //       icon: ICONS.processType,
-      //       roles: ['admin'],
-      //       children: [
-      //         {
-      //           title: t('list'),
-      //           path: paths.dashboard.processType.list,
-      //           roles: ['admin'],
-      //         },
-      //         {
-      //           title: t('create'),
-      //           path: paths.dashboard.processType.new,
-      //           roles: ['admin'],
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // },
+      ...currentUser?.permissions.includes('super_admin') ? [{
+        subheader: t('settings'),
+        items: [
+          {
+            title: t('Process Types'),
+            path: paths.dashboard.processType.list,
+            roles: ['super_admin'],
+            icon: ICONS.dashboard
+          },
+          {
+            title: t('Document Types'),
+            path: paths.dashboard.documentType.list,
+            roles: ['super_admin'],
+            icon: ICONS.dashboard
+          },
+          {
+            title: t('File Types'),
+            path: paths.dashboard.fileType.list,
+            roles: ['super_admin'],
+            icon: ICONS.dashboard
+          },
+          {
+            title: t('Escalation Matrix'),
+            path: paths.dashboard.notificationSetting.list,
+            roles: ['super_admin', 'company', 'admin'],
+            icon: ICONS.dashboard
+          },
+          {
+            title: t('Mail Server'),
+            path: paths.dashboard.mailServer.root,
+            roles: ['super_admin'],
+            icon: ICONS.dashboard
+          },
+        ],
+      }] : [],
     ],
-    [t]
+    [t, currentUser?.permissions]
   );
 
   return data;

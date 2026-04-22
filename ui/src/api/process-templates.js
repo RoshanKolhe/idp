@@ -24,6 +24,28 @@ export function useGetProcessTemplates() {
     };
 }
 
+// ---------------------------------------------------------------------
+
+export function useGetProcessTemplatesWithFilter(filter) {
+    const URL = filter ? endpoints.processTemplates.filterList(filter) : endpoints.processTemplates.list;
+
+    const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+
+    const refreshProcessTemplates = () => {
+        // Use the `mutate` function to trigger a revalidation
+        mutate();
+    };
+
+    return {
+        processTemplates: data || [],
+        processTemplatesLoading: isLoading,
+        processTemplatesError: error,
+        processTemplatesValidating: isValidating,
+        processTemplatesEmpty: !isLoading && !data?.length,
+        refreshProcessTemplates,
+    };
+}
+
 // ----------------------------------------------------------------------
 export function useGetProcessTemplate(processTemplateId) {
     const URL = processTemplateId ? [endpoints.processTemplates.details(processTemplateId)] : null;

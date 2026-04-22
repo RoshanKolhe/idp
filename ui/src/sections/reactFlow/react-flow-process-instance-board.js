@@ -21,6 +21,7 @@ import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
 import {
   ReactFlowClassify,
+  ReactFlowCode,
   ReactFlowDeliver,
   ReactFlowExternalDataSources,
   ReactFlowIntegration,
@@ -47,6 +48,7 @@ const nodeTypes = {
   documentQuery: ReactFlowDocumentQuery,
   integration: ReactFlowIntegration,
   imageProcessing: ReactFlowImageProcessing,
+  code: ReactFlowCode,
 }
 
 const initialNodes = [

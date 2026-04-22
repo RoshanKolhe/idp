@@ -188,9 +188,11 @@ export default function ReactFlowBoard() {
                         bluePrint: bluePrint.find((item) => item.id === newOpCompNodeId)?.component,
                         variables: VariableDetection(prevNodes, bluePrint),
                         ...(operation?.type === 'monorepo' && {
+                            agentId: operation.id,
                             popupKey: operation.popupKey,
                             configFields: operation.configFields,
-                            defaultValues: operation.defaultValues
+                            defaultValues: operation.defaultValues,
+                            authenticator: operation.authenticator
                         })
                     },
                     position: { x: 0, y: 0 },

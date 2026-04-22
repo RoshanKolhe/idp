@@ -10,4 +10,6 @@ export { default as ReactFlowDocumentIndex } from './react-flow-document-index';
 export { default as ReactFlowDocumentQuery } from './react-flow-document-query';
 export { default as ReactFlowIntegration } from './react-flow-integration';
 export { default as ReactFlowExternalDataSources } from './react-flow-external-data-sources';
+export { default as ReactFlowCode } from './react-flow-code';
+export { getLayoutedElements } from "./custom-nodes-layout";
 

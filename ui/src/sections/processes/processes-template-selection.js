@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useGetProcessTemplates } from 'src/api/process-templates';
+import { useGetProcessTemplatesWithFilter } from 'src/api/process-templates';
 import {
     Card,
     CardMedia,
@@ -14,7 +14,16 @@ import Iconify from 'src/components/iconify';
 import PropTypes from 'prop-types';
 
 export default function ProcessTemplateSelection({ handleSubmitForm, isSubmitting }) {
-    const { processTemplates } = useGetProcessTemplates();
+    const filter = {
+        where: {
+            and: [
+                { status: 'published' },
+                { isDeleted: false }
+            ]
+        }
+    };
+    const filterString = encodeURIComponent(JSON.stringify(filter));
+    const { processTemplates } = useGetProcessTemplatesWithFilter(filterString);
     const { setValue } = useFormContext();
     const [selectedTemplate, setSelectedTemplate] = useState(null);
 
