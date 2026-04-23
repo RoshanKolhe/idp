@@ -6,17 +6,18 @@ import { Handle, Position } from "reactflow"
 import Iconify from "src/components/iconify";
 import OperationSelectorModal from "./react-flow-operation-model";
 
-export default function ReactFlowCustomNodeStructure({ data }){
+export default function ReactFlowCustomNodeStructure({ data }) {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [direction, setDirection] = useState(null);
 
     const handleMouseEnter = (e) => {
-        if(
-            data?.label?.toLowerCase() !== 'ingestion' && 
+        if (e.target.closest('.react-flow__handle')) return;
+        if (
+            data?.label?.toLowerCase() !== 'ingestion' &&
             data?.isProcessInstance !== true &&
             data?.label?.toLowerCase() !== 'router'
-        ){
+        ) {
             setAnchorEl(e.currentTarget);
         }
     };
@@ -36,11 +37,11 @@ export default function ReactFlowCustomNodeStructure({ data }){
     }
 
     const handleSelect = (operation) => {
-        if(direction === 'left'){
+        if (direction === 'left') {
             data?.functions?.addToLeft(data.id, operation);
-        }else if(direction === 'right'){
+        } else if (direction === 'right') {
             data?.functions?.addToRight(data.id, operation);
-        }else if(direction === 'parallel'){
+        } else if (direction === 'parallel') {
             data?.functions?.addParallelNode?.(data.id, operation);
         }
         handleClose();
@@ -66,7 +67,7 @@ export default function ReactFlowCustomNodeStructure({ data }){
 
     const open = Boolean(anchorEl);
 
-    return(
+    return (
         <Box onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} sx={{ mt: 6, display: 'flex', justifyContent: 'left' }}>
             {/* Outgoing handle (right side) */}
             <Handle
@@ -97,14 +98,14 @@ export default function ReactFlowCustomNodeStructure({ data }){
             {/* progress line box */}
             <Box
                 sx={{
-                width: 250,
-                height: 250,
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transform: 'rotate(45deg)',
-                ...data.style
+                    width: 250,
+                    height: 250,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transform: 'rotate(45deg)',
+                    ...data.style
                 }}
             >
                 {/* outer circle box */}
@@ -126,15 +127,16 @@ export default function ReactFlowCustomNodeStructure({ data }){
                     {/* innner circle box */}
                     <Box
                         sx={{
-                        width: 170,
-                        height: 170,
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(136, 136, 136, 0.20)', 
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 'bold',
-                        color: '#fff',
+                            zIndex: 10,
+                            width: 170,
+                            height: 170,
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(136, 136, 136, 0.20)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 'bold',
+                            color: '#fff',
                         }}
                     >
                         {/* image box */}
@@ -143,7 +145,7 @@ export default function ReactFlowCustomNodeStructure({ data }){
                             component='img'
                             src={data.icon}
                             alt='document-proccess'
-                        />  
+                        />
                     </Box>
                 </Box>
             </Box>
@@ -152,12 +154,12 @@ export default function ReactFlowCustomNodeStructure({ data }){
                 anchorEl={anchorEl}
                 onClose={handleMouseLeave}
                 anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
+                    vertical: 'top',
+                    horizontal: 'center',
                 }}
                 transformOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
+                    vertical: 'top',
+                    horizontal: 'center',
                 }}
                 disableRestoreFocus
                 PaperProps={{ onMouseEnter: handleMouseEnter, onMouseLeave: handleMouseLeave }}
@@ -186,11 +188,11 @@ export default function ReactFlowCustomNodeStructure({ data }){
                     </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Merge" placement="top" arrow>
+                {/* <Tooltip title="Merge" placement="top" arrow>
                     <IconButton color="secondary" onClick={handleMerge}>
                         <Iconify icon="mdi:call-merge" />
                     </IconButton>
-                </Tooltip>
+                </Tooltip> */}
             </Popover>
 
             {/* Operation model */}
@@ -200,5 +202,5 @@ export default function ReactFlowCustomNodeStructure({ data }){
 }
 
 ReactFlowCustomNodeStructure.propTypes = {
-    data : PropTypes.object,
+    data: PropTypes.object,
 }

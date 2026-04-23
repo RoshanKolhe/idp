@@ -38,6 +38,14 @@ export default function CustomEdgeWithSettings(props) {
         data?.handleEdgePopup?.(payload);
     }
 
+    const handleDeletePath = () => {
+        data?.handleDeletePath?.({
+            edgeId: id,
+            sourceNode: source,
+            targetNode: target
+        });
+    };
+
     return (
         <>
             <path
@@ -55,11 +63,20 @@ export default function CustomEdgeWithSettings(props) {
                         transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY - 50}px)`,
                         pointerEvents: 'all',
                         zIndex: 10,
+                        display: 'flex',
+                        gap: 8,
                     }}
                 >
-                    <IconButton size="medium" onClick={() => handleClick()}>
-                        <Iconify icon="solar:clock-circle-bold" width={24} />
-                    </IconButton>
+                    {data?.handleEdgePopup && (
+                        <IconButton size="medium" onClick={() => handleClick()}>
+                            <Iconify icon="solar:clock-circle-bold" width={24} />
+                        </IconButton>
+                    )}
+                    {data?.showDeletePathControl && (
+                        <IconButton size="medium" color="error" onClick={() => handleDeletePath()}>
+                            <Iconify icon="mdi:minus-circle" width={24} />
+                        </IconButton>
+                    )}
                 </div>
             </EdgeLabelRenderer>
         </>

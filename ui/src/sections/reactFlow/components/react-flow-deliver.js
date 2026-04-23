@@ -233,7 +233,7 @@ export default function ReactFlowDeliver({ data }) {
                     </Grid>
                     <Stack alignItems="flex-end" sx={{ mt: 3, display: 'flex', gap: '10px' }}>
                         <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                            Add
+                            Save
                         </LoadingButton>
                     </Stack>
                 </FormProvider>

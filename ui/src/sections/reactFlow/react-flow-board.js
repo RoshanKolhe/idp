@@ -150,6 +150,7 @@ export default function ReactFlowBoard({ isUnlock }) {
     }
     return false;
   };
+  
   const resolveActiveGroupForNode = (nodeId, edgeList, groups) => groups.find((g) => {
     if (g.isClosed) return false;
     return g.branches.some((branchId) => {
@@ -192,6 +193,72 @@ export default function ReactFlowBoard({ isUnlock }) {
     return currentId;
   };
 
+  const collectBranchNodeIds = (sourceNodeId, branchStartId, edgeList, nodeList) => {
+    const queue = [`${branchStartId}`];
+    const visited = new Set();
+
+    while (queue.length > 0) {
+      const currentId = queue.shift();
+      if (!visited.has(currentId)) {
+        visited.add(currentId);
+
+        const outgoingEdges = edgeList.filter((edge) => `${edge.source}` === currentId);
+
+        outgoingEdges.forEach((edge) => {
+          const nextId = `${edge.target}`;
+          const nextNode = nodeList.find((node) => `${node.id}` === nextId);
+          if (!nextNode) return;
+
+          const incomingEdges = edgeList.filter((candidate) => `${candidate.target}` === nextId);
+          const hasExternalIncoming = incomingEdges.some(
+            (candidate) =>
+              !visited.has(`${candidate.source}`) &&
+              `${candidate.source}` !== currentId &&
+              `${candidate.source}` !== `${sourceNodeId}`
+          );
+
+          if (!hasExternalIncoming) {
+            queue.push(nextId);
+          }
+        });
+      }
+    }
+
+    return Array.from(visited);
+  };
+
+  const collectReachableNodeIds = (nodeList, edgeList) => {
+    if (!nodeList || nodeList.length === 0) {
+      return new Set();
+    }
+
+    const incomingTargets = new Set(edgeList.map((edge) => `${edge.target}`));
+    const startNodeIds = nodeList
+      .filter((node) => !incomingTargets.has(`${node.id}`) || `${node.id}` === '1')
+      .map((node) => `${node.id}`);
+
+    const queue = [...new Set(startNodeIds)];
+    const visited = new Set();
+
+    while (queue.length > 0) {
+      const currentId = queue.shift();
+      if (!visited.has(currentId)) {
+        visited.add(currentId);
+
+        edgeList
+          .filter((edge) => `${edge.source}` === currentId)
+          .forEach((edge) => {
+            const nextId = `${edge.target}`;
+            if (!visited.has(nextId)) {
+              queue.push(nextId);
+            }
+          });
+      }
+    }
+
+    return visited;
+  };
+
   // configure settings...
   const configureSettings = (sourceNode, targetNode, settingObj) => {
     setEdgeSettings((prev) => {
@@ -226,21 +293,83 @@ export default function ReactFlowBoard({ isUnlock }) {
   }
 
   // edge popup function
-  const handleEdgePopup = (payload) => {
+  const handleEdgePopup = useCallback((payload) => {
     setActiveEdgeData({
       ...payload,
       bluePrint: edgeSettings.find((setting) => setting.sourceNode === payload.sourceNode && setting.targetNode === payload.targetNode) ?? null,
       configureSettings
     });
-
     setEdgePopup(true);
-  }
+  }, [edgeSettings]);
 
   // on close edge popup
   const handleCloseEdgePopup = () => {
     setActiveEdgeData(null);
     setEdgePopup(false);
   }
+
+  const handleDeleteParallelPath = ({ sourceNode, targetNode }) => {
+    setNodes((prevNodes) => {
+      let nextNodes = [...prevNodes];
+
+      setEdges((prevEdges) => {
+        const branchNodeIds = collectBranchNodeIds(sourceNode, targetNode, prevEdges, prevNodes);
+        const branchNodeSet = new Set(branchNodeIds.map((nodeId) => `${nodeId}`));
+
+        const branchTrimmedEdges = prevEdges.filter((edge) => {
+          const sourceId = `${edge.source}`;
+          const targetId = `${edge.target}`;
+
+          if (sourceId === `${sourceNode}` && targetId === `${targetNode}`) {
+            return false;
+          }
+
+          if (branchNodeSet.has(sourceId) || branchNodeSet.has(targetId)) {
+            return false;
+          }
+
+          return true;
+        });
+
+        const branchTrimmedNodes = prevNodes.filter((node) => !branchNodeSet.has(`${node.id}`));
+        const reachableNodeIds = collectReachableNodeIds(branchTrimmedNodes, branchTrimmedEdges);
+
+        const cleanedNodes = branchTrimmedNodes.filter((node) => reachableNodeIds.has(`${node.id}`));
+        const cleanedEdges = branchTrimmedEdges.filter(
+          (edge) => reachableNodeIds.has(`${edge.source}`) && reachableNodeIds.has(`${edge.target}`)
+        );
+
+        const removedNodeLabels = prevNodes
+          .filter(
+            (node) =>
+              !reachableNodeIds.has(`${node.id}`) &&
+              node.type !== 'customAddNode'
+          )
+          .map((node) => node.data?.label)
+          .filter(Boolean);
+
+        if (removedNodeLabels.length > 0) {
+          setPresentNodes((prev) => prev.filter((nodeLabel) => !removedNodeLabels.includes(nodeLabel)));
+          setBluePrint((prev) => prev.filter((node) => !removedNodeLabels.includes(node.nodeName)));
+        }
+
+        setSplitGroups((prevGroups) =>
+          prevGroups
+            .map((group) => ({
+              ...group,
+              branches: (group.branches || []).filter((branchId) => reachableNodeIds.has(`${branchId}`)),
+            }))
+            .filter((group) => (group.branches || []).length > 0)
+        );
+
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(cleanedNodes, cleanedEdges, 'LR');
+        nextNodes = layoutedNodes;
+        return layoutedEdges;
+      });
+
+      return nextNodes;
+    });
+  };
 
   const handleBluePrintComponent = (label, updatedComponent) => {
     setBluePrint((prev) => prev.map((node) => {
@@ -670,6 +799,11 @@ export default function ReactFlowBoard({ isUnlock }) {
             target: `${newOpCompNodeId}`,
             animated: true,
             style: { stroke: 'black' },
+            type: 'settingsEdge',
+            data: {
+              showDeletePathControl: true,
+              handleDeletePath: handleDeleteParallelPath,
+            }
           },
           {
             id: `e${newOpCompNodeId}-${newAddNodeId}`,
@@ -827,9 +961,60 @@ export default function ReactFlowBoard({ isUnlock }) {
   };
 
   const onConnect = useCallback(
-    (params) => setEdges((eds) => addEdge(params, eds)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    (params) => {
+      if (!params?.source || !params?.target) {
+        return;
+      }
+
+      const sourceNode = nodes.find((node) => `${node.id}` === `${params.source}`);
+      const nextEdge = {
+        ...params,
+        id: `e${params.source}-${params.target}`,
+        animated: true,
+        style: { stroke: 'black' },
+        ...(sourceNode?.type !== 'router' && {
+          type: 'settingsEdge',
+          data: {
+            handleEdgePopup
+          }
+        })
+      };
+
+      const connectedAddNodeIds = edges
+        .filter((edge) => `${edge.source}` === `${params.source}`)
+        .map((edge) => nodes.find((node) => `${node.id}` === `${edge.target}`))
+        .filter((node) => node?.type === 'customAddNode')
+        .map((node) => `${node.id}`);
+
+      if (connectedAddNodeIds.length > 0) {
+        setNodes((prevNodes) =>
+          prevNodes.filter((node) => !connectedAddNodeIds.includes(`${node.id}`))
+        );
+
+        setEdges((prevEdges) => {
+          const filteredEdges = prevEdges.filter(
+            (edge) =>
+              !connectedAddNodeIds.includes(`${edge.source}`) &&
+              !connectedAddNodeIds.includes(`${edge.target}`)
+          );
+          return addEdge(nextEdge, filteredEdges);
+        });
+
+        setSplitGroups((prevGroups) =>
+          prevGroups.map((group) => ({
+            ...group,
+            branches: (group.branches || []).map((branchId) =>
+              connectedAddNodeIds.includes(`${branchId}`) ? `${params.target}` : branchId
+            ),
+          }))
+        );
+
+        return;
+      }
+
+      setEdges((prevEdges) => addEdge(nextEdge, prevEdges));
+    },
+    [edges, handleEdgePopup, nodes, setEdges, setNodes, setSplitGroups]
   );
 
   // add node to left
