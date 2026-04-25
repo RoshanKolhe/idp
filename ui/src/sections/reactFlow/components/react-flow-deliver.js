@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import * as Yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { Button, Grid, MenuItem, Stack, Typography } from "@mui/material";
+import { Button, Divider, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FormProvider, { RHFSelect } from "src/components/hook-form";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
@@ -199,6 +199,7 @@ export default function ReactFlowDeliver({ data }) {
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
             <Typography variant='h5'>{data.label}</Typography>
+            <Divider />
             {values.channelType !== '' && <Typography variant='h6'>{channelOptions.find((channel) => channel.value === values.channelType).label}</Typography>}
             {getComponent(values)}
             {

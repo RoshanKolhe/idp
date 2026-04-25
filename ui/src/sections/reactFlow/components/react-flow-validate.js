@@ -1,4 +1,4 @@
-import { Button, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
+import { Button, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Stack, Typography } from "@mui/material";
 import { useMemo, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import * as Yup from 'yup';
@@ -74,6 +74,7 @@ export default function ReactFlowValidate({ data }) {
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
             <Typography variant='h5'>{data.label}</Typography>
+            <Divider />
 
             <FormControl component="fieldset">
                 <Typography variant="h5">

@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import PropTypes from "prop-types"
-import { Box, Button, Chip, Grid, MenuItem, Stack, Typography } from "@mui/material";
+import { Box, Button, Chip, Divider, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FormProvider, { RHFAutocomplete, RHFSelect } from "src/components/hook-form";
 import { useGetDocumentTypes } from "src/api/documentType";
@@ -145,6 +145,7 @@ export default function ReactFlowExtract({ data }) {
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
             <Typography variant='h5'>{data.label}</Typography>
+            <Divider />
             {values.categories?.length > 0 && values.categories?.map((cat) => ((
                 <Stack key={cat.id} direction='column' spacing={1}>
                     <Typography sx={{ fontWeight: 'bold' }} variant='H4'>{cat?.documentType}</Typography>

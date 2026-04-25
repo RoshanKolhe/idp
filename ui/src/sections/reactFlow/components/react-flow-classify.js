@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import {
   Button,
   Chip,
+  Divider,
   Grid,
   MenuItem,
   Stack,
@@ -94,6 +95,7 @@ export default function ReactFlowClassify({ data }) {
     <Stack sx={{ marginTop: 3, zIndex: 100000 }} spacing={1}>
       <ReactFlowCustomNodeStructure data={data} />
       <Typography variant="h5">{data.label}</Typography>
+      <Divider />
       {/* Model section */}
       {values && values.model && (
         <Stack spacing={1} direction='column'>
