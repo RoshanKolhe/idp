@@ -132,7 +132,7 @@ export default function WorkFlowLogsBoard() {
             setWorkflowDirection(data?.direction ? data?.direction : 'TB');
 
             // setting nodes
-            const newNodes = data?.nodes?.length > 0 && data?.nodes.map((node) => ({
+            const newNodes = data?.nodes?.length > 0 && data?.nodes?.filter(node => node.type !== 'customAddNode').map((node) => ({
                 ...node,
                 data: {
                     ...node.data,

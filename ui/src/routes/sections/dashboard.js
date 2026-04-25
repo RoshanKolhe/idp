@@ -272,7 +272,7 @@ export const dashboardRoutes = [
           { path: 'new', element: <WorkflowInstanceCreatePage /> },
           { path: ':id/edit', element: <WorkflowInstanceEditPage /> },
           { path: ':id/logs', element: <WorkflowInstanceLogsListPage /> },
-          { path: ':workflowId/execution/:outputId', element: <WorkflowInstanceNodesLogsPage /> },
+          { path: ':workflowId/:instanceId/execution/:outputId', element: <WorkflowInstanceNodesLogsPage /> },
         ],
       },
       {

@@ -22,6 +22,7 @@ import ReactFlowCustomNodeStructure from './react-flow-custom-node';
 import {
   ReactFlowClassify,
   ReactFlowCode,
+  ReactFlowAiAnalyser,
   ReactFlowDeliver,
   ReactFlowExternalDataSources,
   ReactFlowIntegration,
@@ -49,6 +50,7 @@ const nodeTypes = {
   integration: ReactFlowIntegration,
   imageProcessing: ReactFlowImageProcessing,
   code: ReactFlowCode,
+  aiAnalyser: ReactFlowAiAnalyser,
 }
 
 const initialNodes = [

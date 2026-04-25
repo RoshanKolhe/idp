@@ -38,8 +38,9 @@ import {
 } from 'src/components/table';
 //
 import axiosInstance from 'src/utils/axios';
-import { useGetWorkflowInstanceLogs } from 'src/api/workflow-instance';
+import { useGetWorkflowInstance, useGetWorkflowInstanceLogs } from 'src/api/workflow-instance';
 import { Box, Grid, Typography } from '@mui/material';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import WorkflowInstanceTableRow from '../workflowInstance-table-row';
 
 // ----------------------------------------------------------------------
@@ -78,6 +79,7 @@ export default function WorkflowInstanceLogsListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const { workflowInstanceLogs, workflowInstanceLogsEmpty, refreshWorkflowInstanceLogs } = useGetWorkflowInstanceLogs(id);
+  const { workflowInstance: currentWorkflowInstance } = useGetWorkflowInstance(id);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -172,6 +174,39 @@ export default function WorkflowInstanceLogsListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+        <CustomBreadcrumbs
+          heading="Workflow Instance Transactions"
+          links={[
+            { name: 'Dashboard', href: paths.dashboard.root },
+            { name: 'Workflow Instance', href: paths.dashboard.workflowInstance.list },
+            // currentWorkflowInstance?.workflow?.name && { name: currentWorkflowInstance.workflow.name },
+            currentWorkflowInstance?.workflowInstanceName && { name: currentWorkflowInstance.workflowInstanceName },
+          ].filter(Boolean)}
+          sx={{ mb: { xs: 3, md: 5 } }}
+          // action={
+          //   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          //     <Button
+          //       variant="contained"
+          //       startIcon={<Iconify icon="eva:plus-fill" />}
+          //       component={RouterLink}
+          //       href={paths.dashboard.workflowInstance.new}
+          //       sx={{
+          //         borderRadius: '30px',
+          //         backgroundColor: '#4182EB',
+          //         textTransform: 'none',
+          //         fontWeight: 600,
+          //         px: 3,
+          //         height: 40,
+          //         '&:hover': {
+          //           backgroundColor: '#3069c6',
+          //         },
+          //       }}
+          //     >
+          //       Create Instance
+          //     </Button>
+          //   </Box>
+          // }
+        />
         <Box
           sx={{
             mb: 2,
@@ -182,34 +217,11 @@ export default function WorkflowInstanceLogsListView() {
           }}
         >
           {/* Left Side: Heading */}
-          <Typography variant="h6" component="div">
+          {/* <Typography variant="h6" component="div">
             Workflow Instances
-          </Typography>
+          </Typography> */}
 
           {/* Right Side: Icons + Create Button */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* <TableViewToggleSwitch view={view} setView={setView} /> */}
-
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
-              component={RouterLink}
-              href={paths.dashboard.workflowInstance.new}
-              sx={{
-                borderRadius: '30px',
-                backgroundColor: '#4182EB',
-                textTransform: 'none',
-                fontWeight: 600,
-                px: 3,
-                height: 40,
-                '&:hover': {
-                  backgroundColor: '#3069c6',
-                },
-              }}
-            >
-              Create Instance
-            </Button>
-          </Box>
         </Box>
         {view === 'list' ? (
           <Card>

@@ -92,7 +92,8 @@ const operations = [
     title: 'AI Analyser',
     description: 'Analyze data with intelligent insights.',
     icon: '/assets/icons/document-process/ai-analyzer.svg',
-    type: 'default'
+    type: 'aiAnalyser',
+    color: '#D32F7C'
   },
   {
     id: 13,

@@ -23,6 +23,7 @@ import OperationSelectorModal from './react-flow-operation-model';
 import ReactFlowCustomNodeStructure from './react-flow-custom-node';
 import {
   ReactFlowAggregator,
+  ReactFlowAiAnalyser,
   ReactFlowClassify,
   ReactFlowCode,
   ReactFlowDeliver,
@@ -58,6 +59,7 @@ const nodeTypes = {
   documentQuery: ReactFlowDocumentQuery,
   integration: ReactFlowIntegration,
   code: ReactFlowCode,
+  aiAnalyser: ReactFlowAiAnalyser,
 }
 
 const edgeTypes = {
@@ -192,6 +194,8 @@ export default function ReactFlowBoard({ isUnlock }) {
 
     return currentId;
   };
+
+  const getLayout = (nodeList, edgeList) => getLayoutedElements(nodeList, edgeList, 'LR');
 
   const collectBranchNodeIds = (sourceNodeId, branchStartId, edgeList, nodeList) => {
     const queue = [`${branchStartId}`];
@@ -362,7 +366,7 @@ export default function ReactFlowBoard({ isUnlock }) {
             .filter((group) => (group.branches || []).length > 0)
         );
 
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(cleanedNodes, cleanedEdges, 'LR');
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(cleanedNodes, cleanedEdges);
         nextNodes = layoutedNodes;
         return layoutedEdges;
       });
@@ -836,7 +840,7 @@ export default function ReactFlowBoard({ isUnlock }) {
         });
 
         setPresentNodes((prev) => [...prev, newOperationComponentNode.data.label]);
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(updatedNodes, updatedEdges, 'LR');
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges);
         updatedNodes = layoutedNodes;
         return layoutedEdges;
       });
@@ -951,7 +955,7 @@ export default function ReactFlowBoard({ isUnlock }) {
               : g
           )
         );
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(updatedNodes, updatedEdges, 'LR');
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges);
         updatedNodes = layoutedNodes;
         return layoutedEdges;
       });

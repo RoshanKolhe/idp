@@ -40,7 +40,7 @@ import {
 import axiosInstance from 'src/utils/axios';
 import { useGetWorkflowInstanceLogs } from 'src/api/workflow-instance';
 import { Box, Grid, Typography } from '@mui/material';
-import { useGetProcessInstanceLogs } from 'src/api/process-instance';
+import { useGetProcessInstance, useGetProcessInstanceLogs } from 'src/api/process-instance';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import ProcessInstanceTableRow from '../processInstance-table-row';
 
@@ -79,6 +79,7 @@ export default function ProcessInstanceLogsListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const { processInstanceLogs, refreshProcessInstanceLogs } = useGetProcessInstanceLogs(id);
+  const { processInstance: currentProcessInstance } = useGetProcessInstance(id);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -178,7 +179,8 @@ export default function ProcessInstanceLogsListView() {
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Process Instance', href: paths.dashboard.processesInstance.list },
-            tableData.length > 0 && { name: tableData[0].processInstances.name }
+            currentProcessInstance?.processes?.name && { name: currentProcessInstance.processes.name },
+            currentProcessInstance?.processInstanceName && { name: currentProcessInstance.processInstanceName }
           ].filter(Boolean)}
           sx={{ mb: { xs: 3, md: 5 } }}
         />
