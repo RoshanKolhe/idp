@@ -16,16 +16,11 @@ import {
   Tooltip,
 } from "@mui/material";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Iconify from "src/components/iconify";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { getAgents } from "@repo/idp-agents";
+import { useAgents } from "src/api/agents";
 
-const agents = getAgents();
-
-console.log('agents', agents);
-
-const customOperations = [
+const baseOperations = [
   // 🔹 TRIGGER NODES
   {
     category: "Triggers",
@@ -199,18 +194,6 @@ const customOperations = [
     ],
   },
 
-  // 🔹 MONOREPO NODES
-  {
-    category: "Agents",
-    items: agents.length > 0 ? agents.map((agent) => ({
-      ...agent,
-      type: 'monorepo',
-      bgColor: "#111827",       // Dark slate background
-      borderColor: "#4182EB",   // Your primary blue
-      color: "#E5E7EB",         // Light gray text
-      icon: "/assets/icons/workflow/software-agent.svg",
-    })) : []
-  }
 ];
 
 export default function CustomWorkflowNodesPanel({
@@ -219,6 +202,26 @@ export default function CustomWorkflowNodesPanel({
   open,
   bluePrintNode,
 }) {
+  const { agents } = useAgents();
+  const customOperations = useMemo(
+    () => [
+      ...baseOperations,
+      {
+        category: "Agents",
+        items: agents.length > 0
+          ? agents.map((agent) => ({
+              ...agent,
+              type: 'monorepo',
+              bgColor: "#111827",
+              borderColor: "#4182EB",
+              color: "#E5E7EB",
+              icon: "/assets/icons/workflow/software-agent.svg",
+            }))
+          : []
+      }
+    ],
+    [agents]
+  );
   const [filteredCategories, setFilteredCategories] = useState(customOperations);
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(false); // 👈 NEW
@@ -234,7 +237,7 @@ export default function CustomWorkflowNodesPanel({
       ),
     }));
     setFilteredCategories(filtered);
-  }, [bluePrintNode, search]);
+  }, [bluePrintNode, search, customOperations]);
 
   return (
     <Drawer

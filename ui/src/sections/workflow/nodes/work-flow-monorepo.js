@@ -5,8 +5,7 @@ import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Box, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-// eslint-disable-next-line import/no-unresolved, import/no-extraneous-dependencies
-import { getAgentById } from '@repo/idp-agents';
+import { useAgentById } from 'src/api/agents';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 import { AuthenticatorField } from 'src/sections/authenticator';
 import { CustomWorkflowDialogue, CustomWorkflowNode } from '../components';
@@ -40,7 +39,7 @@ export default function WorkFlowMonorepo({ data }) {
   const [open, setOpen] = useState(false);
 
   const agentId = data?.agentId || data?.bluePrint?.agentId || null;
-  const agentData = agentId ? getAgentById(agentId) : null;
+  const { agent: agentData, agentsLoading } = useAgentById(agentId);
   const authenticator = agentData?.authenticator;
 
   const validationSchema = useMemo(
@@ -103,6 +102,14 @@ export default function WorkFlowMonorepo({ data }) {
       reset(defaultValues);
     }
   }, [defaultValues, open, reset]);
+
+  if (agentsLoading && !agentData) {
+    return (
+      <Box component="div">
+        <Typography color="text.secondary">Loading agent...</Typography>
+      </Box>
+    );
+  }
 
   if (!agentData) {
     return (
