@@ -181,7 +181,7 @@ export default function ReactFlowIngestion({ data }) {
     return (
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
-            <Typography variant='h5'>1. {data.label}</Typography>
+            <Typography variant='h5'>{data.label}</Typography>
             {values.channelType !== '' && <Typography variant='h6'>{channelOptions.find((channel) => channel.value === values.channelType).label}</Typography>}
             {getComponent(values)}
             {(data?.isProcessInstance !== true) && <Button sx={{ width: '200px', color: 'royalBlue', borderColor: 'royalBlue' }} variant='outlined' onClick={() => handleOpenModal()}>Add Channel</Button>}

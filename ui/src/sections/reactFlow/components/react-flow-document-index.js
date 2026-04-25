@@ -84,7 +84,7 @@ export default function ReactFlowDocumentIndex({ data }) {
   return (
     <Stack sx={{ marginTop: 3 }} spacing={1}>
       <ReactFlowCustomNodeStructure data={data} />
-      <Typography variant="h5">{data?.stepNumber || 4}. {data?.label}</Typography>
+      <Typography variant="h5">{data?.label}</Typography>
       <Divider />
       <Typography variant="body1">
         <b>Mode:</b>{" "}

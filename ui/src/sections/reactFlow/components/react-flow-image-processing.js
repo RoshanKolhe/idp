@@ -147,7 +147,7 @@ export default function ReactFlowImageProcessing({ data }) {
             <ReactFlowCustomNodeStructure data={data} />
 
             <Typography variant="h5">
-                {data?.stepNumber || 4}. {data?.label}
+                {data?.label}
             </Typography>
 
             <Divider />

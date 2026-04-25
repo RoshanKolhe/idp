@@ -74,7 +74,7 @@ export default function CustomWorkflowNode({ data }) {
                 <IconButton size="small">
                     <Iconify icon="mdi:cog-outline" fontSize={18} />
                 </IconButton>
-                <IconButton size="small">
+                <IconButton onClick={() => {data?.functions?.deleteNode(data.id, data.label)}} size="small">
                     <Iconify icon="mdi:delete-outline" fontSize={18} />
                 </IconButton>
             </Box>

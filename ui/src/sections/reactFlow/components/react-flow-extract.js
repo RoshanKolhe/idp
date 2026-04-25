@@ -144,7 +144,7 @@ export default function ReactFlowExtract({ data }) {
     return (
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
-            <Typography variant='h5'>3. {data.label}</Typography>
+            <Typography variant='h5'>{data.label}</Typography>
             {values.categories?.length > 0 && values.categories?.map((cat) => ((
                 <Stack key={cat.id} direction='column' spacing={1}>
                     <Typography sx={{ fontWeight: 'bold' }} variant='H4'>{cat?.documentType}</Typography>

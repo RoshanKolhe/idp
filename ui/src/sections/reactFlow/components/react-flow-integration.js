@@ -167,7 +167,7 @@ export default function ReactFlowIntegration({ data }) {
   return (
     <Stack sx={{ marginTop: 3 }} spacing={1}>
       <ReactFlowCustomNodeStructure data={data} />
-      <Typography variant="h5">{data?.stepNumber || 6}. {data?.label}</Typography>
+      <Typography variant="h5">{data?.label}</Typography>
       <Divider />
       <Typography variant="body1"><b>Method:</b> {METHOD_OPTIONS.find((m) => m.value === Number(values.method))?.label || "-"}</Typography>
       <Typography variant="body1"><b>URL:</b> {values.url || "-"}</Typography>

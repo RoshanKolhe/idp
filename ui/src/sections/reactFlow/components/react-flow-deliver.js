@@ -198,7 +198,7 @@ export default function ReactFlowDeliver({ data }) {
     return (
         <Stack sx={{ marginTop: 3 }} spacing={1}>
             <ReactFlowCustomNodeStructure data={data} />
-            <Typography variant='h5'>5. {data.label}</Typography>
+            <Typography variant='h5'>{data.label}</Typography>
             {values.channelType !== '' && <Typography variant='h6'>{channelOptions.find((channel) => channel.value === values.channelType).label}</Typography>}
             {getComponent(values)}
             {
