@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils

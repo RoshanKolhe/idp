@@ -168,8 +168,12 @@ export default function ProcessInstanceLogsListView() {
   useEffect(() => {
     if (processInstanceLogs) {
       setTableData(processInstanceLogs);
+      setInterval(() => {
+        refreshProcessInstanceLogs();
+      }, 20000)
     }
-  }, [processInstanceLogs]);
+  }, [processInstanceLogs, refreshProcessInstanceLogs]);
+
 
   return (
     <>
