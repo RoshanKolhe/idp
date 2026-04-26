@@ -13,22 +13,21 @@ export default function ReactFlowProcessInstanceView() {
 
     return (
         <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-            <CustomBreadcrumbs
-                heading="Intelligent Document Processing"
-                links={[
-                    { name: currentProcessInstance?.processes?.name },
-                    { name: currentProcessInstance?.processInstanceName }
-                ]}
-            />
-            
-            {/* <Box component='div' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <Box component='div' sx={{ display: 'flex', alignItems: 'start', gap: '10px', width: '100%' }}>
+                <CustomBreadcrumbs
+                    heading="Intelligent Document Processing"
+                    links={[
+                        { name: currentProcessInstance?.processes?.name },
+                        { name: currentProcessInstance?.processInstanceName }
+                    ]}
+                />
+
                 <Box component='div' sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <IconButton sx={{ paddingLeft: '0px' }}>
                         <Iconify color='#292D32' icon="mdi:keyboard-backspace" width={24} />
                     </IconButton>
-                    <Typography sx={{ fontWeight: 'normal' }} variant="h5">Define Process Flow</Typography>
                 </Box>
-            </Box> */}
+            </Box>
 
             <ReactFlowProcessInstanceBoard currentProcessInstance={currentProcessInstance} isUnlock={false} />
         </Container>
