@@ -2,13 +2,17 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { LoadingButton } from "@mui/lab";
 import { Button, Grid, Stack, Typography } from "@mui/material";
 import PropTypes from "prop-types"
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import FormProvider, { RHFUpload } from "src/components/hook-form";
+import { useSnackbar } from "src/components/snackbar";
 import axiosInstance from "src/utils/axios";
 import * as Yup from 'yup';
 
 export default function ProcessInstanceUploadDoc({ handleClose, data }) {
+    const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+    const { enqueueSnackbar } = useSnackbar();
+
     const fetchDocs = async (foldername) => {
         try {
             const response = await axiosInstance.get(`/files/${foldername}`);
@@ -48,9 +52,7 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
     });
 
     const {
-        reset,
         watch,
-        control,
         setValue,
         getValues,
         handleSubmit,
@@ -77,6 +79,7 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                 formData.append('files[]', file);
             });
             try {
+                setIsUploadingFiles(true);
                 const response = await axiosInstance.post(`/files/${data?.processInstanceFolderName}`, formData);
                 const newFiles = response?.data.files.map((res) => res.fileUrl);
 
@@ -85,11 +88,17 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                 setValue('files', [...currentFiles, ...newFiles], {
                     shouldValidate: true,
                 });
+                enqueueSnackbar('Files uploaded successfully');
             } catch (err) {
                 console.error('Error uploading files:', err);
+                enqueueSnackbar(err?.error?.message || 'Error uploading files', {
+                    variant: 'error',
+                });
+            } finally {
+                setIsUploadingFiles(false);
             }
         },
-        [getValues, setValue, data]
+        [data, enqueueSnackbar, getValues, setValue]
     );
 
     const handleRemoveFile = useCallback(
@@ -113,6 +122,9 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                         multiple
                         thumbnail
                         name="files"
+                        disabled={isUploadingFiles}
+                        loading={isUploadingFiles}
+                        loadingText="Uploading files. Large files can take a moment..."
                         maxSize={104857600}
                         accept={{
                             'application/pdf': [],
@@ -125,17 +137,17 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                             // 'text/plain': [],
                         }}
                         onDrop={handleDrop}
-                        onRemove={handleRemoveFile}
-                        onRemoveAll={handleRemoveAllFiles}
+                        onRemove={isUploadingFiles ? undefined : handleRemoveFile}
+                        onRemoveAll={isUploadingFiles ? undefined : handleRemoveAllFiles}
                         sx={{ mb: 3 }}
                     />
                 </Grid>
             </Grid>
             <Stack direction='row' spacing={1} sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <LoadingButton type="submit" variant="contained" color='primary' loading={isSubmitting}>
+                <LoadingButton type="submit" variant="contained" color='primary' loading={isSubmitting || isUploadingFiles}>
                     Upload
                 </LoadingButton>
-                <Button onClick={handleClose} variant="outlined" color='primary'>Close</Button>
+                <Button onClick={handleClose} variant="outlined" color='primary' disabled={isUploadingFiles}>Close</Button>
             </Stack>
         </FormProvider>
     )

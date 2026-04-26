@@ -93,7 +93,7 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
         processInstanceName: formData.processInstanceName,
         processInstanceDescription: formData.processInstanceDescription,
         processesId: formData.processes.id,
-        isInstanceRunning: false,
+        isInstanceRunning: true,
         isActive: currentProcessInstance ? formData.isActive : true,
       };
 

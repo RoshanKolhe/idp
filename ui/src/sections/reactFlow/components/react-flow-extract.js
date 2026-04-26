@@ -151,7 +151,7 @@ export default function ReactFlowExtract({ data }) {
                     <Typography sx={{ fontWeight: 'bold' }} variant='H4'>{cat?.documentType}</Typography>
                     <Stack sx={{ ml: 1 }} direction='column' spacing={1}>
                         <Typography variant='H5'>{modelOptions.find((model) => model.value === values.extractors?.[cat.id])?.label}</Typography>
-                        <Typography variant="body1"><a href='#' target="_blank" rel="noopener noreferrer">{values.extractorFields?.[cat?.id]?.length} Fields</a> to be extracted</Typography>
+                        <Typography variant="body1">{values.extractorFields?.[cat?.id]?.length} Fields to be extracted</Typography>
                     </Stack>
                 </Stack>
             )))}

@@ -5,6 +5,7 @@ import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 // assets
@@ -20,6 +21,8 @@ import SingleFilePreview from './preview-single-file';
 
 export default function Upload({
   disabled,
+  loading = false,
+  loadingText = 'Uploading file...',
   multiple = false,
   error,
   helperText,
@@ -37,7 +40,7 @@ export default function Upload({
 }) {
   const { getRootProps, getInputProps, isDragActive, isDragReject, fileRejections } = useDropzone({
     multiple,
-    disabled,
+    disabled: disabled || loading,
     ...other,
   });
 
@@ -67,6 +70,25 @@ export default function Upload({
           thorough your machine
         </Typography>
       </Stack>
+    </Stack>
+  );
+
+  const renderLoading = loading && (
+    <Stack
+      spacing={2}
+      alignItems="center"
+      justifyContent="center"
+      sx={{
+        inset: 0,
+        zIndex: 1,
+        position: 'absolute',
+        bgcolor: (theme) => alpha(theme.palette.background.paper, 0.72),
+      }}
+    >
+      <CircularProgress size={32} />
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        {loadingText}
+      </Typography>
     </Stack>
   );
 
@@ -158,6 +180,7 @@ export default function Upload({
         <input {...getInputProps()} />
 
         {hasFile ? renderSinglePreview : renderPlaceholder}
+        {renderLoading}
       </Box>
 
       {removeSinglePreview}
@@ -172,11 +195,13 @@ export default function Upload({
 }
 
 Upload.propTypes = {
-  disabled: PropTypes.object,
+  disabled: PropTypes.bool,
   error: PropTypes.bool,
   file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   files: PropTypes.array,
   helperText: PropTypes.object,
+  loading: PropTypes.bool,
+  loadingText: PropTypes.string,
   multiple: PropTypes.bool,
   onDelete: PropTypes.func,
   onRemove: PropTypes.func,
