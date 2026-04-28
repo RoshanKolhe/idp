@@ -129,7 +129,8 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                                                             doc?.extractedFields.map((field) => (
                                                                 <Box
                                                                     key={`${field?.fieldName}-${field?.fieldValue}`}
-                                                                    onClick={() => {
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
                                                                         if (field?.pageNumber) {
                                                                             setTargetPage(Number(field.pageNumber));
                                                                         }
@@ -144,14 +145,16 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                                                                     }}
                                                                 >
                                                                     <Box component='div' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                                        <Typography variant="caption" color="text.secondary">
-                                                                            {field?.fieldName}
-                                                                        </Typography>
-                                                                        {field?.pageNumber && (
-                                                                            <Typography variant="caption" color="primary">
-                                                                                Page {field.pageNumber}
+                                                                        <Stack direction='column' spacing={1}>
+                                                                            <Typography variant="caption" color="text.secondary">
+                                                                                {field?.fieldName}
                                                                             </Typography>
-                                                                        )}
+                                                                            {field?.pageNumber && (
+                                                                                <Typography variant="caption" color="primary">
+                                                                                    Page {field.pageNumber}
+                                                                                </Typography>
+                                                                            )}
+                                                                        </Stack>
                                                                         <Typography variant="caption" color="text.secondary">
                                                                             Score: <span style={{ color: 'royalblue' }}>{field?.fieldScore || 'NA'}</span>
                                                                         </Typography>

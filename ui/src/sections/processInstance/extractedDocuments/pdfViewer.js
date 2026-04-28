@@ -15,6 +15,12 @@ export default function PdfViewer({ docUrl, targetPage = 1 }) {
 
   function onDocumentLoadSuccess({ numPages }) {
     setNoOfPages(numPages);
+
+    if (targetPage && targetPage <= numPages) {
+      setPageNumber(targetPage);
+    } else {
+      setPageNumber(1);
+    }
   }
 
   useEffect(() => {
@@ -31,10 +37,13 @@ export default function PdfViewer({ docUrl, targetPage = 1 }) {
   }, []);
 
   useEffect(() => {
-    if (targetPage) {
+    if (
+      targetPage &&
+      (!noOfPages || targetPage <= noOfPages)
+    ) {
       setPageNumber(targetPage);
     }
-  }, [targetPage]);
+  }, [targetPage, noOfPages]);
 
   const goToPrevPage = () => {
     setPageNumber(prev => Math.max(prev - 1, 1));
@@ -79,7 +88,11 @@ export default function PdfViewer({ docUrl, targetPage = 1 }) {
       {/* eslint-disable-next-line react/jsx-no-bind */}
       <Document file={docUrl} onLoadSuccess={onDocumentLoadSuccess}>
         {containerWidth && (
-          <Page pageNumber={pageNumber} width={containerWidth} />
+          <Page
+            key={`page_${pageNumber}`}
+            pageNumber={pageNumber}
+            width={containerWidth}
+          />
         )}
       </Document>
     </div>
