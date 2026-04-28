@@ -146,22 +146,22 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                                                                 >
                                                                     <Box component='div' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                                         <Stack direction='column' spacing={1}>
-                                                                            <Typography variant="caption" color="text.secondary">
-                                                                                {field?.fieldName}
-                                                                            </Typography>
                                                                             {field?.pageNumber && (
                                                                                 <Typography variant="caption" color="primary">
                                                                                     Page {field.pageNumber}
                                                                                 </Typography>
                                                                             )}
+                                                                            <Typography variant="caption" color="text.secondary">
+                                                                                {field?.fieldName}
+                                                                            </Typography>
+                                                                            <Typography variant="body2" color="text.primary">
+                                                                                {field?.fieldValue}
+                                                                            </Typography>
                                                                         </Stack>
                                                                         <Typography variant="caption" color="text.secondary">
                                                                             Score: <span style={{ color: 'royalblue' }}>{field?.fieldScore || 'NA'}</span>
                                                                         </Typography>
                                                                     </Box>
-                                                                    <Typography variant="body2" color="text.primary">
-                                                                        {field?.fieldValue}
-                                                                    </Typography>
                                                                 </Box>
                                                             ))
                                                         ) : (
