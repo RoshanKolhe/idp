@@ -537,7 +537,7 @@ export class ProcessInstancesController {
       });
 
       const workflowBody = Object.fromEntries(
-        allExtractedFields.map((f: any) => [f.fieldName, f.fieldValue])
+        allExtractedFields.map((f: any) => [f.fieldName, String(f.fieldValue)])
       );
 
       if (response && response?.data?.success) {
