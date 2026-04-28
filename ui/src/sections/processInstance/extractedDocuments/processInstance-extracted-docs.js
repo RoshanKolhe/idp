@@ -10,6 +10,7 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
     const [isOpen, setIsOpen] = useState(false);
     const [documentsData, setDocumentsData] = useState([]);
     const [selectedDocumentId, setSelectedDocumentId] = useState(null);
+    const [targetPage, setTargetPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -36,7 +37,10 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                     {documentsData.length > 0 ? documentsData.map((doc) => (
                         <Card
                             key={doc.id}
-                            onClick={() => setSelectedDocumentId(doc)}
+                            onClick={() => {
+                                setSelectedDocumentId(doc);
+                                setTargetPage(1);
+                            }}
                             sx={{
                                 border: selectedDocumentId?.id === doc.id ? '2px solid royalBlue' : '1px solid #e0e0e0',
                                 borderRadius: 3,
@@ -123,11 +127,31 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                                                     <Stack spacing={1} direction="column" sx={{ overflow: 'hidden' }}>
                                                         {doc?.extractedFields && doc?.extractedFields?.length > 0 ? (
                                                             doc?.extractedFields.map((field) => (
-                                                                <Box key={field?.fieldValue}>
+                                                                <Box
+                                                                    key={`${field?.fieldName}-${field?.fieldValue}`}
+                                                                    onClick={() => {
+                                                                        if (field?.pageNumber) {
+                                                                            setTargetPage(Number(field.pageNumber));
+                                                                        }
+                                                                    }}
+                                                                    sx={{
+                                                                        cursor: field?.pageNumber ? 'pointer' : 'default',
+                                                                        p: 1,
+                                                                        borderRadius: 1,
+                                                                        '&:hover': {
+                                                                            backgroundColor: field?.pageNumber ? '#f5f8ff' : 'transparent'
+                                                                        }
+                                                                    }}
+                                                                >
                                                                     <Box component='div' sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                                         <Typography variant="caption" color="text.secondary">
                                                                             {field?.fieldName}
                                                                         </Typography>
+                                                                        {field?.pageNumber && (
+                                                                            <Typography variant="caption" color="primary">
+                                                                                Page {field.pageNumber}
+                                                                            </Typography>
+                                                                        )}
                                                                         <Typography variant="caption" color="text.secondary">
                                                                             Score: <span style={{ color: 'royalblue' }}>{field?.fieldScore || 'NA'}</span>
                                                                         </Typography>
@@ -169,7 +193,10 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                             backgroundColor: '#f9f9f9'
                         }}
                     >
-                        <PdfViewer docUrl={selectedDocumentId.fileDetails.fileUrl} />
+                        <PdfViewer
+                            docUrl={selectedDocumentId.fileDetails.fileUrl}
+                            targetPage={targetPage}
+                        />
                     </Box>
                 ) : (
                     <Typography variant="h4">No Document</Typography>

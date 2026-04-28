@@ -7,7 +7,7 @@ import Iconify from 'src/components/iconify';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export default function PdfViewer({ docUrl }) {
+export default function PdfViewer({ docUrl, targetPage = 1 }) {
   const [noOfPages, setNoOfPages] = useState();
   const [pageNumber, setPageNumber] = useState(1);
   const [containerWidth, setContainerWidth] = useState(null);
@@ -29,6 +29,12 @@ export default function PdfViewer({ docUrl }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    if (targetPage) {
+      setPageNumber(targetPage);
+    }
+  }, [targetPage]);
 
   const goToPrevPage = () => {
     setPageNumber(prev => Math.max(prev - 1, 1));
@@ -82,4 +88,5 @@ export default function PdfViewer({ docUrl }) {
 
 PdfViewer.propTypes = {
   docUrl: PropTypes.string.isRequired,
+  targetPage: PropTypes.number,
 };
