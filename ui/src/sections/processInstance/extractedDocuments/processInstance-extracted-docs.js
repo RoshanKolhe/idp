@@ -128,7 +128,10 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                                                         {doc?.extractedFields && doc?.extractedFields?.length > 0 ? (
                                                             doc?.extractedFields.map((field) => (
                                                                 <Box
-                                                                    key={`${field?.fieldName}-${field?.fieldValue}`}
+                                                                    key={`${field?.fieldName}-${typeof field?.fieldValue === "object"
+                                                                        ? JSON.stringify(field?.fieldValue)
+                                                                        : field?.fieldValue
+                                                                        }`}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         if (field?.pageNumber) {
@@ -154,9 +157,23 @@ export default function ProcessInstanceExtractedDocuments({ currentDocs }) {
                                                                             <Typography variant="caption" color="text.secondary">
                                                                                 {field?.fieldName}
                                                                             </Typography>
-                                                                            <Typography variant="body2" color="text.primary">
-                                                                                {field?.fieldValue}
-                                                                            </Typography>
+                                                                            {typeof field?.fieldValue === "object" ? (
+                                                                                <Stack spacing={0.5}>
+                                                                                    {Object.entries(field.fieldValue).map(([key, value]) => (
+                                                                                        <Typography
+                                                                                            key={key}
+                                                                                            variant="body2"
+                                                                                            color="text.primary"
+                                                                                        >
+                                                                                            <strong>{key}:</strong> {value}
+                                                                                        </Typography>
+                                                                                    ))}
+                                                                                </Stack>
+                                                                            ) : (
+                                                                                <Typography variant="body2" color="text.primary">
+                                                                                    {field?.fieldValue}
+                                                                                </Typography>
+                                                                            )}
                                                                         </Stack>
                                                                         <Typography variant="caption" color="text.secondary">
                                                                             Score: <span style={{ color: 'royalblue' }}>{field?.fieldScore || 'NA'}</span>
