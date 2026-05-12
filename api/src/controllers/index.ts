@@ -29,3 +29,4 @@ export * from './escalation-user.controller';
 export * from './process-instance-transactions.controller';
 export * from './process-template.controller';
 export * from './processes-process-templates.controller';
+export * from './idp-dashboard.controller';

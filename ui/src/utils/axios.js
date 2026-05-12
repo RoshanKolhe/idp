@@ -67,6 +67,10 @@ export const endpoints = {
     login: '/login',
     register: '/register',
   },
+  dashboard: {
+    idpCounts: (filter) => `/dashboard/idp-counts${filter ? `?${filter}` : ''}`,
+    workflowCounts: (filter) => `/dashboard/workflow-counts${filter ? `?${filter}` : ''}`,
+  },
   processType: {
     list: '/process-types',
     filterList: (filter) => `/process-types?${filter}`,

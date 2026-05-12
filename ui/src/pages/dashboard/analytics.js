@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
+import OverviewAnalyticsView from 'src/sections/overview/analytics/view/overview-analytics-view';
 // sections
-import { OverviewAnalyticsView } from 'src/sections/overview/analytics/view';
 
 // ----------------------------------------------------------------------
 
@@ -8,7 +8,7 @@ export default function OverviewAnalyticsPage() {
   return (
     <>
       <Helmet>
-        <title> Dashboard: Analytics</title>
+        <title> Dashboard</title>
       </Helmet>
 
       <OverviewAnalyticsView />
