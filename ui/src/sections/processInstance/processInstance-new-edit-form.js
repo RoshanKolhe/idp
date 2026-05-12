@@ -16,10 +16,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, {
-  RHFTextField,
-  RHFAutocomplete,
-} from 'src/components/hook-form';
+import FormProvider, { RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import axiosInstance from 'src/utils/axios';
 import ProcessInstanceUploadDoc from './component/processInstance-upload-doc';
 import ProcessInstanceCredentials from './component/processInstance-api-section';
@@ -29,10 +26,20 @@ import ProcessInstanceCredentials from './component/processInstance-api-section'
 function SwitchComponent({ channelType, extraDetails }) {
   switch (channelType) {
     case 'ui':
-      return <ProcessInstanceUploadDoc handleClose={extraDetails?.handleClose} data={extraDetails?.processInstanceData} />;
+      return (
+        <ProcessInstanceUploadDoc
+          handleClose={extraDetails?.handleClose}
+          data={extraDetails?.processInstanceData}
+        />
+      );
 
     case 'api':
-      return <ProcessInstanceCredentials handleClose={extraDetails?.handleClose} data={extraDetails?.processInstanceData} />;
+      return (
+        <ProcessInstanceCredentials
+          handleClose={extraDetails?.handleClose}
+          data={extraDetails?.processInstanceData}
+        />
+      );
 
     default:
       return null;
@@ -40,9 +47,8 @@ function SwitchComponent({ channelType, extraDetails }) {
 }
 SwitchComponent.propTypes = {
   channelType: PropTypes.string,
-  extraDetails: PropTypes.object
-}
-
+  extraDetails: PropTypes.object,
+};
 
 export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
   const router = useRouter();
@@ -57,7 +63,7 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
       .max(50, 'Maximum 50 characters allowed')
       .matches(/^[A-Za-z0-9_ ]+$/, 'Only letters, numbers and underscore (_) are allowed'),
     processInstanceDescription: Yup.string(),
-    processes: Yup.object().required("Please select process"),
+    processes: Yup.object().required('Please select process'),
   });
 
   const defaultValues = useMemo(
@@ -115,14 +121,17 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
 
         enqueueSnackbar(currentProcessInstance ? 'Update success!' : 'Create success!');
 
-        if ((ingestionNode?.component?.channelType === 'ui' || ingestionNode?.component?.channelType === 'api')) {
-          setChannelType(ingestionNode?.component?.channelType ? ingestionNode?.component?.channelType : '');
-          setExtraDetailsData(
-            {
-              handleClose,
-              processInstanceData: processData
-            }
+        if (
+          ingestionNode?.component?.channelType === 'ui' ||
+          ingestionNode?.component?.channelType === 'api'
+        ) {
+          setChannelType(
+            ingestionNode?.component?.channelType ? ingestionNode?.component?.channelType : ''
           );
+          setExtraDetailsData({
+            handleClose,
+            processInstanceData: processData,
+          });
         } else {
           reset();
           router.push(paths.dashboard.processesInstance.list);
@@ -141,12 +150,15 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
     router.push(paths.dashboard.processesInstance.list);
     setChannelType('');
     setExtraDetailsData(null);
-  }, [reset, router])
+  }, [reset, router]);
 
   useEffect(() => {
     if (currentProcessInstance) {
       reset(defaultValues);
-      setValue('processes', currentProcessInstance?.processes ? currentProcessInstance?.processes : null);
+      setValue(
+        'processes',
+        currentProcessInstance?.processes ? currentProcessInstance?.processes : null
+      );
       setProcessesData((prev) => [...prev, currentProcessInstance?.processes]);
     }
     fetchProcesses('');
@@ -157,40 +169,41 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
       const bluePrint = currentProcessInstance?.processes?.bluePrint?.bluePrint ?? [];
       const ingestionNode = bluePrint?.find((node) => node?.nodeName === 'Ingestion');
 
-      if ((ingestionNode?.component?.channelType === 'ui' || ingestionNode?.component?.channelType === 'api')) {
-        setChannelType(ingestionNode?.component?.channelType ? ingestionNode?.component?.channelType : '');
-        setExtraDetailsData(
-          {
-            handleClose,
-            processInstanceData: currentProcessInstance
-          }
+      if (
+        ingestionNode?.component?.channelType === 'ui' ||
+        ingestionNode?.component?.channelType === 'api'
+      ) {
+        setChannelType(
+          ingestionNode?.component?.channelType ? ingestionNode?.component?.channelType : ''
         );
+        setExtraDetailsData({
+          handleClose,
+          processInstanceData: currentProcessInstance,
+        });
       }
     }
-  }, [currentProcessInstance, handleClose])
+  }, [currentProcessInstance, handleClose]);
 
   const fetchProcesses = async (searchTerm) => {
     try {
       let filter = {
         where: {
-          and: [
-            { isDeleted: false },
-            { isActive: true }
-          ]
+          and: [{ isDeleted: false }, { isActive: true }],
         },
-        limit: 10
-      }
+        limit: 10,
+        order: ['createdAt DESC'],
+      };
       if (searchTerm.length > 0) {
         filter = {
           where: {
             and: [
               { name: { like: `%${searchTerm || ''}%` } },
               { isDeleted: false },
-              { isActive: true }
-            ]
-          }
-        }
-      };
+              { isActive: true },
+            ],
+          },
+        };
+      }
 
       const filterString = encodeURIComponent(JSON.stringify(filter));
       const { data } = await axiosInstance.get(`/processes?filter=${filterString}`);
@@ -198,7 +211,7 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
     } catch (error) {
       console.error('error while fetching processes', error);
     }
-  }
+  };
 
   return (
     <>
@@ -215,12 +228,15 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
                   <RHFAutocomplete
                     name="processes"
                     label="Select Process *"
+                    placeholder="Select Process or Search Process *"
                     options={processesData || []}
                     onInputChange={(event) => fetchProcesses(event?.target?.value)}
                     getOptionLabel={(option) => `${option?.name}` || ''}
                     isOptionEqualToValue={(option, value) => option?.id === value.id}
                     filterOptions={(options, { inputValue }) =>
-                      options?.filter((option) => option?.name?.toLowerCase().includes(inputValue?.toLowerCase()))
+                      options?.filter((option) =>
+                        option?.name?.toLowerCase().includes(inputValue?.toLowerCase())
+                      )
                     }
                     renderOption={(props, option) => (
                       <li {...props}>
@@ -231,25 +247,36 @@ export default function ProcessInstanceNewEditForm({ currentProcessInstance }) {
                         </div>
                       </li>
                     )}
-
                   />
                 </Grid>
 
                 <Grid item xs={12} sm={12}>
-                  <RHFTextField multiline rows={3} name="processInstanceDescription" label="Process Instance Description" />
+                  <RHFTextField
+                    multiline
+                    rows={3}
+                    name="processInstanceDescription"
+                    label="Process Instance Description"
+                  />
                 </Grid>
               </Grid>
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                {((!currentProcessInstance && channelType === '') || (currentProcessInstance)) && <LoadingButton type="submit" variant="contained" color='primary' loading={isSubmitting}>
-                  {!currentProcessInstance ? 'Create Process Instance' : 'Save Changes'}
-                </LoadingButton>}
+                {((!currentProcessInstance && channelType === '') || currentProcessInstance) && (
+                  <LoadingButton
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    loading={isSubmitting}
+                  >
+                    {!currentProcessInstance ? 'Create Process Instance' : 'Save Changes'}
+                  </LoadingButton>
+                )}
               </Stack>
             </Card>
           </Grid>
         </Grid>
       </FormProvider>
-      <Box component='div' sx={{ mt: 2 }}>
+      <Box component="div" sx={{ mt: 2 }}>
         <SwitchComponent channelType={channelType} extraDetails={extraDetailsData} />
       </Box>
     </>
