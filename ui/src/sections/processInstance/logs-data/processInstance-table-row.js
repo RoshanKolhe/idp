@@ -70,7 +70,7 @@ export default function ProcessInstanceTableRow({
               currentStage
                 ? currentStage?.toLowerCase() === 'completed'
                   ? 'success' // Completed
-                  : currentStage?.toLowerCase() === 'error' // Error
+                  : currentStage?.toLowerCase() === 'failed' // Error
                     ? 'error' // Running
                     : 'warning'   // Failed
                 : 'info'
