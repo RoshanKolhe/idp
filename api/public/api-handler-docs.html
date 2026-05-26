@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IDP API Handler – File Upload API Docs</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --panel: #121a33;
+        --text: #e9ecf5;
+        --muted: #b6bfdc;
+        --accent: #7aa2ff;
+        --border: rgba(255, 255, 255, 0.08);
+        --code: #0a0f1f;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+        color: var(--text);
+        background: radial-gradient(1000px 600px at 10% 0%, #18224a 0%, var(--bg) 40%),
+          var(--bg);
+      }
+      header {
+        padding: 32px 16px 12px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.04), transparent);
+      }
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 24px 16px 64px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 26px;
+        letter-spacing: 0.2px;
+      }
+      .sub {
+        color: var(--muted);
+        margin: 0;
+        line-height: 1.5;
+      }
+      section {
+        margin-top: 22px;
+        padding: 18px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+      h3 {
+        margin: 16px 0 8px;
+        font-size: 14px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      pre {
+        background: var(--code);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+        overflow: auto;
+        line-height: 1.45;
+        margin: 10px 0 0;
+      }
+      .grid {
+        display: grid;
+        gap: 12px;
+      }
+      @media (min-width: 860px) {
+        .grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .pill {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 12px;
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+      ul {
+        margin: 10px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+      .k {
+        color: var(--text);
+      }
+      footer {
+        color: var(--muted);
+        margin-top: 18px;
+        font-size: 13px;
+      }
+      .warn {
+        border-left: 3px solid #ffd27a;
+        padding: 10px 12px;
+        background: rgba(255, 210, 122, 0.08);
+        border-radius: 10px;
+        color: var(--muted);
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <main>
+        <h1>IDP API Handler – File Upload APIs</h1>
+        <p class="sub">
+          Use these endpoints to upload and fetch files for an <span class="k">API</span>
+          channel Process Instance. The API validates your token and restricts access
+          to the Process Instance folder.
+        </p>
+        <p class="sub">
+          This page is served from the backend public folder. If your backend base URL
+          is <code>http://localhost:3000</code>, open:
+          <code>/api-handler-docs.html</code>
+        </p>
+      </main>
+    </header>
+
+    <main>
+      <section>
+        <h2>Base URL</h2>
+        <p class="sub">
+          Replace <code>{{BASE_URL}}</code> in examples with your backend URL (example:
+          <code>http://localhost:3000</code>).
+        </p>
+        <pre><code>{{BASE_URL}} = http://localhost:3000</code></pre>
+      </section>
+
+      <section>
+        <h2>Authentication</h2>
+        <p class="sub">
+          Pass the Process Instance token in one of the following ways:
+        </p>
+        <ul>
+          <li><span class="k">Recommended:</span> <code>Authorization: Bearer &lt;token&gt;</code></li>
+          <li>Or header: <code>token: &lt;token&gt;</code></li>
+          <li>Or query: <code>?token=&lt;token&gt;</code></li>
+        </ul>
+        <div class="warn">
+          Token is generated when you create an API-channel Process Instance (short-lived),
+          and you can optionally generate a long-lived token (60 days) using the endpoint below.
+        </div>
+      </section>
+
+      <section>
+        <h2>1) Verify Token</h2>
+        <span class="pill">GET</span> <code>/api-handler/verify-token</code>
+        <pre><code>curl -s "{{BASE_URL}}/api-handler/verify-token" \
+  -H "Authorization: Bearer &lt;token&gt;"</code></pre>
+        <footer>Returns: <code>{ valid, processInstanceId, processInstanceName, processId, folderName }</code></footer>
+      </section>
+
+      <section>
+        <h2>2) Generate Long-lived Token</h2>
+        <span class="pill">POST</span> <code>/api-handler/generate-lived-token</code>
+        <pre><code>curl -s -X POST "{{BASE_URL}}/api-handler/generate-lived-token" \
+  -H "Authorization: Bearer &lt;token&gt;" \
+  -H "Content-Type: application/json" \
+  -d "{}"</code></pre>
+        <footer>Returns: <code>{ longLivedToken, folderName }</code></footer>
+      </section>
+
+      <section>
+        <h2>3) Upload Files</h2>
+        <p class="sub">
+          Upload files to the Process Instance folder using multipart/form-data.
+          Folder access is restricted to the folder bound to your token.
+        </p>
+        <span class="pill">POST</span>
+        <code>/api-handler/files/{folderName}</code>
+        <pre><code>curl -s -X POST "{{BASE_URL}}/api-handler/files/{folderName}" \
+  -H "Authorization: Bearer &lt;token&gt;" \
+  -F "files=@C:\path\to\document1.pdf" \
+  -F "files=@C:\path\to\image1.png"</code></pre>
+        <footer>Returns: uploaded file metadata + URLs.</footer>
+      </section>
+
+      <section>
+        <h2>4) List Files</h2>
+        <div class="grid">
+          <div>
+            <h3>List my folder</h3>
+            <span class="pill">GET</span> <code>/api-handler/files</code>
+            <pre><code>curl -s "{{BASE_URL}}/api-handler/files" \
+  -H "Authorization: Bearer &lt;token&gt;"</code></pre>
+          </div>
+          <div>
+            <h3>List specific folder</h3>
+            <span class="pill">GET</span> <code>/api-handler/files/{folderName}</code>
+            <pre><code>curl -s "{{BASE_URL}}/api-handler/files/{folderName}" \
+  -H "Authorization: Bearer &lt;token&gt;"</code></pre>
+          </div>
+        </div>
+        <footer>Returns: <code>[ "file1.ext", "file2.ext", ... ]</code></footer>
+      </section>
+
+      <section>
+        <h2>5) Download File</h2>
+        <span class="pill">GET</span>
+        <code>/api-handler/files/{folderName}/{fileName}</code>
+        <pre><code>curl -L "{{BASE_URL}}/api-handler/files/{folderName}/{fileName}" \
+  -H "Authorization: Bearer &lt;token&gt;" \
+  -o "{fileName}"</code></pre>
+      </section>
+
+      <section>
+        <h2>6) Webhook “Get Info”</h2>
+        <p class="sub">
+          Returns ready-to-use URL templates and headers to help integrate with HTTP/HTTPS webhook tools.
+        </p>
+        <span class="pill">GET</span> <code>/api-handler/webhook/get-info</code>
+        <pre><code>curl -s "{{BASE_URL}}/api-handler/webhook/get-info" \
+  -H "Authorization: Bearer &lt;token&gt;"</code></pre>
+      </section>
+    </main>
+  </body>
+</html>

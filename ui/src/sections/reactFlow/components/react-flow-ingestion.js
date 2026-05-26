@@ -6,7 +6,7 @@ import * as Yup from 'yup';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { Button, Divider, Grid, MenuItem, Stack, Typography } from "@mui/material";
+import { Alert, Button, Divider, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import FormProvider, { RHFSelect } from "src/components/hook-form";
@@ -108,6 +108,7 @@ export default function ReactFlowIngestion({ data }) {
     const [isOpen, setIsOpen] = useState(false);
     const [logsOpen, setLogsOpen] = useState(false);
     const [dynamicSchema, setDynamicSchema] = useState(getValidationSchema(''));
+    const apiDocsUrl = `${process.env.REACT_APP_HOST_API || ''}/api-handler-docs.html`;
 
     const defaultValues = useMemo(
         () => ({
@@ -206,6 +207,31 @@ export default function ReactFlowIngestion({ data }) {
                                 }
                             </RHFSelect>
                         </Grid>
+
+                        {values.channelType === 'ui' && (
+                            <Grid item xs={12}>
+                                <Alert severity="info">
+                                    <Typography variant="body2">
+                                        Next steps (UI/Portal): create a Process Instance, then upload documents from the
+                                        Process Instance page using the upload option.
+                                    </Typography>
+                                </Alert>
+                            </Grid>
+                        )}
+
+                        {values.channelType === 'api' && (
+                            <Grid item xs={12}>
+                                <Alert severity="info">
+                                    <Typography variant="body2">
+                                        Next steps (API): create a Process Instance, open <b>API credentials</b> to get the
+                                        secret key + access token, then call the file upload APIs using the token.
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mt: 1 }}>
+                                        Docs: <span style={{ fontFamily: 'monospace' }}>{apiDocsUrl}</span>
+                                    </Typography>
+                                </Alert>
+                            </Grid>
+                        )}
                     </Grid>
 
                     <Grid container spacing={1}>

@@ -130,4 +130,39 @@ export class JWTService {
     return token;
   }
 
+  async verifyProcessInstanceToken(token: string): Promise<{
+    processInstanceId: number,
+    processInstanceName: string,
+    processInstanceSecretKey: string,
+    processId: number
+  }> {
+    if (!token) {
+      throw new HttpErrors.Unauthorized(
+        "Error verifying token: 'token is null'",
+      );
+    }
+
+    try {
+      const decryptedToken = await verifyAsync(token, 'idp-process-instance');
+
+      if (
+        !decryptedToken?.processInstanceId ||
+        !decryptedToken?.processInstanceSecretKey
+      ) {
+        throw new HttpErrors.Unauthorized('Invalid process instance token');
+      }
+
+      return {
+        processInstanceId: decryptedToken.processInstanceId,
+        processInstanceName: decryptedToken.processInstanceName,
+        processInstanceSecretKey: decryptedToken.processInstanceSecretKey,
+        processId: decryptedToken.processId,
+      };
+    } catch (error) {
+      throw new HttpErrors.Unauthorized(
+        `Error verifying token: ${error.message}`,
+      );
+    }
+  }
+
 }
