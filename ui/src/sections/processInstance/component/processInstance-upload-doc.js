@@ -128,13 +128,9 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                         maxSize={104857600}
                         accept={{
                             'application/pdf': [],
+                            'image/*': [],
                             'application/msword': [],
                             'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
-                            // 'application/vnd.ms-excel': [],
-                            // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [],
-                            // 'application/zip': [],
-                            // 'application/x-rar-compressed': [],
-                            // 'text/plain': [],
                         }}
                         onDrop={handleDrop}
                         onRemove={isUploadingFiles ? undefined : handleRemoveFile}
