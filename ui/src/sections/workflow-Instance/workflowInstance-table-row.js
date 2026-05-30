@@ -115,6 +115,12 @@ export default function WorkflowInstanceTableRow({
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>
           </Tooltip>
+
+          <Tooltip title="Delete" placement="top" arrow>
+            <IconButton sx={ACTION_ICON_BUTTON_SX} color="error" onClick={confirm.onTrue}>
+              <Iconify icon="solar:trash-bin-trash-bold" width={20} height={20} />
+            </IconButton>
+          </Tooltip>
         </TableCell>
       </TableRow>
 

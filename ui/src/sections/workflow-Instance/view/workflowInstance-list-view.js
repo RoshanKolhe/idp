@@ -38,7 +38,8 @@ import {
 } from 'src/components/table';
 //
 import { workflowAxiosInstance } from 'src/utils/axios';
-import { useGetWorkflowInstances } from 'src/api/workflow-instance';
+import { deleteWorkflowInstance, useGetWorkflowInstances } from 'src/api/workflow-instance';
+import { useSnackbar } from 'notistack';
 import { Box, Grid, Typography } from '@mui/material';
 import WorkflowInstanceTableRow from '../workflowInstance-table-row';
 import ProcessTypeTableGrid from '../processInstance-table-grid';
@@ -64,7 +65,7 @@ const defaultFilters = {
 export default function WorkflowInstanceListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
   const [view, setView] = useState('list');
-
+  const { enqueueSnackbar } = useSnackbar();
   const settings = useSettingsContext();
 
   const router = useRouter();
@@ -106,13 +107,18 @@ export default function WorkflowInstanceListView() {
   );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteWorkflowInstance(id);
+        enqueueSnackbar('Workflow instance deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshWorkflowInstances();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete workflow instance', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshWorkflowInstances, table]
   );
 
   const handleDeleteRows = useCallback(() => {

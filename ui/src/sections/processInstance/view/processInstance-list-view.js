@@ -38,8 +38,9 @@ import {
 } from 'src/components/table';
 //
 import axiosInstance from 'src/utils/axios';
-import { useGetProcessInstances } from 'src/api/process-instance';
-import { Box, Grid, Typography } from '@mui/material';
+import { deleteProcessInstance, useGetProcessInstances } from 'src/api/process-instance';
+import { useSnackbar } from 'notistack';
+import { Grid } from '@mui/material';
 import ProcessTypeTableRow from '../processInstance-table-row';
 import ProcessTypeTableGrid from '../processInstance-table-grid';
 
@@ -50,7 +51,7 @@ const TABLE_HEAD = [
   { id: 'instanceId', label: 'Instance Id' },
   { id: 'processName', label: 'Process Name' },
   // { id: 'runningTransactions', label: 'Running Transactions' },
-  { id: '', label: 'Actions', width: 120 },
+  { id: 'actions', label: 'Actions', width: 120 },
 ];
 
 const defaultFilters = {
@@ -64,7 +65,7 @@ const defaultFilters = {
 export default function ProcessInstanceListView() {
   const table = useTable({ defaultOrderBy: 'createdAt', defaultOrder: 'desc' });
   const [view, setView] = useState('list');
-
+  const { enqueueSnackbar } = useSnackbar();
   const settings = useSettingsContext();
 
   const router = useRouter();
@@ -75,7 +76,7 @@ export default function ProcessInstanceListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { processInstances, processInstancesEmpty, refreshProcessInstances } = useGetProcessInstances();
+  const { processInstances, refreshProcessInstances } = useGetProcessInstances();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -106,13 +107,18 @@ export default function ProcessInstanceListView() {
   );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteProcessInstance(id);
+        enqueueSnackbar('Process instance deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshProcessInstances();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete process instance', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshProcessInstances, table]
   );
 
   const handleDeleteRows = useCallback(() => {

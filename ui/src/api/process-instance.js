@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ export function useGetProcessInstanceExecutionLogs(outputId) {
   const URL = outputId ? [endpoints.workflowInstance.executionLogs(outputId)] : null;
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
-    const refreshWorkflowInstanceExecutionLogs = () => {
+  const refreshWorkflowInstanceExecutionLogs = () => {
     // Use the `mutate` function to trigger a revalidation
     mutate();
   };
@@ -114,7 +114,7 @@ export function useGetProcessInstanceExecutionLogs(outputId) {
     [data, error, isLoading, isValidating]
   );
 
-  return {...memoizedValue, refreshWorkflowInstanceExecutionLogs};
+  return { ...memoizedValue, refreshWorkflowInstanceExecutionLogs };
 }
 
 // ----------------------------------------------------------------------
@@ -123,7 +123,7 @@ export function useGetProcessInstanceLogs(processInstanceId) {
   const URL = processInstanceId ? [endpoints.processInstance.logs(processInstanceId)] : null;
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
 
-    const refreshProcessInstanceLogs = () => {
+  const refreshProcessInstanceLogs = () => {
     // Use the `mutate` function to trigger a revalidation
     mutate();
   };
@@ -139,5 +139,11 @@ export function useGetProcessInstanceLogs(processInstanceId) {
     [data, error, isLoading, isValidating]
   );
 
-  return {...memoizedValue, refreshProcessInstanceLogs};
+  return { ...memoizedValue, refreshProcessInstanceLogs };
+}
+
+// ------------------------------------------------------------------------------------------------------
+
+export async function deleteProcessInstance(id) {
+  await axiosInstance.delete(endpoints.processInstance.details(id));
 }

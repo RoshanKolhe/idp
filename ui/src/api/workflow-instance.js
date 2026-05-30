@@ -97,6 +97,8 @@ export function useGetWorkflowInstanceLogs(workflowInstanceId) {
   return {...memoizedValue, refreshWorkflowInstanceLogs};
 }
 
+// ----------------------------------------------------------------------------------------------------------
+
 export function useGetWorkflowInstanceExecutionLogs(outputId) {
   const URL = outputId ? [endpoints.workflowInstance.executionLogs(outputId)] : null;
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, workflowFetcher);
@@ -120,6 +122,8 @@ export function useGetWorkflowInstanceExecutionLogs(outputId) {
   return {...memoizedValue, refreshWorkflowInstanceExecutionLogs};
 }
 
+// ----------------------------------------------------------------------------------------------------------
+
 export async function getWorkflowGroupedLogs(outputId, params = {}) {
   if (!outputId) return [];
 
@@ -128,4 +132,10 @@ export async function getWorkflowGroupedLogs(outputId, params = {}) {
   });
 
   return res.data || [];
+}
+
+// ----------------------------------------------------------------------------------------------------------
+
+export async function deleteWorkflowInstance(id) {
+  await workflowAxiosInstance.delete(endpoints.workflowInstance.details(id));
 }
