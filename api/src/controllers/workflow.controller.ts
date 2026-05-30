@@ -16,6 +16,7 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import { Workflow } from '../models';
 import { WorkflowRepository } from '../repositories';
@@ -69,7 +70,9 @@ export class WorkflowController {
   async count(
     @param.where(Workflow) where?: Where<Workflow>,
   ): Promise<Count> {
-    return this.workflowRepository.count(where);
+    return this.workflowRepository.count({
+      and: [{isDeleted: false}, where ?? {}],
+    });
   }
 
   @authenticate({
@@ -93,7 +96,12 @@ export class WorkflowController {
   async find(
     @param.filter(Workflow) filter?: Filter<Workflow>,
   ): Promise<Workflow[]> {
-    return this.workflowRepository.find(filter);
+    return this.workflowRepository.find({
+      ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+    });
   }
 
   @authenticate({
@@ -140,7 +148,9 @@ export class WorkflowController {
     @param.path.number('id') id: number,
     @param.filter(Workflow, { exclude: 'where' }) filter?: FilterExcludingWhere<Workflow>
   ): Promise<Workflow> {
-    return this.workflowRepository.findById(id, filter);
+    const workflow = await this.workflowRepository.findById(id, filter);
+    if (workflow.isDeleted) throw new HttpErrors.NotFound('Workflow not found');
+    return workflow;
   }
 
   @authenticate({
@@ -195,7 +205,7 @@ export class WorkflowController {
     description: 'Workflow DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.workflowRepository.deleteById(id);
+    await this.workflowRepository.updateById(id, {isDeleted: true, deletedAt: new Date()});
   }
 
 }

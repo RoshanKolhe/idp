@@ -29,8 +29,9 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-import { useGetDocumentTypes } from 'src/api/documentType';
+import { deleteDocumentType, useGetDocumentTypes } from 'src/api/documentType';
 import TableViewToggleSwitch from 'src/components/table/table-view-toggle-switch';
+import { useSnackbar } from 'src/components/snackbar';
 import DocumentTypeTableRow from '../documentType-table-row';
 import DocumentTypeTableGrid from '../documentType-table-grid';
 
@@ -56,13 +57,15 @@ export default function DocumentTypeListView() {
 
   const router = useRouter();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState([]);
 
   const [filters] = useState(defaultFilters);
 
-  const { documentTypes } = useGetDocumentTypes();
+  const { documentTypes, refreshDocumentTypes } = useGetDocumentTypes();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -93,13 +96,18 @@ export default function DocumentTypeListView() {
   // );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteDocumentType(id);
+        enqueueSnackbar('Document type deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshDocumentTypes();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete document type', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshDocumentTypes, table]
   );
 
   const handleDeleteRows = useCallback(() => {

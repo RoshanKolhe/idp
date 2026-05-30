@@ -16,6 +16,7 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {FileType} from '../models';
 import {FileTypeRepository} from '../repositories';
@@ -69,7 +70,12 @@ export class FileTypeController {
   async find(
     @param.filter(FileType) filter?: Filter<FileType>,
   ): Promise<FileType[]> {
-    return this.fileTypeRepository.find(filter);
+    return this.fileTypeRepository.find({
+      ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+    });
   }
 
   @authenticate({
@@ -89,7 +95,9 @@ export class FileTypeController {
     @param.filter(FileType, {exclude: 'where'})
     filter?: FilterExcludingWhere<FileType>,
   ): Promise<FileType> {
-    return this.fileTypeRepository.findById(id, filter);
+    const fileType = await this.fileTypeRepository.findById(id, filter);
+    if (fileType.isDeleted) throw new HttpErrors.NotFound('FileType not found');
+    return fileType;
   }
 
   @authenticate({
@@ -121,6 +129,6 @@ export class FileTypeController {
     description: 'FileType DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.fileTypeRepository.deleteById(id);
+    await this.fileTypeRepository.updateById(id, {isDeleted: true, deletedAt: new Date()});
   }
 }

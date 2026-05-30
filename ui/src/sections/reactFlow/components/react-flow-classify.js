@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { useGetDocumentTypes } from "src/api/documentType";
+import { useGetDocumentTypesWithFilter } from "src/api/documentType";
 import FormProvider, { RHFAutocomplete, RHFSelect } from "src/components/hook-form";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node";
 import CustomProcessDialogue from "./components-dialogue";
@@ -31,13 +31,21 @@ export default function ReactFlowClassify({ data }) {
   const [isOpen, setIsOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
   const [documentTypesData, setDocumentTypesData] = useState([]);
-  const { documentTypes, documentTypesEmpty } = useGetDocumentTypes();
+  const whereFilter = {
+    where: {
+      and: [
+        { isActive: true },
+        { isDeleted: false }
+      ]
+    }
+  };
+  const { filteredDocumentTypes, filteredDocumentTypesEmpty } = useGetDocumentTypesWithFilter(encodeURIComponent(JSON.stringify(whereFilter)));
 
   useEffect(() => {
-    if (documentTypes && !documentTypesEmpty) {
-      setDocumentTypesData(documentTypes);
+    if (filteredDocumentTypes && !filteredDocumentTypesEmpty) {
+      setDocumentTypesData(filteredDocumentTypes);
     }
-  }, [documentTypes, documentTypesEmpty]);
+  }, [filteredDocumentTypes, filteredDocumentTypesEmpty]);
 
   const handleOpenModal = () => setIsOpen(true);
   const handleCloseModal = () => setIsOpen(false);
@@ -73,8 +81,6 @@ export default function ReactFlowClassify({ data }) {
   const {
     reset,
     watch,
-    control,
-    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;

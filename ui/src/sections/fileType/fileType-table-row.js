@@ -102,6 +102,11 @@ export default function FileTypeTableRow({
               <Iconify icon="carbon:view-filled" />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Delete" placement="top" arrow>
+            <IconButton sx={ACTION_ICON_BUTTON_SX} color="error" onClick={confirm.onTrue}>
+              <Iconify icon="solar:trash-bin-trash-bold" />
+            </IconButton>
+          </Tooltip>
         </TableCell>
       </TableRow>
 
@@ -128,7 +133,14 @@ export default function FileTypeTableRow({
         title="Delete"
         content="Are you sure want to delete?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow();
+              confirm.onFalse();
+            }}
+          >
             Delete
           </Button>
         }

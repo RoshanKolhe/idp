@@ -16,6 +16,7 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import { ProcessTemplates } from '../models';
 import { ProcessTemplatesRepository } from '../repositories';
@@ -61,7 +62,9 @@ export class ProcessTemplateController {
   async count(
     @param.where(ProcessTemplates) where?: Where<ProcessTemplates>,
   ): Promise<Count> {
-    return this.processTemplatesRepository.count(where);
+    return this.processTemplatesRepository.count({
+      and: [{isDeleted: false}, where ?? {}],
+    });
   }
 
   @get('/process-templates')
@@ -79,7 +82,13 @@ export class ProcessTemplateController {
   async find(
     @param.filter(ProcessTemplates) filter?: Filter<ProcessTemplates>,
   ): Promise<ProcessTemplates[]> {
-    return this.processTemplatesRepository.find({ ...filter, include: [{ relation: 'processes' }] });
+    return this.processTemplatesRepository.find({
+      ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+      include: [{relation: 'processes'}],
+    });
   }
 
   @patch('/process-templates')
@@ -114,7 +123,12 @@ export class ProcessTemplateController {
     @param.path.number('id') id: number,
     @param.filter(ProcessTemplates, { exclude: 'where' }) filter?: FilterExcludingWhere<ProcessTemplates>
   ): Promise<ProcessTemplates> {
-    return this.processTemplatesRepository.findById(id, { ...filter, include: [{ relation: 'processes' }] });
+    const processTemplate = await this.processTemplatesRepository.findById(id, {
+      ...filter,
+      include: [{relation: 'processes'}],
+    });
+    if (processTemplate.isDeleted) throw new HttpErrors.NotFound('ProcessTemplate not found');
+    return processTemplate;
   }
 
   @authenticate({
@@ -154,15 +168,15 @@ export class ProcessTemplateController {
   //   await this.processTemplatesRepository.replaceById(id, processTemplates);
   // }
 
-  // @authenticate({
-  //   strategy: 'jwt',
-  //   options: { required: [PermissionKeys.SUPER_ADMIN] }
-  // })
-  // @del('/process-templates/{id}')
-  // @response(204, {
-  //   description: 'ProcessTemplates DELETE success',
-  // })
-  // async deleteById(@param.path.number('id') id: number): Promise<void> {
-  //   await this.processTemplatesRepository.deleteById(id);
-  // }
+  @authenticate({
+    strategy: 'jwt',
+    options: {required: [PermissionKeys.SUPER_ADMIN]},
+  })
+  @del('/process-templates/{id}')
+  @response(204, {
+    description: 'ProcessTemplates DELETE success',
+  })
+  async deleteById(@param.path.number('id') id: number): Promise<void> {
+    await this.processTemplatesRepository.updateById(id, {isDeleted: true, deletedAt: new Date()});
+  }
 }

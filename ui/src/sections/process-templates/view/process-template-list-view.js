@@ -37,9 +37,10 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
+import { deleteProcessTemplate, useGetProcessTemplates } from 'src/api/process-templates';
 import axiosInstance from 'src/utils/axios';
-import { useGetProcessTemplates } from 'src/api/process-templates';
 import { Box, Grid, Typography } from '@mui/material';
+import { useSnackbar } from 'src/components/snackbar';
 import ProcessTemplateTableRow from '../process-template-table-row';
 import ProcessTemplateTableGrid from '../process-template-table-grid';
 
@@ -68,6 +69,8 @@ export default function ProcessTemplateListView() {
   const settings = useSettingsContext();
 
   const router = useRouter();
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const confirm = useBoolean();
 
@@ -106,13 +109,18 @@ export default function ProcessTemplateListView() {
   );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteProcessTemplate(id);
+        enqueueSnackbar('Process template deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshProcessTemplates();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete process template', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshProcessTemplates, table]
   );
 
   const handleDeleteRows = useCallback(() => {

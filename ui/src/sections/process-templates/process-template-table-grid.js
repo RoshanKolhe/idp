@@ -1,10 +1,13 @@
 import PropTypes from 'prop-types';
-import { Card, Box, Typography, Stack, Button, Divider } from '@mui/material';
+import { Card, Box, Typography, Stack, Button, Divider, IconButton, Tooltip } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import { format } from 'date-fns';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
-export default function ProcessTemplateTableGrid({ row, onViewRow, onQueryRow }) {
+export default function ProcessTemplateTableGrid({ row, onViewRow, onEditRow, onDeleteRow, onQueryRow }) {
   const { processType, description, createdAt, documents } = row;
+  const confirm = useBoolean();
 
   const hasDocuments = documents && documents.length > 0;
 
@@ -46,21 +49,38 @@ export default function ProcessTemplateTableGrid({ row, onViewRow, onQueryRow })
           </Stack>
         </Box>
 
-        <Box
-          sx={{
-            px: 2,
-            py: 1,
-            borderRadius: 1,
-            border: '1px solid #ccc',
-            bgcolor: '#f9f9f9',
-            fontSize: 14,
-            color: 'text.secondary',
-            minWidth: 100,
-            textAlign: 'center',
-          }}
-        >
-          {hasDocuments ? `${documents.length} Documents` : 'No Documents'}
-        </Box>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              borderRadius: 1,
+              border: '1px solid #ccc',
+              bgcolor: '#f9f9f9',
+              fontSize: 14,
+              color: 'text.secondary',
+              minWidth: 100,
+              textAlign: 'center',
+            }}
+          >
+            {hasDocuments ? `${documents.length} Documents` : 'No Documents'}
+          </Box>
+
+          {onEditRow && (
+            <Tooltip title="Edit" placement="top" arrow>
+              <IconButton onClick={onEditRow}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            </Tooltip>
+          )}
+          {onDeleteRow && (
+            <Tooltip title="Delete" placement="top" arrow>
+              <IconButton color="error" onClick={confirm.onTrue}>
+                <Iconify icon="solar:trash-bin-trash-bold" />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
       </Stack>
 
       {/* Divider */}
@@ -119,7 +139,8 @@ export default function ProcessTemplateTableGrid({ row, onViewRow, onQueryRow })
 
       {/* Bottom Buttons */}
       <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 3 }}>
-        <Button
+        {onViewRow && (
+          <Button
           fullWidth
           variant="contained"
           sx={{
@@ -133,27 +154,51 @@ export default function ProcessTemplateTableGrid({ row, onViewRow, onQueryRow })
         >
           View Documents
         </Button>
+        )}
 
-        <Button
-          fullWidth
-          variant="contained"
-          sx={{
-            backgroundColor: '#9da7b3',
-            color: 'white',
-            borderRadius: '20px',
-            textTransform: 'none',
-            fontWeight: 500,
-          }}
-          onClick={onQueryRow}
-        >
-          Query Documents
-        </Button>
+        {onQueryRow && (
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{
+              backgroundColor: '#9da7b3',
+              color: 'white',
+              borderRadius: '20px',
+              textTransform: 'none',
+              fontWeight: 500,
+            }}
+            onClick={onQueryRow}
+          >
+            Query Documents
+          </Button>
+        )}
       </Stack>
+
+      <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Delete"
+        content="Are you sure want to delete?"
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow?.();
+              confirm.onFalse();
+            }}
+          >
+            Delete
+          </Button>
+        }
+      />
     </Card>
   );
 }
 
 ProcessTemplateTableGrid.propTypes = {
+  onDeleteRow: PropTypes.func,
+  onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,
   onQueryRow: PropTypes.func,
   row: PropTypes.shape({

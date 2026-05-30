@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 export function useGetProcessTemplates() {
@@ -62,4 +62,10 @@ export function useGetProcessTemplate(processTemplateId) {
     );
 
     return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteProcessTemplate(id) {
+  await axiosInstance.delete(endpoints.processTemplates.details(id));
 }

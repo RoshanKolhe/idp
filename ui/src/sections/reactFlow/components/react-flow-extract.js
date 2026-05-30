@@ -6,7 +6,7 @@ import PropTypes from "prop-types"
 import { Box, Button, Chip, Divider, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import FormProvider, { RHFAutocomplete, RHFSelect } from "src/components/hook-form";
-import { useGetDocumentTypes } from "src/api/documentType";
+import { useGetDocumentTypesWithFilter } from "src/api/documentType";
 import ReactFlowCustomNodeStructure from "../react-flow-custom-node"
 import CustomProcessDialogue from "./components-dialogue";
 import { GenAIComponent } from "../extract-components";
@@ -83,13 +83,21 @@ export default function ReactFlowExtract({ data }) {
     const [isOpen, setIsOpen] = useState(false);
     const [logsOpen, setLogsOpen] = useState(false);
     const [documentTypesData, setDocumentTypesData] = useState([]);
-    const { documentTypes, documentTypesEmpty } = useGetDocumentTypes();
-
-    useEffect(() => {
-        if (documentTypes && !documentTypesEmpty) {
-            setDocumentTypesData(documentTypes);
+    const whereFilter = {
+        where: {
+            and: [
+                { isActive: true },
+                { isDeleted: false }
+            ]
         }
-    }, [documentTypes, documentTypesEmpty]);
+    };
+    const { filteredDocumentTypes, filteredDocumentTypesEmpty } = useGetDocumentTypesWithFilter(encodeURIComponent(JSON.stringify(whereFilter)));
+    
+    useEffect(() => {
+        if (filteredDocumentTypes && !filteredDocumentTypesEmpty) {
+            setDocumentTypesData(filteredDocumentTypes);
+        }
+    }, [filteredDocumentTypes, filteredDocumentTypesEmpty]);
 
     const defaultValues = useMemo(() => ({
         categories: data?.bluePrint?.categories || [],
@@ -110,10 +118,8 @@ export default function ReactFlowExtract({ data }) {
     const {
         reset,
         watch,
-        control,
-        setValue,
         handleSubmit,
-        formState: { isSubmitting, errors },
+        formState: { isSubmitting },
     } = methods;
 
     const values = watch();

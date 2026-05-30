@@ -29,8 +29,9 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-import { useGetProcessTypes } from 'src/api/processType';
+import { deleteProcessType, useGetProcessTypes } from 'src/api/processType';
 import TableViewToggleSwitch from 'src/components/table/table-view-toggle-switch';
+import { useSnackbar } from 'src/components/snackbar';
 import ProcessTypeTableRow from '../processType-table-row';
 import ProcessTypeTableGrid from '../processType-table-grid';
 
@@ -56,13 +57,15 @@ export default function ProcessTypeListView() {
 
   const router = useRouter();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState([]);
 
   const [filters] = useState(defaultFilters);
 
-  const { processTypes } = useGetProcessTypes();
+  const { processTypes, refreshProcessTypes } = useGetProcessTypes();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -93,13 +96,18 @@ export default function ProcessTypeListView() {
   // );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteProcessType(id);
+        enqueueSnackbar('Process type deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshProcessTypes();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete process type', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshProcessTypes, table]
   );
 
   const handleDeleteRows = useCallback(() => {

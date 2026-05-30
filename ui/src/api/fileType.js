@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -70,4 +70,10 @@ export function useGetFileTypesWithFilter(filter) {
     filteredFileTypesEmpty: !isLoading && !data?.length,
     refreshFilterFileTypes, // Include the refresh function separately
   };
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteFileType(id) {
+  await axiosInstance.delete(endpoints.fileType.details(id));
 }

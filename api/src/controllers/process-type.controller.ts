@@ -16,6 +16,7 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {ProcessType} from '../models';
 import {ProcessTypeRepository} from '../repositories';
@@ -76,7 +77,12 @@ export class ProcessTypeController {
   async find(
     @param.filter(ProcessType) filter?: Filter<ProcessType>,
   ): Promise<ProcessType[]> {
-    return this.processTypeRepository.find(filter);
+    return this.processTypeRepository.find({
+      ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+    });
   }
 
   @authenticate({
@@ -99,7 +105,9 @@ export class ProcessTypeController {
     @param.filter(ProcessType, {exclude: 'where'})
     filter?: FilterExcludingWhere<ProcessType>,
   ): Promise<ProcessType> {
-    return this.processTypeRepository.findById(id, filter);
+    const processType = await this.processTypeRepository.findById(id, filter);
+    if (processType.isDeleted) throw new HttpErrors.NotFound('ProcessType not found');
+    return processType;
   }
 
   @authenticate({
@@ -137,6 +145,6 @@ export class ProcessTypeController {
     description: 'ProcessType DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.processTypeRepository.deleteById(id);
+    await this.processTypeRepository.updateById(id, {isDeleted: true, deletedAt: new Date()});
   }
 }

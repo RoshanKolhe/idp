@@ -31,6 +31,17 @@ export class ProcessInstanceSecrets extends Entity {
   updatedAt?: Date;
 
   @property({
+    type: 'date',
+  })
+  deletedAt?: Date;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  isDeleted: boolean;
+
+  @property({
     type: 'string',
   })
   remark?: string;

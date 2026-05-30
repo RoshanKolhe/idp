@@ -29,8 +29,9 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-import { useGetFileTypes } from 'src/api/fileType';
+import { deleteFileType, useGetFileTypes } from 'src/api/fileType';
 import TableViewToggleSwitch from 'src/components/table/table-view-toggle-switch';
+import { useSnackbar } from 'src/components/snackbar';
 import FileTypeTableRow from '../fileType-table-row';
 import FileTypeTableGrid from '../fileType-table-grid';
 
@@ -56,13 +57,15 @@ export default function FileTypeListView() {
 
   const router = useRouter();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState([]);
 
   const [filters] = useState(defaultFilters);
 
-  const { fileTypes } = useGetFileTypes();
+  const { fileTypes, refreshFileTypes } = useGetFileTypes();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -93,13 +96,18 @@ export default function FileTypeListView() {
   // );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteFileType(id);
+        enqueueSnackbar('File type deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshFileTypes();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete file type', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshFileTypes, table]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -257,15 +265,15 @@ export default function FileTypeListView() {
                   table.page * table.rowsPerPage + table.rowsPerPage
                 )
                 .map((row) => (
-                  <Grid item xs={12} sm={6} md={4} key={row.id}>
-                    <FileTypeTableGrid
-                      row={row}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEditRow={() => handleEditRow(row.id)}
-                      onViewRow={() => handleViewRow(row.id)}
-                    />
-                  </Grid>
-                ))}
+	                  <Grid item xs={12} sm={6} md={4} key={row.id}>
+	                    <FileTypeTableGrid
+	                      row={row}
+	                      onDeleteRow={() => handleDeleteRow(row.id)}
+	                      onEditRow={() => handleEditRow(row.id)}
+	                      onViewRow={() => handleViewRow(row.id)}
+	                    />
+	                  </Grid>
+	                ))}
             </Grid>
             <TablePaginationCustom
               count={dataFiltered.length}

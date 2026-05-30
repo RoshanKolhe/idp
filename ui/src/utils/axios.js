@@ -78,7 +78,7 @@ export const endpoints = {
   },
   documentType: {
     list: '/document-types',
-    filterList: (filter) => `/document-types?${filter}`,
+    filterList: (filter) => `/document-types?filter=${filter}`,
     details: (id) => `/document-types/${id}`,
   },
   processes: {

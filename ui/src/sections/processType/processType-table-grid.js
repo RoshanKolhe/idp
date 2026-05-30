@@ -15,7 +15,7 @@ const ICON_WRAPPER_SX = {
   justifyContent: 'center',
 };
 
-export default function ProcessTypeTableGrid({ row }) {
+export default function ProcessTypeTableGrid({ row, onViewRow, onEditRow, onDeleteRow }) {
   const { processType, description, createdAt, isActive } = row;
 
   return (
@@ -116,11 +116,57 @@ export default function ProcessTypeTableGrid({ row }) {
           </Box>
         </Stack>
       </Stack>
+
+      {/* <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
+        {onEditRow && (
+          <Tooltip title="Edit" placement="top" arrow>
+            <IconButton onClick={onEditRow}>
+              <Iconify icon="solar:pen-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {onViewRow && (
+          <Tooltip title="View" placement="top" arrow>
+            <IconButton onClick={onViewRow}>
+              <Iconify icon="carbon:view-filled" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {onDeleteRow && (
+          <Tooltip title="Delete" placement="top" arrow>
+            <IconButton color="error" onClick={confirm.onTrue}>
+              <Iconify icon="solar:trash-bin-trash-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Stack> */}
+
+      {/* <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Delete"
+        content="Are you sure want to delete?"
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow?.();
+              confirm.onFalse();
+            }}
+          >
+            Delete
+          </Button>
+        }
+      /> */}
     </Card>
   );
 }
 
 ProcessTypeTableGrid.propTypes = {
+  onDeleteRow: PropTypes.func,
+  onEditRow: PropTypes.func,
+  onViewRow: PropTypes.func,
   row: PropTypes.shape({
     processType: PropTypes.string,
     description: PropTypes.string,

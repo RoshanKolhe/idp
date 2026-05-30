@@ -83,7 +83,6 @@ export default function DocumentTypeTableRow({
         </TableCell>
 
         <TableCell
-          align="right"
           sx={{
             px: 1,
             whiteSpace: 'nowrap',
@@ -101,6 +100,11 @@ export default function DocumentTypeTableRow({
           <Tooltip title="View" placement="top" arrow>
             <IconButton sx={ACTION_ICON_BUTTON_SX} onClick={onViewRow}>
               <Iconify icon="carbon:view-filled" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete" placement="top" arrow>
+            <IconButton sx={ACTION_ICON_BUTTON_SX} color="error" onClick={confirm.onTrue}>
+              <Iconify icon="solar:trash-bin-trash-bold" />
             </IconButton>
           </Tooltip>
         </TableCell>
@@ -129,7 +133,14 @@ export default function DocumentTypeTableRow({
         title="Delete"
         content="Are you sure want to delete?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow();
+              confirm.onFalse();
+            }}
+          >
             Delete
           </Button>
         }

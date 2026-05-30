@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import {useMemo} from 'react';
-import {endpoints, workflowFetcher} from 'src/utils/axios';
+import {endpoints, workflowAxiosInstance, workflowFetcher} from 'src/utils/axios';
 
 export function useGetWorkflowTemplates() {
   const URL = endpoints.workflowTemplates.list;
@@ -44,4 +44,10 @@ export function useGetWorkflowTemplate(workflowTemplateId) {
     }),
     [data, error, isLoading, isValidating, mutate],
   );
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteWorkflowTemplate(id) {
+  await workflowAxiosInstance.delete(endpoints.workflowTemplates.details(id));
 }

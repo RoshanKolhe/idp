@@ -1,8 +1,10 @@
 import PropTypes from 'prop-types';
-import { Card, Box, Typography, Stack, Button, Divider, Tooltip } from '@mui/material';
+import { Card, Box, Typography, Stack, Divider, Tooltip, IconButton, Button } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import Iconify from 'src/components/iconify';
 import { format } from 'date-fns';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 const ICON_WRAPPER_SX = {
   width: 36,
@@ -15,8 +17,9 @@ const ICON_WRAPPER_SX = {
   justifyContent: 'center',
 };
 
-export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
+export default function FileTypeTableGrid({ row, onViewRow, onEditRow, onDeleteRow, onQueryRow }) {
   const { fileType, description, createdAt, isActive } = row;
+  const confirm = useBoolean();
 
   return (
     <Card
@@ -116,41 +119,56 @@ export default function FileTypeTableGrid({ row, onViewRow, onQueryRow }) {
           </Box>
         </Stack>
       </Stack>
-      {/* 
-      <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 3 }}>
-        <Button
-          fullWidth
-          variant="contained"
-          color="primary"
-          sx={{
-            borderRadius: '20px',
-            textTransform: 'none',
-            fontWeight: 500,
-          }}
-          onClick={onViewRow}
-        >
-          View Documents
-        </Button>
 
-        <Button
-          fullWidth
-          variant="contained"
-          color="primary"
-          sx={{
-            borderRadius: '20px',
-            textTransform: 'none',
-            fontWeight: 500,
-          }}
-          onClick={onQueryRow}
-        >
-          Query Documents
-        </Button>
-      </Stack> */}
+      <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
+        {onEditRow && (
+          <Tooltip title="Edit" placement="top" arrow>
+            <IconButton onClick={onEditRow}>
+              <Iconify icon="solar:pen-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {onViewRow && (
+          <Tooltip title="View" placement="top" arrow>
+            <IconButton onClick={onViewRow}>
+              <Iconify icon="carbon:view-filled" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {onDeleteRow && (
+          <Tooltip title="Delete" placement="top" arrow>
+            <IconButton color="error" onClick={confirm.onTrue}>
+              <Iconify icon="solar:trash-bin-trash-bold" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Stack>
+
+      <ConfirmDialog
+        open={confirm.value}
+        onClose={confirm.onFalse}
+        title="Delete"
+        content="Are you sure want to delete?"
+        action={
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => {
+              onDeleteRow?.();
+              confirm.onFalse();
+            }}
+          >
+            Delete
+          </Button>
+        }
+      />
     </Card>
   );
 }
 
 FileTypeTableGrid.propTypes = {
+  onDeleteRow: PropTypes.func,
+  onEditRow: PropTypes.func,
   onViewRow: PropTypes.func,
   onQueryRow: PropTypes.func,
   row: PropTypes.shape({

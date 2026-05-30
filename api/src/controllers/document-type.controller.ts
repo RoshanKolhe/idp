@@ -16,6 +16,7 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {DocumentType} from '../models';
 import {DocumentTypeRepository} from '../repositories';
@@ -66,7 +67,12 @@ export class DocumentTypeController {
   async find(
     @param.filter(DocumentType) filter?: Filter<DocumentType>,
   ): Promise<DocumentType[]> {
-    return this.documentTypeRepository.find(filter);
+    return this.documentTypeRepository.find({
+      ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+    });
   }
 
   @authenticate({
@@ -86,7 +92,9 @@ export class DocumentTypeController {
     @param.filter(DocumentType, {exclude: 'where'})
     filter?: FilterExcludingWhere<DocumentType>,
   ): Promise<DocumentType> {
-    return this.documentTypeRepository.findById(id, filter);
+    const documentType = await this.documentTypeRepository.findById(id, filter);
+    if (documentType.isDeleted) throw new HttpErrors.NotFound('DocumentType not found');
+    return documentType;
   }
 
   @authenticate({
@@ -118,6 +126,6 @@ export class DocumentTypeController {
     description: 'DocumentType DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.documentTypeRepository.deleteById(id);
+    await this.documentTypeRepository.updateById(id, {isDeleted: true, deletedAt: new Date()});
   }
 }

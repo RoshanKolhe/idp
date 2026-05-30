@@ -64,26 +64,32 @@ export default function ProcessTemplateTableRow({
           </Label>
         </TableCell>
 
-        <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton
-              sx={ACTION_ICON_BUTTON_SX}
-              onClick={() => navigate(paths.dashboard.processTemplates.edit(row.id))}
-            >
-              <Iconify icon="solar:pen-bold" width={20} height={20} />
-            </IconButton>
-          </Tooltip>
+	        <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+	          <Tooltip title="Quick Edit" placement="top" arrow>
+	            <IconButton
+	              sx={ACTION_ICON_BUTTON_SX}
+	              onClick={() => navigate(paths.dashboard.processTemplates.edit(row.id))}
+	            >
+	              <Iconify icon="solar:pen-bold" width={20} height={20} />
+	            </IconButton>
+	          </Tooltip>
 
-          <Tooltip title="View" placement="top" arrow>
-            <IconButton
-              sx={ACTION_ICON_BUTTON_SX}
-              onClick={() => navigate(paths.dashboard.processTemplates.view(row.id))}
-            >
-              <Iconify icon="carbon:view-filled" width={20} height={20} />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
-      </TableRow>
+	          <Tooltip title="View" placement="top" arrow>
+	            <IconButton
+	              sx={ACTION_ICON_BUTTON_SX}
+	              onClick={() => navigate(paths.dashboard.processTemplates.view(row.id))}
+	            >
+	              <Iconify icon="carbon:view-filled" width={20} height={20} />
+	            </IconButton>
+	          </Tooltip>
+
+	          <Tooltip title="Delete" placement="top" arrow>
+	            <IconButton sx={ACTION_ICON_BUTTON_SX} color="error" onClick={confirm.onTrue}>
+	              <Iconify icon="solar:trash-bin-trash-bold" width={20} height={20} />
+	            </IconButton>
+	          </Tooltip>
+	        </TableCell>
+	      </TableRow>
 
       <CustomPopover
         open={popover.open}
@@ -113,17 +119,24 @@ export default function ProcessTemplateTableRow({
         </MenuItem>
       </CustomPopover>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
+	      <ConfirmDialog
+	        open={confirm.value}
+	        onClose={confirm.onFalse}
+	        title="Delete"
+	        content="Are you sure want to delete?"
+	        action={
+	          <Button
+	            variant="contained"
+	            color="error"
+	            onClick={() => {
+	              onDeleteRow();
+	              confirm.onFalse();
+	            }}
+	          >
+	            Delete
+	          </Button>
+	        }
+	      />
     </>
   );
 }

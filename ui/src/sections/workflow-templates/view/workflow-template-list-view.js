@@ -22,7 +22,8 @@ import {
   getComparator,
   useTable,
 } from 'src/components/table';
-import {useGetWorkflowTemplates} from 'src/api/workflow-templates';
+import {deleteWorkflowTemplate, useGetWorkflowTemplates} from 'src/api/workflow-templates';
+import { useSnackbar } from 'src/components/snackbar';
 import WorkflowTemplateTableRow from '../workflow-template-table-row';
 
 const TABLE_HEAD = [
@@ -38,8 +39,9 @@ export default function WorkflowTemplateListView() {
   const table = useTable({defaultOrderBy: 'createdAt', defaultOrder: 'desc'});
   const settings = useSettingsContext();
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   const [tableData, setTableData] = useState([]);
-  const {workflowTemplates} = useGetWorkflowTemplates();
+  const {workflowTemplates, refreshWorkflowTemplates} = useGetWorkflowTemplates();
 
   useEffect(() => {
     if (workflowTemplates) {
@@ -57,6 +59,17 @@ export default function WorkflowTemplateListView() {
   const handleViewRow = useCallback(id => {
     router.push(paths.dashboard.workflowTemplates.view(id));
   }, [router]);
+
+  const handleDeleteRow = useCallback(async (id) => {
+    try {
+      await deleteWorkflowTemplate(id);
+      enqueueSnackbar('Workflow template deleted');
+      setTableData((prev) => prev.filter((row) => row.id !== id));
+      refreshWorkflowTemplates();
+    } catch (error) {
+      enqueueSnackbar(error?.message || 'Unable to delete workflow template', { variant: 'error' });
+    }
+  }, [enqueueSnackbar, refreshWorkflowTemplates]);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -104,14 +117,15 @@ export default function WorkflowTemplateListView() {
               <TableBody>
                 {dataFiltered
                   .slice(table.page * table.rowsPerPage, table.page * table.rowsPerPage + table.rowsPerPage)
-                  .map(row => (
-                    <WorkflowTemplateTableRow
-                      key={row.id}
-                      row={row}
-                      onEditRow={() => handleEditRow(row.id)}
-                      onViewRow={() => handleViewRow(row.id)}
-                    />
-                  ))}
+	                  .map(row => (
+	                    <WorkflowTemplateTableRow
+	                      key={row.id}
+	                      row={row}
+	                      onDeleteRow={() => handleDeleteRow(row.id)}
+	                      onEditRow={() => handleEditRow(row.id)}
+	                      onViewRow={() => handleViewRow(row.id)}
+	                    />
+	                  ))}
 
                 <TableEmptyRows
                   height={table.dense ? 52 : 72}

@@ -52,6 +52,16 @@ export class MailServer extends Entity {
   })
   testEmailAddress: string;
 
+  @property({
+    type: 'date',
+  })
+  deletedAt?: Date;
+
+  @property({
+    type: 'boolean',
+    default: false,
+  })
+  isDeleted: boolean;
 
   constructor(data?: Partial<MailServer>) {
     super(data);
