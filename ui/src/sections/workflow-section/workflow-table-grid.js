@@ -1,13 +1,16 @@
 import PropTypes from 'prop-types';
-import { Card, Box, Typography, Stack, IconButton, Tooltip, alpha, useTheme } from '@mui/material';
+import { Card, Box, Typography, Stack, IconButton, Tooltip, alpha, useTheme, Button } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import { paths } from 'src/routes/paths';
 import { useNavigate } from 'react-router';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, onDelete }) {
   const theme = useTheme();
   const { name, description } = row;
   const navigate = useNavigate();
+  const confirm = useBoolean();
 
   return (
     <Card
@@ -37,7 +40,7 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
           >
             <Iconify icon="mdi:file-document-outline" width={22} color="primary.dark" />
           </Box>
-          <Box sx={{ maxWidth: '200px' }}>
+          <Box sx={{ maxWidth: '180px' }}>
             <Typography variant="caption" color="text.secondary" fontWeight={500}>
               Workflow Name
             </Typography>
@@ -49,24 +52,27 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
           </Box>
         </Stack>
 
-        <Stack direction="row" spacing={1}>
-          <IconButton size="small" color="primary" onClick={onEdit}>
-            <Iconify icon="mdi:pencil-outline" width={18} color="primary.dark" />
-          </IconButton>
-          <Tooltip title="blueprint" placement="top" arrow>
-            <IconButton
-              color="primary"
-              onClick={() => {
-                navigate(paths.dashboard.workflow.reactFlow(row.id));
-              }}
-            >
-              <Iconify icon="carbon:flow-modeler" />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      </Stack>
+	        <Stack direction="row" spacing={1}>
+	          <IconButton size="small" color="primary" onClick={onEdit}>
+	            <Iconify icon="mdi:pencil-outline" width={18} color="primary.dark" />
+	          </IconButton>
+	          <IconButton size="small" color="error" onClick={confirm.onTrue}>
+	            <Iconify icon="solar:trash-bin-trash-bold" color="error.main" />
+	          </IconButton>
+	          <Tooltip title="blueprint" placement="top" arrow>
+	            <IconButton
+	              color="primary"
+	              onClick={() => {
+	                navigate(paths.dashboard.workflow.reactFlow(row.id));
+	              }}
+	            >
+	              <Iconify icon="carbon:flow-modeler" />
+	            </IconButton>
+	          </Tooltip>
+	        </Stack>
+	      </Stack>
 
-      <Stack direction="row" spacing={2} mt={3} alignItems="center">
+	      <Stack direction="row" spacing={2} mt={3} alignItems="center">
         <Box
           sx={{
             width: 40,
@@ -100,9 +106,28 @@ export default function WorkflowTableGrid({ row, onViewRow, onQueryRow, onEdit, 
             </Typography>
           </Tooltip>
         </Box>
-      </Stack>
-    </Card>
-  );
+	      </Stack>
+
+	      <ConfirmDialog
+	        open={confirm.value}
+	        onClose={confirm.onFalse}
+	        title="Delete"
+	        content="Are you sure want to delete?"
+	        action={
+	          <Button
+	            variant="contained"
+	            color="error"
+	            onClick={() => {
+	              onDelete?.();
+	              confirm.onFalse();
+	            }}
+	          >
+	            Delete
+	          </Button>
+	        }
+	      />
+	    </Card>
+	  );
 }
 
 WorkflowTableGrid.propTypes = {

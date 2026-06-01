@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import { useCallback, useMemo } from 'react';
 // utils
-import { endpoints, workflowFetcher } from 'src/utils/axios';
+import { endpoints, workflowAxiosInstance, workflowFetcher } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -75,4 +75,10 @@ export function useGetWorkflowWithFilter(filter) {
     filteredWorkflowsEmpty: !isLoading && !data?.length,
     refreshFilterWorkflows, // Include the refresh function separately
   };
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteWorkflow(id) {
+  await workflowAxiosInstance.delete(endpoints.workflows.details(id));
 }

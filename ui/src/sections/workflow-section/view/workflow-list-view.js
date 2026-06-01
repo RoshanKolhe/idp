@@ -37,10 +37,11 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetWorkflows } from 'src/api/workflow';
+import { deleteWorkflow, useGetWorkflows } from 'src/api/workflow';
 import { COMMON_STATUS_OPTIONS } from 'src/utils/constants';
 import { Box, CardContent, Grid, Typography } from '@mui/material';
 import TableViewToggleSwitch from 'src/components/table/table-view-toggle-switch';
+import { useSnackbar } from 'src/components/snackbar';
 import WorkflowTableRow from '../workflow-table-row';
 import WorkflowTableGrid from '../workflow-table-grid';
 import WorkflowCreateForm from '../workflow-create-form';
@@ -72,6 +73,8 @@ export default function WorkflowListView() {
   const settings = useSettingsContext();
 
   const router = useRouter();
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const confirm = useBoolean();
 
@@ -110,13 +113,18 @@ export default function WorkflowListView() {
   );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteWorkflow(id);
+        enqueueSnackbar('Workflow deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshWorkflows();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete workflow', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshWorkflows, table]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -333,15 +341,15 @@ export default function WorkflowListView() {
                   table.page * table.rowsPerPage + table.rowsPerPage
                 )
                 .map((row) => (
-                  <Grid item xs={12} sm={6} md={4} key={row.id}>
-                    <WorkflowTableGrid
-                      row={row}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEdit={() => handleEditRow(row.id)}
-                      onViewRow={() => handleViewRow(row.id)}
-                    />
-                  </Grid>
-                ))}
+	                  <Grid item xs={12} sm={6} md={4} key={row.id}>
+	                    <WorkflowTableGrid
+	                      row={row}
+	                      onDelete={() => handleDeleteRow(row.id)}
+	                      onEdit={() => handleEditRow(row.id)}
+	                      onViewRow={() => handleViewRow(row.id)}
+	                    />
+	                  </Grid>
+	                ))}
             </Grid>
             <TablePaginationCustom
               count={dataFiltered.length}

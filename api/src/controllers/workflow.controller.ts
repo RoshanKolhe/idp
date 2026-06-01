@@ -19,14 +19,18 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import { Workflow } from '../models';
-import { WorkflowRepository } from '../repositories';
+import { WorkflowInstancesRepository, WorkflowRepository } from '../repositories';
 import { authenticate } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
+import fs from 'fs';
+import path from 'path';
 
 export class WorkflowController {
   constructor(
     @repository(WorkflowRepository)
     public workflowRepository: WorkflowRepository,
+    @repository(WorkflowInstancesRepository)
+    public workflowInstancesRepository: WorkflowInstancesRepository,
   ) { }
 
   @authenticate({
@@ -205,7 +209,28 @@ export class WorkflowController {
     description: 'Workflow DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.workflowRepository.updateById(id, {isDeleted: true, deletedAt: new Date()});
+    const deletedAt = new Date();
+
+    // Soft-delete workflow
+    await this.workflowRepository.updateById(id, {isDeleted: true, deletedAt});
+
+    // Hard-delete workflow instances under workflow
+    const instances = await this.workflowInstancesRepository.find({
+      where: {workflowId: id},
+      fields: {id: true, workflowInstanceFolderName: true},
+    });
+
+    for (const instance of instances) {
+      if (!instance.id) continue;
+      await this.workflowInstancesRepository.deleteById(instance.id);
+
+      if (instance.workflowInstanceFolderName) {
+        const folderPath = path.join(__dirname, '../../.sandbox', `${instance.workflowInstanceFolderName}`);
+        if (fs.existsSync(folderPath)) {
+          fs.rmSync(folderPath, {recursive: true, force: true});
+        }
+      }
+    }
   }
 
 }

@@ -161,7 +161,9 @@ export class WorkflowInstancesController {
   async count(
     @param.where(WorkflowInstances) where?: Where<WorkflowInstances>,
   ): Promise<Count> {
-    return this.workflowInstancesRepository.count(where);
+    return this.workflowInstancesRepository.count({
+      and: [{isDeleted: false}, where ?? {}],
+    });
   }
 
   @authenticate({
@@ -183,7 +185,13 @@ export class WorkflowInstancesController {
   async find(
     @param.filter(WorkflowInstances) filter?: Filter<WorkflowInstances>,
   ): Promise<WorkflowInstances[]> {
-    return this.workflowInstancesRepository.find({...filter, include: [{relation: 'workflow'}]});
+    return this.workflowInstancesRepository.find({
+      ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+      include: [{relation: 'workflow'}],
+    });
   }
 
   @authenticate({
@@ -226,19 +234,20 @@ export class WorkflowInstancesController {
     @param.path.number('id') id: number,
     @param.filter(WorkflowInstances, { exclude: 'where' }) filter?: FilterExcludingWhere<WorkflowInstances>
   ): Promise<WorkflowInstances> {
-    return this.workflowInstancesRepository.findById(id, 
-      {...filter, 
-        include: [
-          {relation: 'workflow', 
-            scope: {
-              include: [
-                {relation: 'workflowBlueprint'}
-              ]
-            }
-          }
-        ]
-      }
-    );
+    const workflowInstance = await this.workflowInstancesRepository.findById(id, filter);
+    if (workflowInstance.isDeleted) throw new HttpErrors.NotFound('Workflow instance not found');
+
+    return this.workflowInstancesRepository.findById(id, {
+      ...filter,
+      include: [
+        {
+          relation: 'workflow',
+          scope: {
+            include: [{relation: 'workflowBlueprint'}],
+          },
+        },
+      ],
+    });
   }
 
   @authenticate({
@@ -287,6 +296,14 @@ export class WorkflowInstancesController {
     description: 'WorkflowInstances DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
+    const workflowInstance = await this.workflowInstancesRepository.findById(id);
     await this.workflowInstancesRepository.deleteById(id);
+
+    if (workflowInstance.workflowInstanceFolderName) {
+      const folderPath = path.join(__dirname, '../../.sandbox', `${workflowInstance.workflowInstanceFolderName}`);
+      if (fs.existsSync(folderPath)) {
+        fs.rmSync(folderPath, {recursive: true, force: true});
+      }
+    }
   }
 }

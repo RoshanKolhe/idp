@@ -95,7 +95,7 @@ export default function WorkflowTableRow({
           </Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1  }}>
+	        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1  }}>
           <Tooltip title="blueprint" placement="top" arrow>
             <IconButton
               sx={ACTION_ICON_BUTTON_SX}
@@ -117,18 +117,24 @@ export default function WorkflowTableRow({
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="View" placement="top" arrow>
-            <IconButton
-              sx={ACTION_ICON_BUTTON_SX}
-              onClick={() => {
-                onViewRow();
-              }}
-            >
-              <Iconify icon="carbon:view-filled" />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
-      </TableRow>
+	          <Tooltip title="View" placement="top" arrow>
+	            <IconButton
+	              sx={ACTION_ICON_BUTTON_SX}
+	              onClick={() => {
+	                onViewRow();
+	              }}
+	            >
+	              <Iconify icon="carbon:view-filled" />
+	            </IconButton>
+	          </Tooltip>
+
+	          <Tooltip title="Delete" placement="top" arrow>
+	            <IconButton sx={ACTION_ICON_BUTTON_SX} color="error" onClick={confirm.onTrue}>
+	              <Iconify icon="solar:trash-bin-trash-bold" color="error.main" />
+	            </IconButton>
+	          </Tooltip>
+	        </TableCell>
+	      </TableRow>
 
       <CustomPopover
         open={popover.open}
@@ -158,17 +164,24 @@ export default function WorkflowTableRow({
         </MenuItem>
       </CustomPopover>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
+	      <ConfirmDialog
+	        open={confirm.value}
+	        onClose={confirm.onFalse}
+	        title="Delete"
+	        content="Are you sure want to delete?"
+	        action={
+	          <Button
+	            variant="contained"
+	            color="error"
+	            onClick={() => {
+	              onDeleteRow();
+	              confirm.onFalse();
+	            }}
+	          >
+	            Delete
+	          </Button>
+	        }
+	      />
     </>
   );
 }
