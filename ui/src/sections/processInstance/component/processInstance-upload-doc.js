@@ -120,7 +120,7 @@ export default function ProcessInstanceUploadDoc({ handleClose, data }) {
                     <Typography sx={{ mb: 2 }} variant="body1">{`Upload Documents for ${data?.processInstanceName}`}</Typography>
                     <RHFUpload
                         multiple
-                        thumbnail
+                        // thumbnail
                         name="files"
                         disabled={isUploadingFiles}
                         loading={isUploadingFiles}
