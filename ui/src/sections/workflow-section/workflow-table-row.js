@@ -95,7 +95,7 @@ export default function WorkflowTableRow({
           </Label>
         </TableCell>
 
-	        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1  }}>
+	        <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1  }}>
           <Tooltip title="blueprint" placement="top" arrow>
             <IconButton
               sx={ACTION_ICON_BUTTON_SX}
@@ -130,7 +130,7 @@ export default function WorkflowTableRow({
 
 	          <Tooltip title="Delete" placement="top" arrow>
 	            <IconButton sx={ACTION_ICON_BUTTON_SX} color="error" onClick={confirm.onTrue}>
-	              <Iconify icon="solar:trash-bin-trash-bold" color="error.main" />
+	              <Iconify icon="solar:trash-bin-trash-bold" />
 	            </IconButton>
 	          </Tooltip>
 	        </TableCell>
