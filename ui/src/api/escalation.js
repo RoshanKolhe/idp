@@ -1,7 +1,7 @@
 import useSWR, { mutate } from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -68,4 +68,10 @@ export function useGetFilteredEscalations(filter) {
   );
 
   return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteEscalation(id) {
+  await axiosInstance.delete(endpoints.escalation.details(id));
 }

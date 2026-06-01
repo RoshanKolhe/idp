@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import SingleHexagon from 'src/components/level-cards/hexagon-level-card';
 import MemberItemHorizontal from './member-details-horizontal';
 
-export default function EscalationMatrixPage({ levels, onEditMember }) {
+export default function EscalationMatrixPage({ levels, onEditMember, onDeleteMember }) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const levelColors = [
@@ -62,28 +62,29 @@ export default function EscalationMatrixPage({ levels, onEditMember }) {
               },
             }}
           >
-            {(level.members || []).map((member) => (
-              <Box
-                key={member.id}
-                sx={{
-                  minWidth: isSmallScreen ? '100%' : 300,
-                  borderRadius: 2,
-                  backgroundColor: (currentTheme) =>
-                    alpha(currentTheme.palette.background.paper, 0.72),
-                }}
-              >
-                <MemberItemHorizontal
-                  levelName={level.name}
-                  member={member}
-                  onEditRow={() => onEditMember(member)}
-                />
-              </Box>
-            ))}
-          </Stack>
-        </Stack>
-      ))}
-    </Stack>
-  );
+	            {(level.members || []).map((member) => (
+	              <Box
+	                key={member.id}
+	                sx={{
+	                  minWidth: isSmallScreen ? '100%' : 300,
+	                  borderRadius: 2,
+	                  backgroundColor: (currentTheme) =>
+	                    alpha(currentTheme.palette.background.paper, 0.72),
+	                }}
+	              >
+	                <MemberItemHorizontal
+	                  levelName={level.name}
+	                  member={member}
+	                  onEditRow={() => onEditMember(member)}
+	                  onDeleteRow={() => onDeleteMember?.(member)}
+	                />
+	              </Box>
+	            ))}
+	          </Stack>
+	        </Stack>
+	      ))}
+	    </Stack>
+	  );
 }
 
 EscalationMatrixPage.propTypes = {
@@ -105,5 +106,6 @@ EscalationMatrixPage.propTypes = {
       ),
     })
   ),
-  onEditMember: PropTypes.func,
+	  onEditMember: PropTypes.func,
+	  onDeleteMember: PropTypes.func,
 };

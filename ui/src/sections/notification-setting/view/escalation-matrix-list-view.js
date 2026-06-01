@@ -38,7 +38,8 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetEscalations } from 'src/api/escalation';
+import { deleteEscalation, useGetEscalations } from 'src/api/escalation';
+import { useSnackbar } from 'src/components/snackbar';
 
 import EscalationMatrixTableRow from '../escalation-matrix-row';
 import EscalationMatrixTableToolbar from '../escalation-matrix-toolbar';
@@ -72,6 +73,7 @@ export default function EscalationMatrixListView() {
 
   const settings = useSettingsContext();
   const { escalation, escalationLoading, refreshEscalations } = useGetEscalations();
+  const { enqueueSnackbar } = useSnackbar();
 
 
   useEffect(() => {
@@ -124,13 +126,18 @@ export default function EscalationMatrixListView() {
   );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteEscalation(id);
+        enqueueSnackbar('Escalation matrix deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshEscalations();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete escalation matrix', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshEscalations, table]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -175,7 +182,7 @@ const handleEditRow = useCallback(
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Escalation Matrix"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Escalation Matrix', href: paths.dashboard.notificationSetting.list },

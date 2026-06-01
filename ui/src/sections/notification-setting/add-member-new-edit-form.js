@@ -276,7 +276,7 @@ export default function AddMemberNewEditForm({ currentMember, open, onClose, ref
                 </Box>
 
                 <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                  <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  <LoadingButton color='primary' type="submit" variant="contained" loading={isSubmitting}>
                     {currentMember ? 'Save Changes' : 'Add Member'}
                   </LoadingButton>
                 </Stack>

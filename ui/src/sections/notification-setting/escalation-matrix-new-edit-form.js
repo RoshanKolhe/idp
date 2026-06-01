@@ -104,7 +104,7 @@ export default function EscalationMatrixNewEditForm({ currentMatrix, open, onClo
               </Stack>
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                <LoadingButton color='primary' type="submit" variant="contained" loading={isSubmitting}>
                   {currentMatrix ? 'Update Matrix' : 'Add Matrix'}
                 </LoadingButton>
               </Stack>

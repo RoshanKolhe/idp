@@ -48,6 +48,7 @@ export class MemberController {
 
     const existingMember = await this.memberRepository.findOne({
       where: {
+        isDeleted: false,
         or: [
           { email: member.email },
           { phoneNumber: member.phoneNumber },
@@ -73,7 +74,9 @@ export class MemberController {
   async count(
     @param.where(Member) where?: Where<Member>,
   ): Promise<Count> {
-    return this.memberRepository.count(where);
+    return this.memberRepository.count({
+      and: [{isDeleted: false}, where ?? {}],
+    });
   }
 
   @get('/members')
@@ -91,7 +94,12 @@ export class MemberController {
   async find(
     @param.filter(Member) filter?: Filter<Member>,
   ): Promise<Member[]> {
-    return this.memberRepository.find(filter);
+    return this.memberRepository.find({
+      ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+    });
   }
 
   @patch('/members')
@@ -126,7 +134,9 @@ export class MemberController {
     @param.path.number('id') id: number,
     @param.filter(Member, { exclude: 'where' }) filter?: FilterExcludingWhere<Member>
   ): Promise<Member> {
-    return this.memberRepository.findById(id, filter);
+    const member = await this.memberRepository.findById(id, filter);
+    if (member.isDeleted) throw new HttpErrors.NotFound('Member not found');
+    return member;
   }
 
   @patch('/members/{id}')
@@ -163,6 +173,6 @@ export class MemberController {
     description: 'Member DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.memberRepository.deleteById(id);
+    await this.memberRepository.updateById(id, {isDeleted: true, deletedAt: new Date()});
   }
 }

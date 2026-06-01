@@ -16,14 +16,17 @@ import {
   del,
   requestBody,
   response,
+  HttpErrors,
 } from '@loopback/rest';
 import {Levels} from '../models';
-import {LevelsRepository} from '../repositories';
+import {MemberRepository, LevelsRepository} from '../repositories';
 
 export class LevelsController {
   constructor(
     @repository(LevelsRepository)
-    public levelsRepository : LevelsRepository,
+    public levelsRepository: LevelsRepository,
+    @repository(MemberRepository)
+    public memberRepository: MemberRepository,
   ) {}
 
   @post('/levels')
@@ -78,21 +81,34 @@ export class LevelsController {
     },
   },
 })
-async find(
-  @param.filter(Levels) filter?: Filter<Levels>,
-): Promise<{data: Levels[], count: number}> {
-  const filterWithIncludes = {
-    ...filter,
-    include: [{relation: 'members'}],
-  };
-  const data = await this.levelsRepository.find(filterWithIncludes);  
-  const count = await this.levelsRepository.count(filter?.where);
+	async find(
+	  @param.filter(Levels) filter?: Filter<Levels>,
+	): Promise<{data: Levels[], count: number}> {
+	  const filterWithIncludes = {
+	    ...filter,
+      where: {
+        and: [{isDeleted: false}, filter?.where ?? {}],
+      },
+	    include: [{relation: 'members'}],
+	  };
+	  const data = await this.levelsRepository.find({
+      ...filterWithIncludes,
+      include: [
+        {
+          relation: 'members',
+          scope: {where: {isDeleted: false}},
+        },
+      ],
+    });
+	  const count = await this.levelsRepository.count({
+      and: [{isDeleted: false}, filter?.where ?? {}],
+    });
 
-  return {
-    data:data,
-    count: count.count,
-  };
-}
+	  return {
+	    data:data,
+	    count: count.count,
+	  };
+	}
 
   @patch('/levels')
   @response(200, {
@@ -126,7 +142,12 @@ async find(
     @param.path.number('id') id: number,
     @param.filter(Levels, {exclude: 'where'}) filter?: FilterExcludingWhere<Levels>
   ): Promise<Levels> {
-    return this.levelsRepository.findById(id, filter);
+    const level = await this.levelsRepository.findById(id, filter);
+    if (level.isDeleted) throw new HttpErrors.NotFound('Level not found');
+    return this.levelsRepository.findById(id, {
+      ...filter,
+      include: [{relation: 'members', scope: {where: {isDeleted: false}}}],
+    });
   }
 
   @patch('/levels/{id}')
@@ -163,6 +184,9 @@ async find(
     description: 'Levels DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.levelsRepository.deleteById(id);
+    const deletedAt = new Date();
+
+    await this.levelsRepository.updateById(id, {isDeleted: true, deletedAt});
+    await this.memberRepository.updateAll({isDeleted: true, deletedAt}, {levelsId: id});
   }
 }

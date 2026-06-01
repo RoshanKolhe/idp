@@ -1,7 +1,7 @@
 import useSWR, { mutate } from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +46,12 @@ export function useGetMember(id) {
   );
 
   return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteMember(id) {
+  await axiosInstance.delete(endpoints.member.details(id));
 }
 
 // ----------------------------------------------------------------------

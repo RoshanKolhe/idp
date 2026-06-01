@@ -19,7 +19,7 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import { Escalation } from '../models';
-import { EscalationRepository, UserRepository } from '../repositories';
+import { EscalationRepository, LevelsRepository, MemberRepository, UserRepository } from '../repositories';
 import { authenticate, AuthenticationBindings } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
 import { inject } from '@loopback/core';
@@ -29,6 +29,10 @@ export class EscalationController {
   constructor(
     @repository(EscalationRepository)
     public escalationRepository: EscalationRepository,
+    @repository(LevelsRepository)
+    public levelsRepository: LevelsRepository,
+    @repository(MemberRepository)
+    public memberRepository: MemberRepository,
     @repository(UserRepository)
     public userRepository: UserRepository,
   ) { }
@@ -73,7 +77,9 @@ export class EscalationController {
   async count(
     @param.where(Escalation) where?: Where<Escalation>,
   ): Promise<Count> {
-    return this.escalationRepository.count(where);
+    return this.escalationRepository.count({
+      and: [{ isDeleted: false }, where ?? {}],
+    });
   }
 
   @authenticate({
@@ -116,9 +122,10 @@ export class EscalationController {
             {
               relation: 'levels',
               scope: {
+                where: { isDeleted: false },
                 include: [
-                  { relation: 'members' }
-                ]
+                  { relation: 'members', scope: { where: { isDeleted: false } } }
+                ],
               }
             }
           ]
@@ -140,9 +147,10 @@ export class EscalationController {
           {
             relation: 'levels',
             scope: {
+              where: { isDeleted: false },
               include: [
-                { relation: 'members' }
-              ]
+                { relation: 'members', scope: { where: { isDeleted: false } } }
+              ],
             }
           }
         ]
@@ -197,7 +205,19 @@ export class EscalationController {
     const escalation = await this.escalationRepository.findById(id, filter);
 
     if (user && (user.permissions.includes('super_admin') || user.id === escalation.id)) {
-      return this.escalationRepository.findById(id, filter);
+      if (escalation.isDeleted) throw new HttpErrors.NotFound('Escalation not found');
+      return this.escalationRepository.findById(id, {
+        ...filter,
+        include: [
+          {
+            relation: 'levels',
+            scope: {
+              where: { isDeleted: false },
+              include: [{ relation: 'members', scope: { where: { isDeleted: false } } }],
+            },
+          },
+        ],
+      });
     }
 
     throw new HttpErrors.Unauthorized('Unauthorized access');
@@ -265,7 +285,32 @@ export class EscalationController {
   @response(204, {
     description: 'Escalation DELETE success',
   })
-  async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.escalationRepository.deleteById(id);
+  async deleteById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
+    @param.path.number('id') id: number,
+  ): Promise<void> {
+    const user = await this.userRepository.findById(currentUser.id);
+    const escalationData = await this.escalationRepository.findById(id);
+
+    if (!user || !(user.permissions.includes('super_admin') || user.id === escalationData.userId)) {
+      throw new HttpErrors.Unauthorized('Unauthorized access');
+    }
+
+    const deletedAt = new Date();
+
+    await this.escalationRepository.updateById(id, { isDeleted: true, deletedAt });
+
+    const levels = await this.levelsRepository.find({
+      where: { escalationId: id, isDeleted: false },
+      fields: { id: true },
+    });
+
+    const levelIds = levels.map((l) => l.id).filter((v): v is number => typeof v === 'number');
+
+    await this.levelsRepository.updateAll({ isDeleted: true, deletedAt }, { escalationId: id });
+
+    if (levelIds.length) {
+      await this.memberRepository.updateAll({ isDeleted: true, deletedAt }, { levelsId: { inq: levelIds } });
+    }
   }
 }

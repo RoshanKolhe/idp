@@ -7,12 +7,14 @@ import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // hooks
 import { useResponsive } from 'src/hooks/use-responsive';
+import { useBoolean } from 'src/hooks/use-boolean';
 // utils
 import { fDate } from 'src/utils/format-time';
 import { fShortenNumber } from 'src/utils/format-number';
@@ -22,13 +24,13 @@ import Image from 'src/components/image';
 import Iconify from 'src/components/iconify';
 import TextMaxLine from 'src/components/text-max-line';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 import { Grid } from '@mui/material';
 
 // ----------------------------------------------------------------------
-export default function MemberItemHorizontal({ onEditRow, levelName, levelDescription, member }) {
+export default function MemberItemHorizontal({ onEditRow, onDeleteRow, levelName, levelDescription, member }) {
   const popover = usePopover();
-
-
+  const confirm = useBoolean();
 
   const mdUp = useResponsive('up', 'md');
 
@@ -80,7 +82,7 @@ export default function MemberItemHorizontal({ onEditRow, levelName, levelDescri
         open={popover.open}
         onClose={popover.onClose}
         arrow="bottom-center"
-        sx={{ width: 80 }}
+        sx={{ width: 100 }}
         flexShrink="start"
         right="top"
       >
@@ -94,29 +96,48 @@ export default function MemberItemHorizontal({ onEditRow, levelName, levelDescri
           View
         </MenuItem> */}
 
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-            // router.push(paths.dashboard.post.edit(title));
-          }}
-        >
-          <Iconify icon="solar:pen-bold" sx={{ width: 20 }} />
-          Edit
-        </MenuItem>
-        {/* 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
-        </MenuItem>  */}
-      </CustomPopover>
-    </>
-  );
+	        <MenuItem
+	          onClick={() => {
+	            onEditRow();
+	            popover.onClose();
+	            // router.push(paths.dashboard.post.edit(title));
+	          }}
+	        >
+	          <Iconify icon="solar:pen-bold" sx={{ width: 20 }} />
+	          Edit
+	        </MenuItem>
+	        <MenuItem
+	          onClick={() => {
+	            confirm.onTrue();
+	            popover.onClose();
+	          }}
+	          sx={{ color: 'error.main' }}
+	        >
+	          <Iconify icon="solar:trash-bin-trash-bold" />
+	          Delete
+	        </MenuItem>
+	      </CustomPopover>
+
+	      <ConfirmDialog
+	        open={confirm.value}
+	        onClose={confirm.onFalse}
+	        title="Delete"
+	        content="Are you sure want to delete this member?"
+	        action={
+	          <Button
+	            variant="contained"
+	            color="error"
+	            onClick={() => {
+	              onDeleteRow?.();
+	              confirm.onFalse();
+	            }}
+	          >
+	            Delete
+	          </Button>
+	        }
+	      />
+	    </>
+	  );
 }
 
 MemberItemHorizontal.propTypes = {
@@ -132,4 +153,6 @@ MemberItemHorizontal.propTypes = {
     }),
   }),
   onEditRow: PropTypes.func
+  ,
+  onDeleteRow: PropTypes.func
 };

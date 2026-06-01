@@ -13,6 +13,7 @@ import axiosInstance from 'src/utils/axios';
 import { LoadingButton } from '@mui/lab';
 import { paths } from 'src/routes/paths';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { deleteMember } from 'src/api/member';
 
 import EscalationMatrixLayout from '../escalation-matrix-layout';
 import AddMemberNewEditForm from '../add-member-new-edit-form';
@@ -40,10 +41,20 @@ export default function NotificationSettingListView() {
 
   const [currentMember , setCurrentMember]= useState(null)
 
-const handleEditMember = (member) => {
-  setCurrentMember(member); // set selected member
-  setOpenMemberDialog(true); // open dialog in edit mode
-};
+	const handleEditMember = (member) => {
+	  setCurrentMember(member); // set selected member
+	  setOpenMemberDialog(true); // open dialog in edit mode
+	};
+
+  const handleDeleteMember = async (member) => {
+    try {
+      await deleteMember(member.id);
+      enqueueSnackbar('Member deleted', { variant: 'success' });
+      refreshLevels();
+    } catch (error) {
+      enqueueSnackbar(error?.message || 'Unable to delete member', { variant: 'error' });
+    }
+  };
   const handleOpenMember = () => setOpenMemberDialog(true);
   const handleCloseMember = () => setOpenMemberDialog(false);
 
@@ -136,12 +147,13 @@ const handleEditMember = (member) => {
 
 
         {/* Content */}
-        <EscalationMatrixLayout
-          levels={levels}
-          refreshLevels={refreshLevels}
-          onEditMember={handleEditMember}
-        />
-      </Container>
+	        <EscalationMatrixLayout
+	          levels={levels}
+	          refreshLevels={refreshLevels}
+	          onEditMember={handleEditMember}
+	          onDeleteMember={handleDeleteMember}
+	        />
+	      </Container>
 
 
       {/* Dialogs */}
