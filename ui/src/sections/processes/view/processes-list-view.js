@@ -33,9 +33,10 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import { useGetProcesses } from 'src/api/processes';
+import { deleteProcess, useGetProcesses } from 'src/api/processes';
 import { Box, CardContent, Grid, Typography } from '@mui/material';
 import TableViewToggleSwitch from 'src/components/table/table-view-toggle-switch';
+import { useSnackbar } from 'src/components/snackbar';
 import ProcessesTableRow from '../processes-table-row';
 import ProcessesTableGrid from '../processes-table-grid';
 import ProcessesCreateForm from '../processes-create-form';
@@ -68,13 +69,15 @@ export default function ProcessesListView() {
 
   const router = useRouter();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const confirm = useBoolean();
 
   const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { processess } = useGetProcesses();
+  const { processess, refreshProcesses } = useGetProcesses();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -105,13 +108,18 @@ export default function ProcessesListView() {
   );
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+    async (id) => {
+      try {
+        await deleteProcess(id);
+        enqueueSnackbar('Process deleted');
+        setTableData((prev) => prev.filter((row) => row.id !== id));
+        refreshProcesses();
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } catch (error) {
+        enqueueSnackbar(error?.message || 'Unable to delete process', { variant: 'error' });
+      }
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, enqueueSnackbar, refreshProcesses, table]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -327,16 +335,16 @@ export default function ProcessesListView() {
                   table.page * table.rowsPerPage,
                   table.page * table.rowsPerPage + table.rowsPerPage
                 )
-                .map((row) => (
-                  <Grid item xs={12} sm={6} md={4} key={row.id}>
-                    <ProcessesTableGrid
-                      row={row}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEdit={() => handleEditRow(row.id)}
-                      onViewRow={() => handleViewRow(row.id)}
-                    />
-                  </Grid>
-                ))}
+	                .map((row) => (
+	                  <Grid item xs={12} sm={6} md={4} key={row.id}>
+	                    <ProcessesTableGrid
+	                      row={row}
+	                      onDelete={() => handleDeleteRow(row.id)}
+	                      onEdit={() => handleEditRow(row.id)}
+	                      onViewRow={() => handleViewRow(row.id)}
+	                    />
+	                  </Grid>
+	                ))}
             </Grid>
             <TablePaginationCustom
               count={dataFiltered.length}

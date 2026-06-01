@@ -94,7 +94,7 @@ export default function ProcessesTableRow({
           </Label>
         </TableCell>
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+	        <TableCell sx={{ px: 1, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
 
           <Tooltip title="blueprint" placement="top" arrow>
             <IconButton
@@ -102,7 +102,7 @@ export default function ProcessesTableRow({
               onClick={() => {
                 navigate(paths.dashboard.processes.reactFlow(row.id));
               }}            >
-              <Iconify icon="carbon:flow-modeler" color="primary.dark" />
+              <Iconify icon="carbon:flow-modeler" />
             </IconButton>
           </Tooltip>
           <Tooltip title="Quick Edit" placement="top" arrow>
@@ -113,21 +113,27 @@ export default function ProcessesTableRow({
                 onEditRow();
               }}
             >
-              <Iconify icon="solar:pen-bold" color="primary.dark" />
+              <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
-          <Tooltip title="View" placement="top" arrow>
-            <IconButton
-              sx={ACTION_ICON_BUTTON_SX}
-              onClick={() => {
-                onViewRow();
-              }}
-            >
-              <Iconify icon="carbon:view-filled" color="primary.dark" />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
-      </TableRow>
+	          <Tooltip title="View" placement="top" arrow>
+	            <IconButton
+	              sx={ACTION_ICON_BUTTON_SX}
+	              onClick={() => {
+	                onViewRow();
+	              }}
+	            >
+	              <Iconify icon="carbon:view-filled" />
+	            </IconButton>
+	          </Tooltip>
+
+	          <Tooltip title="Delete" placement="top" arrow>
+	            <IconButton sx={ACTION_ICON_BUTTON_SX} color="error" onClick={confirm.onTrue}>
+	              <Iconify icon="solar:trash-bin-trash-bold" />
+	            </IconButton>
+	          </Tooltip>
+	        </TableCell>
+	      </TableRow>
 
       <CustomPopover
         open={popover.open}
@@ -157,17 +163,24 @@ export default function ProcessesTableRow({
         </MenuItem>
       </CustomPopover>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
+	      <ConfirmDialog
+	        open={confirm.value}
+	        onClose={confirm.onFalse}
+	        title="Delete"
+	        content="Are you sure want to delete?"
+	        action={
+	          <Button
+	            variant="contained"
+	            color="error"
+	            onClick={() => {
+	              onDeleteRow();
+	              confirm.onFalse();
+	            }}
+	          >
+	            Delete
+	          </Button>
+	        }
+	      />
     </>
   );
 }

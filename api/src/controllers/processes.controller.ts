@@ -17,17 +17,21 @@ import {
   HttpErrors,
 } from '@loopback/rest';
 import { Processes } from '../models';
-import { ProcessesRepository, UserRepository } from '../repositories';
+import { ProcessesRepository, ProcessInstancesRepository, UserRepository } from '../repositories';
 import { authenticate, AuthenticationBindings } from '@loopback/authentication';
 import { PermissionKeys } from '../authorization/permission-keys';
 import { inject } from '@loopback/core';
 import { UserProfile } from '@loopback/security';
 import { ProcessTemplateService } from '../services/process-template.service';
+import fs from 'fs';
+import path from 'path';
 
 export class ProcessesController {
   constructor(
     @repository(ProcessesRepository)
     public processesRepository: ProcessesRepository,
+    @repository(ProcessInstancesRepository)
+    public processInstancesRepository: ProcessInstancesRepository,
     @repository(UserRepository)
     public userRepository: UserRepository,
     @inject('services.ProcessTemplate')
@@ -164,6 +168,7 @@ export class ProcessesController {
     const process = await this.processesRepository.findById(id, { ...filter, include: [{ relation: 'bluePrint' }, {relation: 'processType'}] });
 
     if (user && (user.permissions.includes('super_admin') || user.id === process.userId)) {
+      if (process.isDeleted) throw new HttpErrors.NotFound('Process not found');
       return process;
     }
 
@@ -221,7 +226,39 @@ export class ProcessesController {
   @response(204, {
     description: 'Processes DELETE success',
   })
-  async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.processesRepository.deleteById(id);
+  async deleteById(
+    @inject(AuthenticationBindings.CURRENT_USER) currentUser: UserProfile,
+    @param.path.number('id') id: number,
+  ): Promise<void> {
+    const user = await this.userRepository.findById(currentUser.id);
+    const process = await this.processesRepository.findById(id);
+
+    if (!user || !(user.permissions.includes('super_admin') || user.id === process.userId)) {
+      throw new HttpErrors.Unauthorized('Unauthorize access');
+    }
+
+    const deletedAt = new Date();
+
+    // Soft-delete the process
+    await this.processesRepository.updateById(id, {isDeleted: true, deletedAt});
+
+    // Hard-delete all process instances under this process
+    const instances = await this.processInstancesRepository.find({
+      where: {processesId: id},
+      fields: {id: true, processInstanceFolderName: true},
+    });
+
+    for (const instance of instances) {
+      if (!instance.id) continue;
+
+      await this.processInstancesRepository.deleteById(instance.id);
+
+      if (instance.processInstanceFolderName) {
+        const folderPath = path.join(__dirname, '../../.sandbox', `${instance.processInstanceFolderName}`);
+        if (fs.existsSync(folderPath)) {
+          fs.rmSync(folderPath, {recursive: true, force: true});
+        }
+      }
+    }
   }
 }

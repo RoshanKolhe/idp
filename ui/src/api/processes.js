@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import { useCallback, useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -78,4 +78,10 @@ export function useGetProcessesWithFilter(filter) {
     filteredProcessesEmpty: !isLoading && !data?.length,
     refreshFilterProcesses, // Include the refresh function separately
   };
+}
+
+// ----------------------------------------------------------------------
+
+export async function deleteProcess(id) {
+  await axiosInstance.delete(endpoints.processes.details(id));
 }
