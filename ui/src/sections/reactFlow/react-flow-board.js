@@ -1,5 +1,5 @@
 /* eslint-disable no-shadow */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useParams } from 'react-router';
 import { useSnackbar } from 'notistack';
@@ -16,7 +16,7 @@ import ReactFlow, {
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'reactflow/dist/style.css';
-import { Box, Button, IconButton } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton } from '@mui/material';
 import axiosInstance from 'src/utils/axios';
 import { useGetBluePrint } from 'src/api/blue-print';
 import Iconify from 'src/components/iconify';
@@ -118,6 +118,10 @@ export default function ReactFlowBoard() {
   const [activeEdgeData, setActiveEdgeData] = useState(null);
   const [edgePopup, setEdgePopup] = useState(false);
   const [splitGroups, setSplitGroups] = useState([]);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showBlockerDialog, setShowBlockerDialog] = useState(false);
+  const isDirtyTrackingEnabledRef = useRef(false);
+  const popStateHandlerRef = useRef(null);
 
   // id generation
   const getNextNodeId = (nodes) => {
@@ -197,7 +201,7 @@ export default function ReactFlowBoard() {
     return currentId;
   };
 
-  const getLayout = (nodeList, edgeList) => getLayoutedElements(nodeList, edgeList, 'LR');
+  const getLayout = (nodeList, edgeList, isParallel = false) => getLayoutedElements(nodeList, edgeList, 'LR', isParallel);
 
   const collectBranchNodeIds = (sourceNodeId, branchStartId, edgeList, nodeList) => {
     const queue = [`${branchStartId}`];
@@ -368,7 +372,7 @@ export default function ReactFlowBoard() {
             .filter((group) => (group.branches || []).length > 0)
         );
 
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(cleanedNodes, cleanedEdges);
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(cleanedNodes, cleanedEdges, false);
         nextNodes = layoutedNodes;
         return layoutedEdges;
       });
@@ -842,7 +846,7 @@ export default function ReactFlowBoard() {
         });
 
         setPresentNodes((prev) => [...prev, newOperationComponentNode.data.label]);
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges);
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges, true);
         updatedNodes = layoutedNodes;
         return layoutedEdges;
       });
@@ -957,7 +961,7 @@ export default function ReactFlowBoard() {
               : g
           )
         );
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges);
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges, true);
         updatedNodes = layoutedNodes;
         return layoutedEdges;
       });
@@ -1082,7 +1086,7 @@ export default function ReactFlowBoard() {
         const filteredEdges = prevEdges.filter((edge) => `${edge.target}` !== `${id}`);
         const updatedEdges = [...filteredEdges, ...redirectedIncoming, bridgeEdge];
 
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges);
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges, false);
         updatedNodes = layoutedNodes;
         return layoutedEdges;
       });
@@ -1152,7 +1156,7 @@ export default function ReactFlowBoard() {
         const filteredEdges = prevEdges.filter((edge) => `${edge.source}` !== `${id}`);
         const updatedEdges = [...filteredEdges, bridgeEdge, ...redirectedOutgoing];
 
-        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges);
+        const { nodes: layoutedNodes, edges: layoutedEdges } = getLayout(updatedNodes, updatedEdges, false);
         updatedNodes = layoutedNodes;
         return layoutedEdges;
       });
@@ -1268,6 +1272,7 @@ export default function ReactFlowBoard() {
       const response = await axiosInstance.post('/blue-prints', data);
       if (response?.data) {
         enqueueSnackbar("Blue Print Saved", { variant: 'success' });
+        setIsDirty(false);
       }
     } catch (error) {
       console.error(error);
@@ -1355,6 +1360,30 @@ export default function ReactFlowBoard() {
   }, [data]);
 
   useEffect(() => {
+    if (!bluePrintsLoading) {
+      const t = setTimeout(() => { isDirtyTrackingEnabledRef.current = true; }, 200);
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [bluePrintsLoading]);
+
+  useEffect(() => {
+    if (isDirtyTrackingEnabledRef.current) {
+      setIsDirty(true);
+    }
+  }, [nodes]);
+
+  useEffect(() => {
+    if (!isDirty) return undefined;
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  useEffect(() => {
     if (nodes && nodes.length > 0) {
       const filteredNodes = nodes.filter((node) => node.type !== 'customAddNode' && node.type !== 'router');
 
@@ -1372,6 +1401,25 @@ export default function ReactFlowBoard() {
       });
     }
   }, [nodes]);
+
+  useEffect(() => {
+    if (!isDirty) return undefined;
+
+    window.history.pushState(null, '', window.location.href);
+
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+      setShowBlockerDialog(true);
+    };
+
+    popStateHandlerRef.current = handlePopState;
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      popStateHandlerRef.current = null;
+    };
+  }, [isDirty]);
 
   return (
     <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
@@ -1402,6 +1450,32 @@ export default function ReactFlowBoard() {
         <ReactFlowEdgeSettingPopup isOpen={edgePopup} data={activeEdgeData} handleCloseModal={() => handleCloseEdgePopup()} />
       </ReactFlowProvider>
       <ReactFlowSummaryDrawer bluePrint={bluePrint} />
+      <Dialog open={showBlockerDialog} maxWidth="xs" fullWidth>
+        <DialogTitle>Unsaved Changes</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Please complete and save your progress before leaving. Your information may be lost.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowBlockerDialog(false)} variant="outlined">Close</Button>
+          <Button
+            onClick={() => {
+              if (popStateHandlerRef.current) {
+                window.removeEventListener('popstate', popStateHandlerRef.current);
+                popStateHandlerRef.current = null;
+              }
+              setIsDirty(false);
+              setShowBlockerDialog(false);
+              window.history.go(-2);
+            }}
+            variant="contained"
+            color="error"
+          >
+            Continue
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

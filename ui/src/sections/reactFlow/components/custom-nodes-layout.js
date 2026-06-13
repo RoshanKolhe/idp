@@ -7,13 +7,12 @@ dagreGraph.setDefaultEdgeLabel(() => ({}));
 const nodeWidth = 250;
 const nodeHeight = 500;
 
-export const getLayoutedElements = (nodes, edges, direction = "TB") => {
-  console.log('direction', direction);
+export const getLayoutedElements = (nodes, edges, direction = "TB", isParallel = false) => {
   const isHorizontal = direction === "LR";
   dagreGraph.setGraph({
     rankdir: direction,
-    nodesep: 30,   // horizontal spacing (default ~50-100+)
-    ranksep: 80,   // vertical spacing (default ~100+)
+    nodesep: isParallel ? 100 : 0,  // Y spacing: only expand for parallel branches
+    ranksep: 80,                     // X spacing: always maintained
     marginx: 10,
     marginy: 10,
   });
@@ -33,10 +32,9 @@ export const getLayoutedElements = (nodes, edges, direction = "TB") => {
     node.targetPosition = isHorizontal ? "left" : "top";
     node.sourcePosition = isHorizontal ? "right" : "bottom";
 
-    // assign calculated positions
     node.position = {
       x: nodeWithPosition.x - nodeWidth / 2,
-      y: nodeWithPosition.y - nodeHeight / 2,
+      y: isParallel ? nodeWithPosition.y - nodeHeight / 2 : 0,
     };
   });
 

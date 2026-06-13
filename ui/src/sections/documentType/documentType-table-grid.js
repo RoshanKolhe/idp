@@ -1,8 +1,10 @@
 import PropTypes from 'prop-types';
-import { Card, Box, Typography, Stack, Divider, Tooltip } from '@mui/material';
+import { Card, Box, Typography, Stack, Divider, Tooltip, IconButton, Button } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import Iconify from 'src/components/iconify';
 import { format } from 'date-fns';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 const ICON_WRAPPER_SX = {
   width: 36,
@@ -17,6 +19,7 @@ const ICON_WRAPPER_SX = {
 
 export default function DocumentTypeTableGrid({ row, onViewRow, onEditRow, onDeleteRow }) {
   const { documentType, description, createdAt, isActive } = row;
+  const confirm = useBoolean();
 
   return (
     <Card
@@ -74,20 +77,46 @@ export default function DocumentTypeTableGrid({ row, onViewRow, onEditRow, onDel
       <Divider sx={{ my: 2 }} />
 
       <Stack spacing={2}>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <Box sx={ICON_WRAPPER_SX}>
-            <Iconify icon="mdi:calendar-month-outline" width={20} />
-          </Box>
+        <Box component='div' sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Box sx={ICON_WRAPPER_SX}>
+              <Iconify icon="mdi:calendar-month-outline" width={20} />
+            </Box>
 
-          <Box>
-            <Typography variant="caption" color="text.secondary">
-              Date and Time
-            </Typography>
-            <Typography variant="body2">
-              {format(new Date(createdAt), 'dd MMM, yyyy, hh:mm a')}
-            </Typography>
-          </Box>
-        </Stack>
+            <Box>
+              <Typography variant="caption" color="text.secondary">
+                Date and Time
+              </Typography>
+              <Typography variant="body2">
+                {format(new Date(createdAt), 'dd MMM, yyyy, hh:mm a')}
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+            {onEditRow && (
+              <Tooltip title="Edit" placement="top" arrow>
+                <IconButton color="primary" onClick={onEditRow}>
+                  <Iconify icon="solar:pen-bold" color="primary.dark" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {onViewRow && (
+              <Tooltip title="View" placement="top" arrow>
+                <IconButton color="primary" onClick={onViewRow}>
+                  <Iconify icon="carbon:view-filled" color="primary.dark" />
+                </IconButton>
+              </Tooltip>
+            )}
+            {onDeleteRow && (
+              <Tooltip title="Delete" placement="top" arrow>
+                <IconButton color="error" onClick={confirm.onTrue}>
+                  <Iconify icon="solar:trash-bin-trash-bold" color="error.main" />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Stack>
+        </Box>
 
         <Stack direction="row" spacing={1} alignItems="center">
           <Box sx={ICON_WRAPPER_SX}>
@@ -117,30 +146,6 @@ export default function DocumentTypeTableGrid({ row, onViewRow, onEditRow, onDel
         </Stack>
       </Stack>
 
-      {/* <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
-        {onEditRow && (
-          <Tooltip title="Edit" placement="top" arrow>
-            <IconButton onClick={onEditRow}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip>
-        )}
-        {onViewRow && (
-          <Tooltip title="View" placement="top" arrow>
-            <IconButton onClick={onViewRow}>
-              <Iconify icon="carbon:view-filled" />
-            </IconButton>
-          </Tooltip>
-        )}
-        {onDeleteRow && (
-          <Tooltip title="Delete" placement="top" arrow>
-            <IconButton color="error" onClick={confirm.onTrue}>
-              <Iconify icon="solar:trash-bin-trash-bold" />
-            </IconButton>
-          </Tooltip>
-        )}
-      </Stack>
-
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
@@ -158,7 +163,7 @@ export default function DocumentTypeTableGrid({ row, onViewRow, onEditRow, onDel
             Delete
           </Button>
         }
-      /> */}
+      />
     </Card>
   );
 }
