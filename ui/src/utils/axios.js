@@ -83,7 +83,7 @@ export const endpoints = {
   },
   processes: {
     list: '/processes',
-    filterList: (filter) => `/processes?${filter}`,
+    filterList: (filter) => `/processes?filter=${filter}`,
     details: (id) => `/processes/${id}`,
     bluePrint: (id) => `/blue-prints/processes/${id}`
   },

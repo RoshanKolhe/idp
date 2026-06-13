@@ -1,37 +1,45 @@
-import { useState } from "react";
+import { useParams } from "react-router";
 import { settings } from "nprogress";
-import { Box, Container, IconButton, Typography } from "@mui/material";
+import { Box, Container, IconButton } from "@mui/material";
 import CustomBreadcrumbs from "src/components/custom-breadcrumbs";
 import Iconify from "src/components/iconify";
 import { useRouter } from "src/routes/hook";
+import { useGetProcess } from "src/api/processes";
+import { paths } from "src/routes/paths";
 import ReactFlowBoard from "../react-flow-board";
 
-export default function ReactFlowView(){
+export default function ReactFlowView() {
     const router = useRouter();
-    const [isUnlock, setIsUnlock] = useState(false);
-    return(
+    const params = useParams();
+    const { id } = params;
+    const { processes: currentProcess } = useGetProcess(id);
+
+    return (
         <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-            <CustomBreadcrumbs
-                heading="Intelligent Document Processing"
-                links={[]}
+            <Box component='div' sx={{ display: 'flex', alignItems: 'start', gap: '10px', width: '100%' }}>
+                <IconButton onClick={() => router.back()} sx={{ paddingLeft: '0px' }}>
+                    <Iconify color='#292D32' icon="mdi:keyboard-backspace" width={24} />
+                </IconButton>
+                <CustomBreadcrumbs
+                    heading="Intelligent Document Processing"
+                    links={[
+                        {
+                            name: 'Dashboard',
+                            href: paths.dashboard.root,
+                        },
+                        {
+                            name: 'Processes',
+                            href: paths.dashboard.processes.list,
+                        },
+                        { name: currentProcess?.name },
+                    ]}
                 // sx={{
                 // mb: { xs: 1, md: 1 },
                 // }}
-            />
-            <Box component='div' sx={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>
-                <Box component='div' sx={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                    <IconButton onClick={() => router.back()} sx={{paddingLeft: '0px'}}>
-                        <Iconify color='#292D32' icon="mdi:keyboard-backspace" width={24} />
-                    </IconButton>
-                    <Typography sx={{fontWeight: 'normal'}} variant="h5">Define Process Flow</Typography>
-                </Box>
-
-                <IconButton onClick={() => setIsUnlock(!isUnlock)}>
-                    <Iconify width={28} icon={isUnlock ? 'eva:lock-outline' : 'eva:unlock-outline'} />
-                </IconButton>
+                />
             </Box>
 
-            <ReactFlowBoard isUnlock={isUnlock}/>
+            <ReactFlowBoard />
         </Container>
     )
 }
