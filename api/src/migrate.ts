@@ -26,7 +26,10 @@ export async function migrate(args: string[]) {
       'WorkflowInstances',
       'ProcessWorkflowOutput',
       'ProcessInstanceTransactions',
-      'ProcessTemplates'
+      'ProcessTemplates',
+      'MailServer',
+      'ProcessInstanceFile',
+      'ProcessInstanceTransactionDocument',
     ],
   });
   // Connectors usually keep a pool of opened connections,
