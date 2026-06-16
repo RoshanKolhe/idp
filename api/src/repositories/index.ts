@@ -18,3 +18,5 @@ export * from './workflow-instances.repository';
 export * from './process-workflow-output.repository';
 export * from './process-instance-transactions.repository';
 export * from './process-templates.repository';
+export * from './process-instance-file.repository';
+export * from './process-instance-transaction-document.repository';

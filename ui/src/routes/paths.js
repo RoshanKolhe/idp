@@ -111,6 +111,8 @@ export const paths = {
       reactFlow: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/blueprint`,
       extractedDocs: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/extracted-documents`,
       logsList: (id) => `${ROOTS.DASHBOARD}/processesInstance/${id}/logs`,
+      transactionDocuments: (instanceId, transactionId) =>
+        `${ROOTS.DASHBOARD}/processesInstance/${instanceId}/transactions/${transactionId}/documents`,
     },
     // workflows
     workflow: {

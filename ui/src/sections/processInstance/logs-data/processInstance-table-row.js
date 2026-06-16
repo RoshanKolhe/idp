@@ -94,6 +94,20 @@ export default function ProcessInstanceTableRow({
               <Iconify icon="carbon:view-filled" width={20} height={20} />
             </IconButton>
           </Tooltip>
+          <Tooltip title="Documents" placement="top" arrow>
+            <IconButton
+              sx={{
+                backgroundColor: 'rgba(65, 130, 235, 0.1)',
+                border: '1px solid rgba(65, 130, 235, 0.3)',
+                p: 1,
+                borderRadius: '12px',
+                color: '#4182EB',
+              }}
+              onClick={() => navigate(paths.dashboard.processesInstance.transactionDocuments(processInstancesId, id))}
+            >
+              <Iconify icon="ic:baseline-insert-drive-file" width={20} height={20} />
+            </IconButton>
+          </Tooltip>
         </TableCell>
       </TableRow>
 

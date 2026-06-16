@@ -147,3 +147,28 @@ export function useGetProcessInstanceLogs(processInstanceId) {
 export async function deleteProcessInstance(id) {
   await axiosInstance.delete(endpoints.processInstance.details(id));
 }
+
+// ----------------------------------------------------------------------
+
+export function useGetTransactionDocuments(transactionId) {
+  const URL = transactionId
+    ? [endpoints.processInstance.transactionDocuments(transactionId)]
+    : null;
+
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher);
+
+  const refreshTransactionDocuments = () => mutate();
+
+  const memoizedValue = useMemo(
+    () => ({
+      transactionDocuments: data?.data || [],
+      transactionDocumentsLoading: isLoading,
+      transactionDocumentsError: error,
+      transactionDocumentsValidating: isValidating,
+      transactionDocumentsEmpty: !isLoading && !data?.data?.length,
+    }),
+    [data, error, isLoading, isValidating]
+  );
+
+  return { ...memoizedValue, refreshTransactionDocuments };
+}

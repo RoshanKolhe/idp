@@ -82,15 +82,6 @@ export default function ProcessTypeTableRow({
               />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Documents" placement="top" arrow>
-            <IconButton
-              sx={ACTION_ICON_BUTTON_SX}
-              onClick={() => console.log('documents clicked')}
-            >
-              <Iconify icon="ic:baseline-insert-drive-file" width={20} height={20} />
-            </IconButton>
-          </Tooltip>
-
           <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton
               sx={ACTION_ICON_BUTTON_SX}

@@ -1,5 +1,6 @@
-import { Entity, model, property, belongsTo} from '@loopback/repository';
-import {ProcessInstances} from './process-instances.model';
+import { Entity, model, property, belongsTo, hasMany } from '@loopback/repository';
+import { ProcessInstances } from './process-instances.model';
+import { ProcessInstanceTransactionDocument } from './process-instance-transaction-document.model';
 
 @model()
 export class ProcessInstanceTransactions extends Entity {
@@ -49,6 +50,9 @@ export class ProcessInstanceTransactions extends Entity {
 
   @belongsTo(() => ProcessInstances)
   processInstancesId: number;
+
+  @hasMany(() => ProcessInstanceTransactionDocument)
+  processInstanceTransactionDocuments: ProcessInstanceTransactionDocument[];
 
   constructor(data?: Partial<ProcessInstanceTransactions>) {
     super(data);

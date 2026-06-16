@@ -92,7 +92,10 @@ export const endpoints = {
     filterList: (filter) => `/process-instances?${filter}`,
     details: (id) => `/process-instances/${id}`,
     extractedDocuments: (id) => `/process-instance-documents/by-process-instance/${id}`,
-    logs: (processInstanceId) => `/process-instance-transactions/${processInstanceId}`
+    logs: (processInstanceId) => `/process-instance-transactions/${processInstanceId}`,
+    transactionDocuments: (transactionId) =>
+      `/process-instance-transaction-documents/by-transaction/${transactionId}`,
+    instanceFiles: (instanceId) => `/process-instance-files/by-instance/${instanceId}`,
   },
   fileType: {
     list: '/file-types',

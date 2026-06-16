@@ -55,6 +55,7 @@ const ProcessInstanceViewPage = lazy(() => import('src/pages/dashboard/processIn
 const ProcessInstanceExtractedDocumentsPage = lazy(() => import('src/pages/dashboard/processInstance/extractedDocuments'));
 const ProcessInstanceReactFlowPage = lazy(() => import('src/pages/dashboard/processInstance/react-flow'));
 const ProcessInstanceLogsListPage = lazy(() => import('src/pages/dashboard/processInstance/logs'));
+const TransactionDocumentsPage = lazy(() => import('src/pages/dashboard/processInstance/transaction-documents'));
 // PROCESS-TEMPLATE
 const ProcessTemplateCreatePage = lazy(() => import('src/pages/dashboard/processTemplates/new'));
 const ProcessTemplateEditPage = lazy(() => import('src/pages/dashboard/processTemplates/edit'));
@@ -211,6 +212,7 @@ export const dashboardRoutes = [
           { path: ':id/extracted-documents', element: <ProcessInstanceExtractedDocumentsPage /> },
           { path: ':id/blueprint', element: <ProcessInstanceReactFlowPage /> },
           { path: ':id/logs', element: <ProcessInstanceLogsListPage /> },
+          { path: ':id/transactions/:transactionId/documents', element: <TransactionDocumentsPage /> },
         ],
       },
       {

@@ -18,3 +18,5 @@ export * from './workflow-instances.model';
 export * from './process-workflow-output.model';
 export * from './process-instance-transactions.model';
 export * from './process-templates.model';
+export * from './process-instance-file.model';
+export * from './process-instance-transaction-document.model';
