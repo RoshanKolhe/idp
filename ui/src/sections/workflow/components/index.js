@@ -1,4 +1,4 @@
-export { CurvedEdge, CustomDottedEdge } from "./custom-workflow-add-edge";
+export { ButtonEdge, CurvedEdge, CustomDottedEdge } from "./custom-workflow-add-edge";
 export { getLayoutedElements } from "./custom-workflow-nodes-layout";
 export { outputRegistry } from "./custom-workflow-output-registry"
 export { default as CustomWorkflowAddNode } from './custom-workflow-add-node';

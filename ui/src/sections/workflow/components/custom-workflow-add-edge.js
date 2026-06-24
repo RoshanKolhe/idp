@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
-import { BaseEdge, getBezierPath } from 'reactflow';
+import { BaseEdge, EdgeLabelRenderer, getBezierPath } from 'reactflow';
 
 // ----------------- Utility functions -----------------
 function hexToRgb(hex) {
@@ -144,5 +144,100 @@ CurvedEdge.propTypes = {
   data: PropTypes.object,
 };
 
-// ----------------- Export both -----------------
-export { CurvedEdge, CustomDottedEdge };
+// ----------------- Button Edge (+ insert between nodes) -----------------
+function ButtonEdge({
+  id,
+  source,
+  target,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  data,
+  style,
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [edgePath, labelX, labelY] = getBezierPath({
+    sourceX,
+    sourceY,
+    sourcePosition,
+    targetX,
+    targetY,
+    targetPosition,
+  });
+
+  return (
+    <>
+      <BaseEdge
+        id={id}
+        path={edgePath}
+        style={{ stroke: '#b1b1b7', strokeWidth: 1.5, ...style }}
+      />
+      <EdgeLabelRenderer>
+        <div
+          style={{
+            position: 'absolute',
+            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            pointerEvents: 'all',
+          }}
+          className="nodrag nopan"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              data?.onInsert?.(id, source, target);
+            }}
+            style={{
+              width: 20,
+              height: 20,
+              background: '#ffffff',
+              border: `1.5px solid ${hovered ? '#3b82f6' : '#9ca3af'}`,
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
+              fontSize: 15,
+              lineHeight: 1,
+              color: hovered ? '#3b82f6' : '#9ca3af',
+              boxShadow: hovered
+                ? '0 0 0 3px rgba(59,130,246,0.15)'
+                : '0 1px 3px rgba(0,0,0,0.12)',
+              transition: 'all 0.15s',
+              opacity: hovered ? 1 : 0.6,
+            }}
+          >
+            +
+          </button>
+        </div>
+      </EdgeLabelRenderer>
+    </>
+  );
+}
+
+ButtonEdge.propTypes = {
+  id: PropTypes.string.isRequired,
+  source: PropTypes.string.isRequired,
+  target: PropTypes.string.isRequired,
+  sourceX: PropTypes.number.isRequired,
+  sourceY: PropTypes.number.isRequired,
+  targetX: PropTypes.number.isRequired,
+  targetY: PropTypes.number.isRequired,
+  sourcePosition: PropTypes.string.isRequired,
+  targetPosition: PropTypes.string.isRequired,
+  data: PropTypes.shape({
+    onInsert: PropTypes.func,
+    startColor: PropTypes.string,
+    endColor: PropTypes.string,
+  }),
+  style: PropTypes.object,
+};
+
+// ----------------- Export all -----------------
+export { ButtonEdge, CurvedEdge, CustomDottedEdge };

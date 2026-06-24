@@ -1,5 +1,5 @@
 /* eslint-disable no-shadow */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { useSnackbar } from 'notistack';
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -18,6 +18,7 @@ import { Box, Button, FormControlLabel, Switch } from '@mui/material';
 import { workflowAxiosInstance } from 'src/utils/axios';
 import { useGetWorkflowBluePrint } from 'src/api/blue-print';
 import {
+    ButtonEdge,
     CurvedEdge,
     CustomDottedEdge,
     CustomWorkflowAddNode,
@@ -52,6 +53,7 @@ const nodeTypes = {
 const edgeTypes = {
     customDottedEdge: CustomDottedEdge,
     curvedEdge: CurvedEdge,
+    buttonEdge: ButtonEdge,
 }
 
 const initialNodes = [
@@ -100,6 +102,12 @@ export default function ReactFlowBoard() {
     const [showModal, setShowModal] = useState(false);
     const [lastNodeId, setLastNodeId] = useState(null);
     const [selectedNodeId, setSelectedNodeId] = useState(null);
+    // stable ref tracks the edge clicked for insert-between; avoids stale closures in edge data
+    const insertBetweenRef = useRef(null);
+    const handleInsertBetween = useCallback((edgeId, sourceId, targetId) => {
+        insertBetweenRef.current = { edgeId, sourceId, targetId };
+        setShowModal(true);
+    }, []);
 
     const applyLayout = useCallback(() => {
         const { nodes: layouted, edges: layoutedE } = getLayoutedElements(nodes, edges, workflowDirection);
@@ -141,6 +149,99 @@ export default function ReactFlowBoard() {
 
         const maxId = Math.max(...nodes.map((n) => Number(n.id) || 0));
         return String(maxId + 1);
+    };
+
+    // insert a new node between two existing nodes (triggered by edge + button)
+    const insertNodeBetween = (operation) => {
+        const ctx = insertBetweenRef.current;
+        if (!ctx) return;
+        const { edgeId, sourceId, targetId } = ctx;
+
+        setNodes((prevNodes) => {
+            let updatedNodes = [...prevNodes];
+            setEdges((prevEdges) => {
+                const newNodeId = getNextNodeId(updatedNodes);
+                const sourceNode = prevNodes.find((n) => n.id === sourceId);
+                const targetNode = prevNodes.find((n) => n.id === targetId);
+
+                const newNode = {
+                    id: newNodeId,
+                    type: operation.type,
+                    data: {
+                        id: newNodeId,
+                        label: operation.title,
+                        description: operation.description,
+                        icon: operation.icon,
+                        style: borderDirection === 'up'
+                            ? { border: `5px solid ${operation.color}`, borderBottom: '5px dashed lightgray', borderRight: '5px dashed lightgray' }
+                            : { border: `5px solid ${operation.color}`, borderTop: '5px dashed lightgray', borderLeft: '5px dashed lightgray' },
+                        borderColor: operation.borderColor,
+                        bgColor: operation.bgColor,
+                        functions: {
+                            addToLeft: addNodeToLeft,
+                            addToRight: addNodeToRight,
+                            deleteNode,
+                            handleBluePrintComponent,
+                            handleAddNewDecisionCase,
+                        },
+                        bluePrint: bluePrint.find((item) => item.id === newNodeId)?.component,
+                        variables: VariableDetection(prevNodes, bluePrint),
+                        ...(operation?.type === 'monorepo' && {
+                            agentId: operation.id,
+                            popupKey: operation.popupKey,
+                            configFields: operation.configFields,
+                            defaultValues: operation.defaultValues,
+                            authenticator: operation.authenticator,
+                        }),
+                    },
+                    position: { x: 0, y: 0 },
+                };
+
+                if (borderDirection === 'up') setBorderDirection('down');
+                else setBorderDirection('up');
+
+                const edgeSourceToNew = {
+                    id: `e${sourceId}-${newNodeId}`,
+                    source: sourceId,
+                    target: newNodeId,
+                    type: 'buttonEdge',
+                    data: { startColor: sourceNode?.data?.bgColor, endColor: newNode.data.bgColor, onInsert: handleInsertBetween },
+                };
+
+                updatedNodes = [...updatedNodes, newNode];
+
+                // Decision node: don't wire to target — user adds Case branches from it manually.
+                // The original target node stays in the graph but is no longer connected from this path.
+                const newEdges = operation.type === 'decision'
+                    ? [edgeSourceToNew]
+                    : [
+                        edgeSourceToNew,
+                        {
+                            id: `e${newNodeId}-${targetId}`,
+                            source: newNodeId,
+                            target: targetId,
+                            type: 'buttonEdge',
+                            data: { startColor: newNode.data.bgColor, endColor: targetNode?.data?.bgColor, onInsert: handleInsertBetween },
+                        },
+                    ];
+
+                const updatedEdges = [
+                    ...prevEdges.filter((e) => e.id !== edgeId),
+                    ...newEdges,
+                ];
+
+                const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(updatedNodes, updatedEdges, workflowDirection);
+                setNodes(layoutedNodes);
+                updatedNodes = layoutedNodes;
+                setPresentNodes((prev) => [...prev, newNode.data.label]);
+                return layoutedEdges;
+            });
+            return updatedNodes;
+        });
+
+        setLastNodeId((n) => n + 1);
+        insertBetweenRef.current = null;
+        setShowModal(false);
     };
 
     // new node
@@ -245,14 +346,12 @@ export default function ReactFlowBoard() {
                     id: `e${newOpCompNodeId}-${newAddNodeId}`,
                     source: `${newOpCompNodeId}`,
                     target: `${newAddNodeId}`,
-                    // animated: true,
-                    // style: { stroke: 'black' },
                     sourceHandler: 'source-connector',
                     targetHandler: 'target-connector',
-                    // type: "customDottedEdge",
+                    // no buttonEdge — target is a customAddNode
                     data: {
                         startColor: newOperationComponentNode.data.bgColor,
-                        endColor: '#e0e0e0'
+                        endColor: '#e0e0e0',
                     }
                 };
 
@@ -264,14 +363,13 @@ export default function ReactFlowBoard() {
                     id: `e${lastNodeId - 1}-${newOpCompNodeId}`,
                     source: sourceNodeId,
                     target: `${newOpCompNodeId}`,
-                    // animated: true,
-                    // style: { stroke: 'black' },
                     sourceHandler: 'source-connector',
                     targetHandler: 'target-connector',
-                    // type: "customDottedEdge",
+                    type: 'buttonEdge',
                     data: {
                         startColor: nodes.find((data) => Number(data.id) === lastNodeId - 1)?.data?.bgColor,
-                        endColor: newOperationComponentNode.data.bgColor
+                        endColor: newOperationComponentNode.data.bgColor,
+                        onInsert: handleInsertBetween,
                     }
                 }
 
@@ -410,8 +508,8 @@ export default function ReactFlowBoard() {
             id: `${Number(id) - 1}-e${id}`,
             source: `${Number(id) - 1}`,
             target: `${id}`,
-            animated: true,
-            style: { stroke: 'black' },
+            type: 'buttonEdge',
+            data: { onInsert: handleInsertBetween },
         }])
 
         setPresentNodes((prev) => [...prev, operation?.title]);
@@ -515,8 +613,8 @@ export default function ReactFlowBoard() {
                 id: `e${targetId}-${targetId + 1}`,
                 source: `${targetId}`,
                 target: `${targetId + 1}`,
-                animated: true,
-                style: { stroke: 'black' },
+                type: 'buttonEdge',
+                data: { onInsert: handleInsertBetween },
             },
         ]);
 
@@ -543,14 +641,19 @@ export default function ReactFlowBoard() {
                 return source !== deleteId && target !== deleteId;
             });
 
-            // Step 2: If both neighbors exist, add a new edge between them
+            // Step 2: If both neighbors exist, reconnect them
             if (prevNodeId !== null && nextNodeId !== null) {
+                const prevNode = nodes.find((n) => Number(n.id) === prevNodeId);
+                const nextNode = nodes.find((n) => Number(n.id) === nextNodeId);
+                const useButtonEdge =
+                    prevNode && nextNode &&
+                    !['decision', 'case', 'customAddNode'].includes(prevNode.type) &&
+                    nextNode.type !== 'customAddNode';
                 filteredEdges.push({
                     id: `e${prevNodeId}-${nextNodeId}`,
                     source: `${prevNodeId}`,
                     target: `${nextNodeId}`,
-                    animated: true,
-                    style: { stroke: 'black' },
+                    ...(useButtonEdge ? { type: 'buttonEdge', data: { onInsert: handleInsertBetween } } : {}),
                 });
             }
 
@@ -693,6 +796,7 @@ export default function ReactFlowBoard() {
                             target: newId,
                             sourceHandle: "source-connector",
                             targetHandle: "target-connector",
+                            // no buttonEdge — decision→case structural edge
                         };
 
                         const updatedNodes = [...prevNodes, newNode];
@@ -794,7 +898,7 @@ export default function ReactFlowBoard() {
                             position: { x: 0, y: 0 },
                         };
 
-                        // edge: caseNode -> operationNode
+                        // edge: caseNode -> operationNode (no buttonEdge — source is case)
                         const edgeCaseToOperation = {
                             id: `e${nodeId}-${newOperationNodeId}`,
                             source: nodeId,
@@ -807,7 +911,7 @@ export default function ReactFlowBoard() {
                             },
                         };
 
-                        // edge: operationNode -> addNode
+                        // edge: operationNode -> addNode (no buttonEdge — target is customAddNode)
                         const edgeOperationToAdd = {
                             id: `e${newOperationNodeId}-${newAddNodeId}`,
                             source: newOperationNodeId,
@@ -897,7 +1001,13 @@ export default function ReactFlowBoard() {
 
             setLastNodeId(newNodes?.length || 2);
 
-            setEdges(data?.edges || []);
+            // reattach onInsert only to edges saved as buttonEdge; leave structural edges untouched
+            const loadedEdges = (data?.edges || []).map((e) =>
+                e.type === 'buttonEdge'
+                    ? { ...e, data: { ...(e.data || {}), onInsert: handleInsertBetween } }
+                    : e
+            );
+            setEdges(loadedEdges);
         } else {
             // setting up the nodes...
             setNodes((prev) => [...prev, ...initialNodes.map((node) => (
@@ -923,6 +1033,7 @@ export default function ReactFlowBoard() {
                 target: `2`,
                 animated: true,
                 style: { stroke: 'black' },
+                // no buttonEdge — source is the Start customAddNode
             }])
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -994,7 +1105,17 @@ export default function ReactFlowBoard() {
                         <Background />
                     </ReactFlow>
                 </ReactFlowProvider>
-                {showModal && <CustomWorkflowNodesPanel open={showModal} onSelect={addNewNode} onClose={() => setShowModal(false)} bluePrintNode={[]} />}
+                {showModal && (
+                    <CustomWorkflowNodesPanel
+                        open={showModal}
+                        onSelect={(op) => insertBetweenRef.current ? insertNodeBetween(op) : addNewNode(op)}
+                        onClose={() => {
+                            setShowModal(false);
+                            insertBetweenRef.current = null;
+                        }}
+                        bluePrintNode={[]}
+                    />
+                )}
             </Box>
         </div>
     );
